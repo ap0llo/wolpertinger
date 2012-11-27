@@ -1,0 +1,103 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{42BF5AC0-A438-49FB-8049-9549DA556898}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Wolpertinger.Core</RootNamespace>
+    <AssemblyName>Wolpertinger.Core</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Debug\Wolpertinger.Core.xml</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="agsXMPP">
+      <HintPath>..\packages\agsXMPP.1.1.1.0\lib\agsXMPP.dll</HintPath>
+    </Reference>
+    <Reference Include="NLog">
+      <HintPath>..\dependencies\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="SLF">
+      <HintPath>..\dependencies\SLF.dll</HintPath>
+    </Reference>
+    <Reference Include="SLF.NLogFacade">
+      <HintPath>..\dependencies\SLF.NLogFacade.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Attributes\ComponentAttribute.cs" />
+    <Compile Include="Attributes\MethodCallHandlerAttribute.cs" />
+    <Compile Include="Attributes\ResponseHandlerAttribute.cs" />
+    <Compile Include="CallResults.cs" />
+    <Compile Include="ClientComponent.cs" />
+    <Compile Include="ComponentNames.cs" />
+    <Compile Include="CoreComponent.cs" />
+    <Compile Include="Loggers\ConsoleLogger.cs" />
+    <Compile Include="Loggers\CustomLogger.cs" />
+    <Compile Include="DefaultImplementations\DefaultClientConnection.cs" />
+    <Compile Include="Core Data Types\ClientInfo.cs" />
+    <Compile Include="DefaultImplementations\DefaultConnectionManager.cs" />
+    <Compile Include="DefaultImplementations\DefaultComponentFactory.cs" />
+    <Compile Include="DefaultImplementations\DefaultMessageProcessor.cs" />
+    <Compile Include="Exceptions\RemoteErrorException.cs" />
+    <Compile Include="Interfaces\IClientConnection.cs" />
+    <Compile Include="Interfaces\IComponentFactory.cs" />
+    <Compile Include="Interfaces\IConnectionManager.cs" />
+    <Compile Include="Interfaces\IMessageProcessor.cs" />
+    <Compile Include="Interfaces\IComponent.cs" />
+    <Compile Include="Messages\Message.cs" />
+    <Compile Include="Messages\RemoteMethodResponse.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Messages\RemoteError.cs" />
+    <Compile Include="Messages\RemoteMethodCall.cs" />
+    <Compile Include="Attributes\TrustLevelAttribute.cs" />
+    <Compile Include="Loggers\XmppLogger.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Nerdcave.Common\Nerdcave.Common.csproj">
+      <Project>{B7FA3F58-FDF8-4AAD-AE7C-EF1A80CCF069}</Project>
+      <Name>Nerdcave.Common</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

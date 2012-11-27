@@ -1,0 +1,84 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{58EFFE36-CF9F-42C7-B2CF-D721B06683BF}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Wolpertinger.CoreComponents</RootNamespace>
+    <AssemblyName>Wolpertinger.CoreComponents</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="NLog">
+      <HintPath>..\dependencies\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="SLF">
+      <HintPath>..\dependencies\SLF.dll</HintPath>
+    </Reference>
+    <Reference Include="SLF.NLogFacade">
+      <HintPath>..\dependencies\SLF.NLogFacade.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ComponentNamesExtended.cs" />
+    <Compile Include="Components\ClientComponents\ClientInfoClientComponent.cs" />
+    <Compile Include="Components\ClientServerComponents\AuthenticationComponent.cs" />
+    <Compile Include="Components\ClientServerComponents\XmppLoggingConfiguratorComponent.cs" />
+    <Compile Include="Components\ServerComponets\ClientInfoServerComponent.cs" />
+    <Compile Include="Core Data Types\DirectoryObject.cs" />
+    <Compile Include="Core Data Types\FileObject.cs" />
+    <Compile Include="Core Data Types\FilesystemObject.cs" />
+    <Compile Include="Core Data Types\MountInfo.cs" />
+    <Compile Include="Core Data Types\Permission.cs" />
+    <Compile Include="IHashingService.cs" />
+    <Compile Include="MountException.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Nerdcave.Common\Nerdcave.Common.csproj">
+      <Project>{b7fa3f58-fdf8-4aad-ae7c-ef1a80ccf069}</Project>
+      <Name>Nerdcave.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Wolpertinger.Core\Wolpertinger.Core.csproj">
+      <Project>{42bf5ac0-a438-49fb-8049-9549da556898}</Project>
+      <Name>Wolpertinger.Core</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
