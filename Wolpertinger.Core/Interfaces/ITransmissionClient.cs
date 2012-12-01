@@ -15,7 +15,7 @@ namespace Wolpertinger.Core
 
 
 
-        IChannel Channel { get; private set; }
+        IConnectionManager ConnectionManager { get; }
 
         string Recipient { get; private set; }
 

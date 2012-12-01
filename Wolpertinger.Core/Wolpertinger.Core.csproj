@@ -62,8 +62,6 @@
     <Compile Include="ComponentNames.cs" />
     <Compile Include="CoreComponent.cs" />
     <Compile Include="DefaultImplementations\DefaultTransmissionClient.cs" />
-    <Compile Include="Interfaces\IChannel.cs" />
-    <Compile Include="Interfaces\IMessageClient.cs" />
     <Compile Include="Interfaces\ITransmissionClient.cs" />
     <Compile Include="Loggers\ConsoleLogger.cs" />
     <Compile Include="Loggers\CustomLogger.cs" />
