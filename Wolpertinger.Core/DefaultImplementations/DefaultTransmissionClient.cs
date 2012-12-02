@@ -16,7 +16,10 @@ namespace Wolpertinger.Core
         private ILogger logger = LoggerService.GetLogger("DefaultTransmissionClient");
 
         private Dictionary<int, EventWaitHandle> waitingThreads = new Dictionary<int, EventWaitHandle>();
-        private Dictionary<int, Result> messageResults = new Dictionary<int, Result>(); 
+        private Dictionary<int, Result> messageResults = new Dictionary<int, Result>();
+
+        private Dictionary<int, string[]> messageFragments = new Dictionary<int, string[]>();        
+
 
         public event EventHandler<ObjectEventArgs<TransmissionResult>> MessageReceived;
 
@@ -126,41 +129,138 @@ namespace Wolpertinger.Core
                 return;
             }
 
+
             //check if message is a delivery notification
             var resultQuery = metadata.Where(x => x.Item1 == Key.Result);
             if (metadata.Count() == 2 && messageId > 0 && resultQuery.Any())
             {
-                //handle delivery confirmation
+                //handle delivery confirmation     
+
+                Result deliveryResult;
+                if (!Enum.TryParse(resultQuery.First().Item2, true, out deliveryResult))
+                    deliveryResult = Result.Unknown;
+
+                logger.Info("Received delivery confirmation for message {0}, Result: {1}", messageId, deliveryResult);
+
+                //store result in result cache and unblock waiting threads
+                if (waitingThreads.ContainsKey(messageId))
+                {
+                    if (!messageResults.ContainsKey(messageId))
+                        messageResults.Add(messageId, deliveryResult);
+                    else
+                        messageResults[messageId] = deliveryResult;
+
+                    waitingThreads[messageId].Set();
+                }
                 
+                return;
+            }
+
+
+            //check for splitted messages            
+            var fragmentIndexQuery = metadata.Where(x => x.Item1 == Key.Fragment_Index);
+            var fragmentCountQuery = metadata.Where(x => x.Item1 == Key.Fragment_Count);
+
+            if (fragmentCountQuery.Any() || fragmentIndexQuery.Any())
+            {
+                logger.Info("Received splitted message");
+                
+                if (!(fragmentIndexQuery.Any() && fragmentIndexQuery.Any()))
+                {
+                    logger.Error("Missing metadata information for splitted message");                    
+                    return;
+                }
+
+                int fragmentIndex = int.Parse(fragmentIndexQuery.First().Item2);
+                int fragmentCount = int.Parse(fragmentCountQuery.First().Item2);
+
+                if (fragmentCount <= 0 || fragmentIndex < 0)
+                {
+                    logger.Warn("Fragment Index or Count out of range");
+                    sendresult(Result.SplittingError, messageId);
+                    return;
+                }
+
+                if (!messageFragments.ContainsKey(messageId))
+                    messageFragments.Add(messageId, new string[fragmentCount]);   
+
+                //check if fragment index is valid
+                if (fragmentIndex >= messageFragments[messageId].Length)
+                {
+                    logger.Warn("Fragment index out of range");
+                    sendresult(Result.SplittingError, messageId);
+                    return;
+                }
+
+                //check if fragment count is consistent with previous messages
+                if (fragmentCount != messageFragments[messageId].Length)
+                {
+                    logger.Error("Inconsistent fragment count");
+                    sendresult(Result.SplittingError, messageId);
+                }
+
+                messageFragments[messageId][fragmentIndex] = payload_str;
+
+                //check if all fragments have been received
+                if (messageFragments[messageId].Any(x => x == null))
+                {
+                    logger.Info("Missing fragments of message {0}, waiting for next piece", messageId);
+                    return;
+                }
+                else
+                {
+                    logger.Info("Received all fragments of message {0}", messageId);
+                    payload_str = messageFragments[messageId].Aggregate((str1, str2) => str1 + str2);
+                    
+                    messageFragments.Remove(messageId);
+                }
 
             }
 
 
-            //check for splitted messages
-
-                //  TODO
 
             TransmissionResult result = new TransmissionResult();
-            
-            //check if message is encrypted
-            var encryptedMetaDate = metadata.Any(x => x.Item1 == Key.Encryption) ? metadata.First(x => x.Item1 == Key.Encryption) : null;
+            byte[] payload = payload_str.GetBytesBase64();
 
-            if (encryptedMetaDate != null)
+            //check if message is encrypted
+            var encryptedMetadate = metadata.Any(x => x.Item1 == Key.Encryption) ? metadata.First(x => x.Item1 == Key.Encryption) : null;
+
+            if (encryptedMetadate != null)
             {
                 //check if encryption algorith is supported
-                if (encryptedMetaDate.Item2.ToLower() != "aes")
+                if (encryptedMetadate.Item2.ToLower() != "aes")
                 {
                     logger.Warn("Encryption algorithm not supported");
                     sendresult(Result.EncryptionMethodNotSupported);
                     return;
                 }
 
+                payload = payload.DecryptAES(this.EncryptionKey, this.EncryptionIV);
 
-                result.WasEncrypted = true;
+                result.WasEncrypted = true;                
             }
 
 
+            //check if message is compressed
+            var compressedMetadate = metadata.Any(x => x.Item1 == Key.Gzip) ? metadata.First(x => x.Item1 == Key.Gzip) : null;
+            if (compressedMetadate != null)
+            {
+                int length;
+                if (!int.TryParse(compressedMetadate.Item2, out length))
+                {
+                    logger.Error("Could not parse length from GZip metadate");
+                    sendresult(Result.InvalidFormat, messageId);
+                }
 
+                result.WasCompressed = true;
+                payload = payload.Take(length).ToArray<byte>().Decompress();
+            }
+
+
+            //everything went okay => send delivery notifiaction
+            sendresult(Result.Successful, messageId);
+
+            onMessageReceived(result);
         }
 
 
@@ -191,6 +291,7 @@ namespace Wolpertinger.Core
             Message_id, 
             Result,
             Encryption, 
+            Gzip,
             Fragment_Index,
             Fragment_Count
         }
@@ -206,6 +307,6 @@ namespace Wolpertinger.Core
         DuplicateKey,
         InvalidMessageId,
         EncryptionMethodNotSupported,
-        
+        SplittingError
     }
 }
