@@ -27,7 +27,7 @@ using Nerdcave.Common.Xml;
 namespace Wolpertinger.Core
 {
     [XmlTypeName("Wolpertinger.RemoteMethodResponse")]
-    public class RemoteMethodResponse : Message
+    public class RemoteMethodResponse : RpcMessage
     {
         private static ILogger logger = LoggerService.GetLogger("RemoteMethodResponse");
 

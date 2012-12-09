@@ -26,35 +26,21 @@ namespace Wolpertinger.Core
 {
     public interface IConnectionManager
     {
-        /// <summary>
-        /// Occurs when the state of the connection to the backend service (for sending messages) changed
-        /// </summary>
-        event EventHandler<EventArgs> IsConnectedChanged;
 
         /// <summary>
         /// Occurs when a new ClientConnection is added
         /// </summary>
         event EventHandler<ObjectEventArgs<IClientConnection>> ClientConnectionAdded;
 
+
+
         /// <summary>
-        /// The XMPP Server to connect to
+        /// Gets or sets the factory used for creating new instances of IClientConnection
         /// </summary>
-        string XmppServer { get; set; }
+        IConnectionFactory ConnectionFactory { get; set; }
 
         /// <summary>
-        /// The username of the XMPP account to connect to
-        /// </summary>
-        string XmppUsername { get; set; }
-
-        string XmppResource { get; set; }
-
-        /// <summary>
-        /// The password for the XMPP account to connect to
-        /// </summary>
-        SecureString XmppPassword { get; set; }
-
-        /// <summary>
-        /// Indicates whether the ConnectionManager accepts incoming connections
+        /// Gets or sets whether new incoming connection are to be accepted for all ClientConnections hostes by the ConnectionManager
         /// </summary>
         bool AcceptIncomingConnections { get; set; }
 
@@ -89,28 +75,6 @@ namespace Wolpertinger.Core
         /// <param name="folder">The folder to use for storing settings</param>
         void LoadSettings(string folder);
 
-        /// <summary>
-        /// The IComponentFactory used by the manager's client connections to retrive components
-        /// </summary>
-        IComponentFactory ComponentFactory { get; set; }
-
-
-        /// <summary>
-        /// Connects to the backend service
-        /// </summary>
-        void Connect();
-
-        /// <summary>
-        /// Closes the connection to the backend service
-        /// </summary>
-        void Disconnect();
-
-        /// <summary>
-        /// Sends a the specified message to the target
-        /// </summary>
-        /// <param name="message">The message to send</param>
-        /// <param name="target">The receipeint of the message</param>
-        void SendMessage(string message, string target);
 
 
         /// <summary>
@@ -128,6 +92,17 @@ namespace Wolpertinger.Core
         /// <param name="target">The target of the connection</param>
         /// <returns>Returns the ConnectionManager's ClientConnection for the target or null, if connection could not be found</returns>
         IClientConnection GetClientConnection(string target);
+
+        /// <summary>
+        /// Get a list of all ClientConnections currently managed by the ConnectionManager
+        /// </summary>
+        /// <returns></returns>
+        IEnumerable<IClientConnection> GetClientConnections();
+
+        /// <summary>
+        /// Returns a list if MessagingClients currently loaded
+        /// </summary>        
+        IEnumerable<IMessagingClient> GetMessagingClients();
 
         /// <summary>
         /// Resets and closes the specified ClientConnection

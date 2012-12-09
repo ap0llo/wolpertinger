@@ -63,7 +63,7 @@ namespace Wolpertinger.Core
         {
             FileObject copy = new FileObject();
 
-            //Copy Property values
+            //Copy ServiceName values
             copy.Created = this.Created;
             copy.Hash = this.Hash;
             copy.LastAccessed = this.LastAccessed;

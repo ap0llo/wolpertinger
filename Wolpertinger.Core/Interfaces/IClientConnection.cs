@@ -41,8 +41,10 @@ namespace Wolpertinger.Core
         /// </summary>
         event EventHandler<ObjectEventArgs<RemoteError>> RemoteErrorOccurred;
 
+
+
         /// <summary>
-        /// Specifies whether incoming connection request should be accepted
+        /// Specifies whether incoming connection request should be accepted or not
         /// </summary>
         /// <remarks>Should be initialized with true</remarks>
         bool AcceptConnections { get; set; }
@@ -68,33 +70,34 @@ namespace Wolpertinger.Core
         bool Connected { get; set; }
 
         /// <summary>
-        /// The connection Manager used to send and receive messages
+        /// Gets (or sets) The ConnectionManager that hosts the ClientConnection. 
+        /// Will be set automatically by ConnectionManager. Should be accessed readonly otherwise.
         /// </summary>
         IConnectionManager ConnectionManager { get; set; }
 
         /// <summary>
-        /// The MessageProcessor used to process outgoing and incoming messages
+        /// Gets or sets the WtlpClient used by the connection for communication
         /// </summary>
-        IMessageProcessor MessageProcessor { get; set; }
+        IWtlpClient WtlpClient { get; set; }
+
+        /// <summary>
+        /// Gets or sets the ComponentFactory used by the ClientConnection to instantiate new components
+        /// </summary>
+        IComponentFactory ComponentFactory { get; set; }
+        
 
 
         /// <summary>
         /// Send a message to the target client
         /// </summary>
         /// <param name="msg">The message to process and send</param>
-        void SendMessage(Message msg);
+        void SendMessage(RpcMessage msg);
 
         /// <summary>
         /// Gets a <see cref="Wolpertinger.Core.ClientInfo"/> abouts the connection's target client
         /// </summary>
         /// <returns>Returns a new ClientInfo object with information about the target client</returns>
         ClientInfo GetClientInfo();
-
-        /// <summary>
-        /// Processes an incoming message (should use MessageProcessor)
-        /// </summary>
-        /// <param name="message">The message to process</param>
-        void ProcessMessage(string message);
 
         /// <summary>
         /// Tells the client connection the target client is still sending data and prevents the connection from timing out

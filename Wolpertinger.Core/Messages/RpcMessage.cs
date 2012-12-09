@@ -19,66 +19,51 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Xml.Serialization;
+using System.Xml.Linq;
+using Nerdcave.Common.Xml;
 
 namespace Wolpertinger.Core
 {
-    public interface IMessageProcessor
+    public class RpcMessage : ISerializable
     {
         /// <summary>
-        /// Specifies whether outgoing messages are to be encrypted
+        /// The name of the component the message is adressed to
         /// </summary>
-        bool EncryptMessages { get; set; }
+        public string TargetName { get; set; }
 
         /// <summary>
-        /// Specifies whether outgoing messages are to be compressed
+        /// The Id associated with the RemoteMethodCall
         /// </summary>
-        bool CompressMessages { get; set; }
+        public Guid CallId { get; set; }
 
-        /// <summary>
-        /// Specifies whether outgoing messages are to be signed
-        /// </summary>
-        bool SignMessages { get; set; }
-
-        /// <summary>
-        /// The key used for encryption
-        /// </summary>
-        byte[] EncryptionKey { get; set; }
-
-        /// <summary>
-        /// The Initialization Vector used for encryption
-        /// </summary>
-        byte[] EncryptionIV { get; set; }
 
 
         /// <summary>
-        /// Parses, decrypts, decompresses and checks the signature of an incoming message and returns it as MessageProcessingResult
+        /// Initializes a new instance of Message
         /// </summary>
-        /// <param name="message">The (text-)message to be processed</param>
-        /// <returns>Returns a MessageProcessingResult with the message and information about how it was delivered</returns>
-        MessageProcessingResult ProcessIncomingMessage(string message);
+        public RpcMessage()
+        {
+            this.CallId = Guid.NewGuid();
+        }
 
-        /// <summary>
-        /// Compresses, encrypts and signs an outgoing messages
-        /// </summary>
-        /// <param name="msg">The Message to process</param>
-        /// <returns>Returns the processed message as text ready to be sent</returns>
-        string ProcessOutgoingMessage(Message msg);
+
+        #region ISerializable Members
+
+        //No implementation here, methods need to be overridden in sub-classes
+
+        public virtual XElement Serialize()
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual object Deserialize(XElement xmlData)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
+
 
     }
-
-
-    public struct MessageProcessingResult
-    {
-        public bool WasEncrypted { get; set; }
-        
-        public bool WasCompressed { get; set; }
-        
-        public bool WasSigned { get; set; }
-        
-        public bool SignatureWasValid { get; set; }
-
-        
-        public Message Message { get; set; }
-    }
-
 }

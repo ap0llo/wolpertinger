@@ -138,7 +138,7 @@ namespace Wolpertinger.Core
         /// Send a message to the target client
         /// </summary>
         /// <param name="msg">The message to process and send</param>
-        public void SendMessage(Message msg)
+        public void SendMessage(RpcMessage msg)
         {
             //if message is a RemoteMethodCall, it will be cached to be able to process response messages
             if (msg is RemoteMethodCall)
@@ -194,7 +194,7 @@ namespace Wolpertinger.Core
             }
 
             //get the component responsible for handling the message
-            string componentName = (result.Message as Message).TargetName;
+            string componentName = (result.Message as RpcMessage).TargetName;
             //RemoteMethodCalls are handled by a server-component, RemoteMethodResponses by client-components
             //RemoteErrors are handled by the ClientConnection itself
             IComponent component = (result.Message is RemoteMethodCall) 

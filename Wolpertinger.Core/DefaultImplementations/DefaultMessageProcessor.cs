@@ -152,7 +152,7 @@ namespace Wolpertinger.Core
             }
 
             //Try to parse the message
-            Message msg;
+            RpcMessage msg;
             try
             {
                 //try to parse it as XML
@@ -160,13 +160,13 @@ namespace Wolpertinger.Core
                 switch (xmlMessage.Name.LocalName.ToLower())
                 {
                     case "remotemethodcall":
-                        msg = (Message)new RemoteMethodCall().Deserialize(xmlMessage);
+                        msg = (RpcMessage)new RemoteMethodCall().Deserialize(xmlMessage);
                         break;
                     case "remotemethodresponse":
-                        msg = (Message)new RemoteMethodResponse().Deserialize(xmlMessage);
+                        msg = (RpcMessage)new RemoteMethodResponse().Deserialize(xmlMessage);
                         break;
                     case "remoteerror":
-                        msg = (Message)new RemoteError(RemoteErrorCode.UnspecifiedError).Deserialize(xmlMessage);
+                        msg = (RpcMessage)new RemoteError(RemoteErrorCode.UnspecifiedError).Deserialize(xmlMessage);
                         break;
                     default:
                         throw new FormatException("Unknown message format");
@@ -191,7 +191,7 @@ namespace Wolpertinger.Core
         /// <returns>
         /// Returns the processed message as text ready to be sent
         /// </returns>
-        public string ProcessOutgoingMessage(Message msg)
+        public string ProcessOutgoingMessage(RpcMessage msg)
         {
             //if neither Compression nor Encryption is enabled return the message as string
             if (!CompressMessages && !EncryptMessages)

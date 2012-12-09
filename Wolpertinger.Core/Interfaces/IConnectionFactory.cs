@@ -19,51 +19,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Xml.Serialization;
-using System.Xml.Linq;
-using Nerdcave.Common.Xml;
 
 namespace Wolpertinger.Core
 {
-    public class Message : ISerializable
+    public interface IConnectionFactory
     {
         /// <summary>
-        /// The name of the component the message is adressed to
+        /// Gets a new instance of a implementation of IClientConnection
         /// </summary>
-        public string TargetName { get; set; }
-
-        /// <summary>
-        /// The Id associated with the RemoteMethodCall
-        /// </summary>
-        public Guid CallId { get; set; }
-
-
-
-        /// <summary>
-        /// Initializes a new instance of Message
-        /// </summary>
-        public Message()
-        {
-            this.CallId = Guid.NewGuid();
-        }
-
-
-        #region ISerializable Members
-
-        //No implementation here, methods need to be overridden in sub-classes
-
-        public virtual XElement Serialize()
-        {
-            throw new NotImplementedException();
-        }
-
-        public virtual object Deserialize(XElement xmlData)
-        {
-            throw new NotImplementedException();
-        }
-
-        #endregion
-
-
+        /// <returns>Returns a new instance of implementation of IClientConnection or null if no implementation could be found</returns>
+        IClientConnection GetClientConnection();
     }
 }

@@ -62,7 +62,10 @@
     <Compile Include="ComponentNames.cs" />
     <Compile Include="CoreComponent.cs" />
     <Compile Include="DefaultImplementations\DefaultTransmissionClient.cs" />
-    <Compile Include="Interfaces\ITransmissionClient.cs" />
+    <Compile Include="DefaultImplementations\XmppMessagingClient.cs" />
+    <Compile Include="Interfaces\IConnectionFactory.cs" />
+    <Compile Include="Interfaces\IMessagingClient.cs" />
+    <Compile Include="Interfaces\IWtlpClient.cs" />
     <Compile Include="Loggers\ConsoleLogger.cs" />
     <Compile Include="Loggers\CustomLogger.cs" />
     <Compile Include="DefaultImplementations\DefaultClientConnection.cs" />
@@ -76,7 +79,7 @@
     <Compile Include="Interfaces\IConnectionManager.cs" />
     <Compile Include="Interfaces\IMessageProcessor.cs" />
     <Compile Include="Interfaces\IComponent.cs" />
-    <Compile Include="Messages\Message.cs" />
+    <Compile Include="Messages\RpcMessage.cs" />
     <Compile Include="Messages\RemoteMethodResponse.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Messages\RemoteError.cs" />
@@ -85,6 +88,7 @@
     <Compile Include="Loggers\XmppLogger.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="CoreArchitecture.cd" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

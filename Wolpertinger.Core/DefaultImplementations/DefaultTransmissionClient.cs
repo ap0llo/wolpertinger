@@ -9,7 +9,7 @@ using System.Threading;
 
 namespace Wolpertinger.Core
 {
-    public class DefaultTransmissionClient : ITransmissionClient
+    public class DefaultTransmissionClient : IWtlpClient
     {
 
 
@@ -21,7 +21,7 @@ namespace Wolpertinger.Core
         private Dictionary<int, string[]> messageFragments = new Dictionary<int, string[]>();        
 
 
-        public event EventHandler<ObjectEventArgs<TransmissionResult>> MessageReceived;
+        public event EventHandler<ObjectEventArgs<ParsingResult>> MessageReceived;
 
         public event EventHandler TransmissionTimedOut;
 
@@ -219,7 +219,7 @@ namespace Wolpertinger.Core
 
 
 
-            TransmissionResult result = new TransmissionResult();
+            ParsingResult result = new ParsingResult();
             byte[] payload = payload_str.GetBytesBase64();
 
             //check if message is encrypted
@@ -278,7 +278,7 @@ namespace Wolpertinger.Core
                 this.TransmissionTimedOut(this, EventArgs.Empty);
         }
 
-        private void onMessageReceived(TransmissionResult message)
+        private void onMessageReceived(ParsingResult message)
         {
             if (this.MessageReceived != null)
                 this.MessageReceived(this, message);

@@ -395,7 +395,7 @@ namespace Wolpertinger.Core
 
             DirectoryObject copy = new DirectoryObject();
             
-            //Clone Property values
+            //Clone ServiceName values
             copy.Created = this.Created;
             copy.LastAccessed = this.LastAccessed;
             copy.LastEdited = this.LastEdited;

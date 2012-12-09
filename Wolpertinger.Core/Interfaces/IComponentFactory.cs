@@ -45,19 +45,5 @@ namespace Wolpertinger.Core
         bool IsClientServerComponent(IComponent component);        
 
 
-        /// <summary>
-        /// Returns a new instance of a IMessageProcessor
-        /// </summary>
-        /// <returns>Returns a new IMessageProcessor</returns>
-        IMessageProcessor GetMessageProcessor();
-
-
-        /// <summary>
-        /// Returns a new IClientConnection based on the specified target adress
-        /// </summary>
-        /// <param name="target">The connection's target adress</param>
-        /// <returns>Returns a instance of IClientConnection or null for the case no approprate implementation could be located</returns>
-        IClientConnection GetClientConnection(string target);
-
     }
 }
