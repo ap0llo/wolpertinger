@@ -77,7 +77,6 @@
     <Compile Include="Interfaces\IClientConnection.cs" />
     <Compile Include="Interfaces\IComponentFactory.cs" />
     <Compile Include="Interfaces\IConnectionManager.cs" />
-    <Compile Include="Interfaces\IMessageProcessor.cs" />
     <Compile Include="Interfaces\IComponent.cs" />
     <Compile Include="Messages\RpcMessage.cs" />
     <Compile Include="Messages\RemoteMethodResponse.cs" />
