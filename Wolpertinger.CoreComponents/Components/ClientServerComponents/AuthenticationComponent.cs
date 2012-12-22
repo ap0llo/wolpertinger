@@ -66,15 +66,15 @@ namespace Wolpertinger.Core
         {
             keyProvider = getNewKeyProvider();
 
-            this.ClientConnection.MessageProcessor.EncryptionIV = new AesCryptoServiceProvider().IV;
+            this.ClientConnection.WtlpClient.EncryptionIV = new AesCryptoServiceProvider().IV;
 
             string response = (string)callRemoteMethod( AuthenticationMethods.KeyExchange, 
-                                                        keyProvider.PublicKey.ToByteArray().ToBase64String(), 
-                                                        this.ClientConnection.MessageProcessor.EncryptionIV.ToBase64String());
+                                                        keyProvider.PublicKey.ToByteArray().ToStringBase64(),
+                                                        this.ClientConnection.WtlpClient.EncryptionIV.ToStringBase64());
 
             ECDiffieHellmanPublicKey otherKey = ECDiffieHellmanCngPublicKey.FromByteArray(response.GetBytesBase64(), CngKeyBlobFormat.EccPublicBlob);
 
-            this.ClientConnection.MessageProcessor.EncryptionKey = keyProvider.DeriveKeyMaterial(otherKey);
+            this.ClientConnection.WtlpClient.EncryptionKey = keyProvider.DeriveKeyMaterial(otherKey);
             this.ClientConnection.TrustLevel = 2;
             AwardTrustLevel(2);
 
@@ -192,8 +192,8 @@ namespace Wolpertinger.Core
             ECDiffieHellmanPublicKey otherKey = ECDiffieHellmanCngPublicKey.FromByteArray(publicKey.GetBytesBase64(), CngKeyBlobFormat.EccPublicBlob);
 
             //derive connection key from target's public key
-            ClientConnection.MessageProcessor.EncryptionKey = keyProvider.DeriveKeyMaterial(otherKey);
-            ClientConnection.MessageProcessor.EncryptionIV = iv.GetBytesBase64();
+            ClientConnection.WtlpClient.EncryptionKey = keyProvider.DeriveKeyMaterial(otherKey);
+            ClientConnection.WtlpClient.EncryptionIV = iv.GetBytesBase64();
 
             //Increase Trust level (connection is now encrypted)
             AwardTrustLevel(2);
@@ -201,7 +201,7 @@ namespace Wolpertinger.Core
 //            ClientConnection.MessageProcessor.EncryptMessages = true;
 
             //Send back our own public key so target can derive connection key, too
-            CallResult result = new ResponseResult(keyProvider.PublicKey.ToByteArray().ToBase64String());
+            CallResult result = new ResponseResult(keyProvider.PublicKey.ToByteArray().ToStringBase64());
             
             //Reset key provider
             keyProvider = null;
@@ -323,7 +323,7 @@ namespace Wolpertinger.Core
         {
             this.ClientConnection.MyTrustLevel = trustLevel;
             if (trustLevel == 2)
-                this.ClientConnection.MessageProcessor.EncryptMessages = true;
+                this.ClientConnection.WtlpClient.EncryptMessages = true;
             
             return new VoidResult();
         }
@@ -401,7 +401,7 @@ namespace Wolpertinger.Core
             RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider();
             rng.GetBytes(saltArray);
 
-            return saltArray.ToBase64String();
+            return saltArray.ToStringBase64();
         }
 
         /// <summary>
@@ -461,7 +461,7 @@ namespace Wolpertinger.Core
             //initialize new instace of Rfc2898DeriveBytes (implements salted hashing using PBKDF2) 
             Rfc2898DeriveBytes hashProvider = new Rfc2898DeriveBytes(value, salt);
             //get the first 64 bytes of the salted hash
-            return hashProvider.GetBytes(64).ToBase64String();       
+            return hashProvider.GetBytes(64).ToStringBase64();       
         }
 
 

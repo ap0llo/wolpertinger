@@ -31,12 +31,13 @@ namespace Wolpertinger.Core
     /// A ILogger implementation that send log messages to a Jabber recipient
     /// </summary>
     public class XmppLogger : CustomLogger
-    {        
-        /// <summary>
-        /// The ConnnectionManager used to send messages
-        /// </summary>
-        public static IConnectionManager ConnectionManager { get; set; }
+    {
 
+        private static ILogger logger = LoggerService.GetLogger("XmppLogger");
+
+        private static IMessagingClient xmppClient;
+
+        private static IConnectionManager _connectionManager;
         private static string _recipient;
         private static bool _enable;
         private static bool _enableDebugLogging;
@@ -45,6 +46,39 @@ namespace Wolpertinger.Core
         private static bool loaded = false;
 
         private static KeyValueStore settingsFile;
+
+
+        /// <summary>
+        /// The ConnnectionManager used to send messages
+        /// </summary>
+        public static IConnectionManager ConnectionManager 
+        {
+            get { return _connectionManager; }
+            set
+            {
+                if (value != _connectionManager)
+                {
+                    _connectionManager = value;
+                    if (_connectionManager == null)
+                    {
+                        xmppClient = null;
+                        return;
+                    }
+                            
+                    var clients = _connectionManager.GetMessagingClients();
+                    if (clients.Any(x => x.ServiceName.ToLower() == "xmpp"))
+                    {
+                        xmppClient = clients.First(x => x.ServiceName.ToLower() == "xmpp");
+                    }
+                    else
+                    { 
+                        xmppClient = null;
+                        logger.Error("Could not get Xmpp Client from ConnectionManager");
+                    }
+                }
+            }
+        }
+
 
         /// <summary>
         /// Specifies to where to send log-messages to
@@ -153,8 +187,8 @@ namespace Wolpertinger.Core
             if (!Name.IsNullOrEmpty())
                 message = Name + "|" + message;
 
-            if(Enable && !Recipient.IsNullOrEmpty() && ConnectionManager != null)
-                ConnectionManager.SendMessage(Recipient, message);
+            if (Enable && !Recipient.IsNullOrEmpty() && xmppClient != null)
+                xmppClient.SendMessage(XmppLogger.Recipient, message);
         }
 
 

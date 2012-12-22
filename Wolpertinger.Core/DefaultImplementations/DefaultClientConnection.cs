@@ -22,8 +22,11 @@ using System.Text;
 using System.Threading;
 using System.Reflection;
 using Slf;
+using System.Xml;
 using Nerdcave.Common;
+using Nerdcave.Common.Extensions;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace Wolpertinger.Core
 {
@@ -32,10 +35,10 @@ namespace Wolpertinger.Core
     /// </summary>
     public class DefaultClientConnection : IClientConnection
     {
-        
         private static ILogger logger = LoggerService.GetLogger("DefaultClientConnection");
 
-        //Timer used for connection timeouts
+        private IWtlpClient _wtlpClient;
+
         private System.Timers.Timer timeoutTimer = new System.Timers.Timer(30000);
         private Dictionary<string, IComponent> clientComponents = new Dictionary<string, IComponent>();
         private Dictionary<string, IComponent> serverComponents = new Dictionary<string, IComponent>();
@@ -46,9 +49,6 @@ namespace Wolpertinger.Core
         private Dictionary<Guid, object> synchonousCalls_ValueCache = new Dictionary<Guid,object>();
 
         private int expectedResponseCount = 0;
-
-        private IMessageProcessor _messageProcessor;
-
 
 
 
@@ -97,40 +97,53 @@ namespace Wolpertinger.Core
         /// </summary>
         public bool Connected { get; set; }
 
-
         /// <summary>
         /// The connection Manager used to send and receive messages
         /// </summary>
         public IConnectionManager ConnectionManager { get; set; }
 
         /// <summary>
-        /// The MessageProcessor used to process outgoing and incoming messages
+        /// Gets or sets the WtlpClient used by the connection for communication
         /// </summary>
-        public IMessageProcessor MessageProcessor
+        public IWtlpClient WtlpClient 
         {
-            get
+            get 
             {
-                if (_messageProcessor == null)
-                    _messageProcessor = ConnectionManager.ComponentFactory.GetMessageProcessor();
-
-                return _messageProcessor;
+                lock (this)
+                {
+                    return _wtlpClient; 
+                }
             }
             set
             {
-                _messageProcessor = value;
+                lock (this)
+                {
+                    if (value != _wtlpClient)
+                    {
+                        _wtlpClient = value;
+                        _wtlpClient.MessageReceived += wtlpClient_MessageReceived;
+                    }
+                }
             }
         }
 
-
+        /// <summary>
+        /// Gets or sets the ComponentFactory used by the ClientConnection to instantiate new components
+        /// </summary>
+        public IComponentFactory ComponentFactory { get; set; }
+        
 
         /// <summary>
         /// Initializes a new instance of DefaultClientConnection
         /// </summary>
         public DefaultClientConnection()
         {
+            this.ComponentFactory = new DefaultComponentFactory();
             this.AcceptConnections = true;
-            this.timeoutTimer.Elapsed += timeoutTimer_Elapsed;            
+            this.timeoutTimer.Elapsed += timeoutTimer_Elapsed;
         }
+
+        
 
 
 
@@ -153,107 +166,19 @@ namespace Wolpertinger.Core
             }
 
             //process the message using the MessageProcessor and pass the result to the ConnectionManager to send
-            ConnectionManager.SendMessage(this.Target,this.MessageProcessor.ProcessOutgoingMessage(msg));
-        }
-
-        /// <summary>
-        /// Processes an incoming message (using the MessageProcessor for deserialization)
-        /// </summary>
-        /// <param name="message">The message to be processed</param>
-        public void ProcessMessage(string message)
-        {            
-            //try to parse the received message
-            MessageProcessingResult result;
             try
             {
-                result = MessageProcessor.ProcessIncomingMessage(message);
+                this.WtlpClient.Send(msg.Serialize().ToString().GetBytesUTF8());
             }
-            catch (FormatException)
+            catch (WtlpException ex)
             {
-                //the message could not be deserialzed => send RemoteError to the target client
-                RemoteError error = new RemoteError(RemoteErrorCode.InvalidXmlError);
-                logger.Error("Could not parse message");
-                SendMessage(error);
-                return;
-            }
-
-            //encryption is mandatory if TrustLevel is 2 or higher
-            //if message was not encrypted it will result in a RemoteError and the connection will be reset
-            if (this.TrustLevel >= 2 && !result.WasEncrypted && !(result.Message is RemoteMethodCall && (result.Message as RemoteMethodCall).MethodName == CoreMethods.SendResetNotice))
-            {
-                RemoteError error = new RemoteError(RemoteErrorCode.EncryptionError);
-                if (result.Message.CallId != Guid.Empty)
-                    error.CallId = result.Message.CallId;
-                    error.TargetName = "Authentication";
-
-                //The RemoteError will not be encrypted
-                MessageProcessor.EncryptMessages = false;
-                SendMessage(error);
-                ResetConnection();
-                return;
-            }
-
-            //get the component responsible for handling the message
-            string componentName = (result.Message as RpcMessage).TargetName;
-            //RemoteMethodCalls are handled by a server-component, RemoteMethodResponses by client-components
-            //RemoteErrors are handled by the ClientConnection itself
-            IComponent component = (result.Message is RemoteMethodCall) 
-                                    ? GetServerComponent(componentName)
-                                    : GetClientComponent(componentName);
-
-            if (component == null)
-            {
-                //no component to handle the request was found => send a RemoteError as response and return
-                RemoteError error = new RemoteError(RemoteErrorCode.ComponentNotFoundError);
-                error.CallId = (result.Message as RemoteMethodCall).CallId;
-                SendMessage(error);
-                return;
-            }
-
-
-            if (result.Message is RemoteMethodCall)
-            {                
-                //process method calls in a new thread to prevent method calls from blocking other threads
-                //ThreadPool.QueueUserWorkItem(delegate
-                // {
-                //     processRemoteMethodCall(result.Message as RemoteMethodCall, component);
-                // });
-                var processingTask = new Task(delegate
-                    {
-                        processRemoteMethodCall(result.Message as RemoteMethodCall, component);
-                    });
-
-                processingTask.Start();
-
-                var heartBeatTask = new Task(delegate
-                    {
-                        while (!processingTask.IsCompleted)
-                        {
-                            Thread.Sleep(25000);
-                            if(!processingTask.IsCompleted)
-                                (this.GetClientComponent(ComponentNames.Core) as CoreComponent).HeartbeatAsync();
-                        }
-                    });
-
-                heartBeatTask.Start();
-
-
-
-            }
-            else if (result.Message is RemoteMethodResponse)
-            {
-                processRemoteMethodResponse(result.Message as RemoteMethodResponse, component);
-            }
-            else if (result.Message is RemoteError)
-            {
-                processRemoteError(result.Message as RemoteError);
-            }
-            else 
-            {
-                logger.Error("ProcessMessage() encoutered an unknown type of Message");
-                SendMessage(new RemoteError(RemoteErrorCode.UnknownMessage));
+                if (ex.Error == Result.Timeout)
+                    throw new TimeoutException();
+                else
+                    throw new RemoteErrorException();
             }
         }
+
 
         /// <summary>
         /// Tells the client connection the target client is still sending data and prevents the connection from timing out
@@ -281,9 +206,9 @@ namespace Wolpertinger.Core
             //reset TrustLevel and encryption keys
             TrustLevel = 0;
             MyTrustLevel = 0;
-            MessageProcessor.EncryptMessages = false;
-            MessageProcessor.EncryptionKey = null;
-            MessageProcessor.EncryptionIV = null;            
+            WtlpClient.EncryptMessages = false;
+            WtlpClient.EncryptionKey = null;
+            WtlpClient.EncryptionIV = null;            
 
             Connected = false;            
 
@@ -304,7 +229,7 @@ namespace Wolpertinger.Core
             if (!clientComponents.ContainsKey(name))
             {
                 //get a new component
-                IComponent component = ConnectionManager.ComponentFactory.GetClientComponent(name);
+                IComponent component = ComponentFactory.GetClientComponent(name);
 
                 //check if a component was found
                 if (component == null)
@@ -316,7 +241,7 @@ namespace Wolpertinger.Core
                 clientComponents.Add(name, component);
 
                 //if the component is a Client-Server component, also add it to the list of server components
-                if (ConnectionManager.ComponentFactory.IsClientServerComponent(component))
+                if (ComponentFactory.IsClientServerComponent(component))
                     serverComponents.Add(name, component);
             }
 
@@ -338,7 +263,7 @@ namespace Wolpertinger.Core
             if (!serverComponents.ContainsKey(name))
             {
                 //get a new component
-                IComponent component = ConnectionManager.ComponentFactory.GetServerComponent(name);
+                IComponent component = ComponentFactory.GetServerComponent(name);
                 
                 //check if a component was found
                 if (component == null)
@@ -434,6 +359,15 @@ namespace Wolpertinger.Core
 
         #region Event Handlers
 
+        private void wtlpClient_MessageReceived(object sender, ObjectEventArgs<ParsingResult> e)
+        {
+            if (!e.Handled)
+            {
+                processMessage(e.Value);
+                e.Handled = true;
+            }
+        }
+
         private void timeoutTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
             //do nothing if no respones are expected
@@ -441,10 +375,6 @@ namespace Wolpertinger.Core
             {
                 return;
             }
-
-#if DEBUG
-            logger.Info("timeoutTimer.Elapsed: ExpectedResponseCount: {0}", expectedResponseCount);
-#endif
 
             timeoutTimer.Stop();
             //release all threads waiting for a response (they probably won't get one)
@@ -490,6 +420,123 @@ namespace Wolpertinger.Core
         }
 
         #endregion Event Raisers
+
+
+
+        /// <summary>
+        /// Processes an incoming message (using the MessageProcessor for deserialization)
+        /// </summary>
+        /// <param name="message">The message to be processed</param>
+        private void processMessage(ParsingResult message)
+        {
+
+            //parse the message
+            RpcMessage msg = null;
+            var body = message.Payload.ToStringUTF8();            
+            try
+            {
+                //try to parse it as XML
+                XElement xmlMessage = XElement.Parse(body);
+                switch (xmlMessage.Name.LocalName.ToLower())
+                {
+                    case "remotemethodcall":
+                        msg = (RpcMessage)new RemoteMethodCall().Deserialize(xmlMessage);
+                        break;
+                    case "remotemethodresponse":
+                        msg = (RpcMessage)new RemoteMethodResponse().Deserialize(xmlMessage);
+                        break;
+                    case "remoteerror":
+                        msg = (RpcMessage)new RemoteError(RemoteErrorCode.UnspecifiedError).Deserialize(xmlMessage);
+                        break;
+                }
+            }
+            //Catch XmlException and wrap it into a format exception (makes catching errors in the caller easier)
+            catch (XmlException)
+            {
+                logger.Error("Could not parse message received from {0}", this.Target);
+                RemoteError error = new RemoteError(RemoteErrorCode.InvalidXmlError);
+                SendMessage(error);
+                return;
+            }
+
+
+            
+            //encryption is mandatory if TrustLevel is 2 or higher
+            //if message was not encrypted it will result in a RemoteError and the connection will be reset
+            if (this.TrustLevel >= 2 && !message.WasEncrypted && !(msg is RemoteMethodCall && (msg as RemoteMethodCall).MethodName == CoreMethods.SendResetNotice))
+            {
+                RemoteError error = new RemoteError(RemoteErrorCode.EncryptionError);
+                if (msg.CallId != Guid.Empty)
+                    error.CallId = msg.CallId;
+                error.TargetName = "Authentication";
+
+                //The RemoteError will not be encrypted
+                WtlpClient.EncryptMessages = false;
+                SendMessage(error);
+                ResetConnection();
+                return;
+            }
+
+            //get the component responsible for handling the message
+            string componentName = (msg as RpcMessage).TargetName;
+            //RemoteMethodCalls are handled by a server-component, RemoteMethodResponses by client-components
+            //RemoteErrors are handled by the ClientConnection itself
+            IComponent component = (msg is RemoteMethodCall)
+                                    ? GetServerComponent(componentName)
+                                    : GetClientComponent(componentName);
+
+            if (component == null)
+            {
+                //no component to handle the request was found => send a RemoteError as response and return
+                RemoteError error = new RemoteError(RemoteErrorCode.ComponentNotFoundError);
+                error.CallId = (msg as RemoteMethodCall).CallId;
+                SendMessage(error);
+                return;
+            }
+
+
+            if (msg is RemoteMethodCall)
+            {
+                //process method calls in a new thread to prevent method calls from blocking other threads
+                //ThreadPool.QueueUserWorkItem(delegate
+                // {
+                //     processRemoteMethodCall(result.Message as RemoteMethodCall, component);
+                // });
+                var processingTask = new Task(delegate
+                {
+                    processRemoteMethodCall(msg as RemoteMethodCall, component);
+                });
+
+                processingTask.Start();
+
+                var heartBeatTask = new Task(delegate
+                {
+                    while (!processingTask.IsCompleted)
+                    {
+                        Thread.Sleep(25000);
+                        if (!processingTask.IsCompleted)
+                            (this.GetClientComponent(ComponentNames.Core) as CoreComponent).HeartbeatAsync();
+                    }
+                });
+
+                heartBeatTask.Start();
+
+            }
+            else if (msg is RemoteMethodResponse)
+            {
+                processRemoteMethodResponse(msg as RemoteMethodResponse, component);
+            }
+            else if (msg is RemoteError)
+            {
+                processRemoteError(msg as RemoteError);
+            }
+            else
+            {
+                logger.Error("ProcessMessage() encoutered an unknown type of Message");
+                SendMessage(new RemoteError(RemoteErrorCode.UnknownMessage));
+            }
+        }
+
 
         /// <summary>
         /// Tries to retrive a <see cref="CallResult"/> from the specified component for the speicified RemoteMethodCall using Reflection

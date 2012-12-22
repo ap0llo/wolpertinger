@@ -49,10 +49,6 @@ namespace Wolpertinger.Core
         /// </summary>
         int AllowedConnectionCount { get; set; }
         
-        /// <summary>
-        /// Inidicates whether the ConnectionManager is connected to the backend service for sending messages
-        /// </summary>
-        bool IsConnected { get; }
 
         /// <summary>
         /// The client username for user-authentication (required to gain Trust Level 4)

@@ -61,8 +61,10 @@
     <Compile Include="ClientComponent.cs" />
     <Compile Include="ComponentNames.cs" />
     <Compile Include="CoreComponent.cs" />
-    <Compile Include="DefaultImplementations\DefaultTransmissionClient.cs" />
+    <Compile Include="DefaultImplementations\DefaultConnectionFactory.cs" />
+    <Compile Include="DefaultImplementations\DefaultWltpClient.cs" />
     <Compile Include="DefaultImplementations\XmppMessagingClient.cs" />
+    <Compile Include="Exceptions\WltpException.cs" />
     <Compile Include="Interfaces\IConnectionFactory.cs" />
     <Compile Include="Interfaces\IMessagingClient.cs" />
     <Compile Include="Interfaces\IWtlpClient.cs" />
@@ -72,7 +74,6 @@
     <Compile Include="Core Data Types\ClientInfo.cs" />
     <Compile Include="DefaultImplementations\DefaultConnectionManager.cs" />
     <Compile Include="DefaultImplementations\DefaultComponentFactory.cs" />
-    <Compile Include="DefaultImplementations\DefaultMessageProcessor.cs" />
     <Compile Include="Exceptions\RemoteErrorException.cs" />
     <Compile Include="Interfaces\IClientConnection.cs" />
     <Compile Include="Interfaces\IComponentFactory.cs" />

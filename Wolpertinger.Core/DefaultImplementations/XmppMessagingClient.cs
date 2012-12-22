@@ -119,13 +119,13 @@ namespace Wolpertinger.Core
             //send queued messages before sending new ones
             sendQueuedMessages();
 
-            xmpp.Send(new agsXMPP.protocol.client.Message(message.Recipient, message.Message));
+            xmpp.Send(new agsXMPP.protocol.client.Message(message.Recipient, message.MessageBody));
 
         }
 
         public void SendMessage(string recipient, string message)
         {
-            var msg = new Message() { Sender = null, Recipient = recipient, Message = message };
+            var msg = new Message() { Sender = null, Recipient = recipient, MessageBody = message };
             SendMessage(msg);
         }
 
@@ -196,11 +196,11 @@ namespace Wolpertinger.Core
         /// </summary>
         /// <param name="from">The message's sender</param>
         /// <param name="message">The message's body</param>
-        private void onMessageReceived(string from, string message)
+        internal void onMessageReceived(string from, string message)
         {
             if (this.MessageReceived != null)
             {
-                var msg = new Message() { Sender = from, Message = message };
+                var msg = new Message() { Sender = from, MessageBody = message };
                 this.MessageReceived(this, msg);
             }
         }
@@ -243,5 +243,15 @@ namespace Wolpertinger.Core
 
         }
 
+
+
+        public string ServiceName
+        {
+            get
+            {
+                return "XMPP";
+            }
+            
+        }
     }
 }

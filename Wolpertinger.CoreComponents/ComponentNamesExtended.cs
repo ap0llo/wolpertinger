@@ -20,7 +20,7 @@ namespace Wolpertinger.Core
     /// <summary>
     /// Names of buildt-in Components 
     /// </summary>
-    public static class ComponentNamesExtended
+    public static partial class ComponentNamesExtended
     {
         public const string Core = "Core";
         public const string Authentication = "Authentication";

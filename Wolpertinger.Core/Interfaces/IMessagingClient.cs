@@ -65,10 +65,9 @@ namespace Wolpertinger.Core
         /// </summary>
         bool Connected { get; }
 
-        int ServiceName
+        string ServiceName
         {
             get;
-            set;
         }
 
 
@@ -117,6 +116,6 @@ namespace Wolpertinger.Core
         /// <summary>
         /// The message's content
         /// </summary>
-        public string  Message { get; set; }
+        public string  MessageBody { get; set; }
     }
 }

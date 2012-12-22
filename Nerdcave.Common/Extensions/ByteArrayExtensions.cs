@@ -89,7 +89,7 @@ namespace Nerdcave.Common.Extensions
         /// Encodes the byte-array as base64-STring
         /// </summary>        
         /// <returns>Returns a base64 representation of the byte-array.</returns>
-        public static string ToBase64String(this byte[] bytes)
+        public static string ToStringBase64(this byte[] bytes)
         {
             return Convert.ToBase64String(bytes);
         }

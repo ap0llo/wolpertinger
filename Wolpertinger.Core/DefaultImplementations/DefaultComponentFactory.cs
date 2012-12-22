@@ -97,18 +97,6 @@ namespace Wolpertinger.Core
 
 
         /// <summary>
-        /// Returns a new instance of a IMessageProcessor
-        /// </summary>
-        /// <returns>
-        /// Returns a new IMessageProcessor
-        /// </returns>
-        public IMessageProcessor GetMessageProcessor()
-        {
-            //compression of messages enabled by default
-            return new DefaultMessageProcessor() { CompressMessages = true };
-        }
-
-        /// <summary>
         /// Returns a new IClientConnection based on the specified target adress
         /// </summary>
         /// <param name="target">The connection's target adress</param>

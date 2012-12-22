@@ -83,10 +83,15 @@ namespace Nerdcave.Common.Extensions
         /// Splits the string into the indicated amount of fragments (chunck sizes will be approximately the same)
         /// </summary>
         /// <param name="str"></param>
-        /// <param name="chcukSize"></param>
+        /// <param name="fragmentsCount"></param>
         /// <returns></returns>
         public static string[] Split(this string str, int fragmentsCount)
         {
+            if (fragmentsCount == 1)
+            {
+                return new string[] { str };
+            }
+
             string[] result = new string[fragmentsCount];
             int length = (str.Length / fragmentsCount) + 1;           
             int chunckLength;
@@ -165,7 +170,7 @@ namespace Nerdcave.Common.Extensions
         [DebuggerStepThrough()]
         public static string EncryptAES(this string text, byte[] key, byte[] IV)
         {
-            return text.GetBytesUTF8().Encrypt(key, IV).ToBase64String();            
+            return text.GetBytesUTF8().Encrypt(key, IV).ToStringBase64();            
         }
 
         /// <summary>
@@ -259,6 +264,9 @@ namespace Nerdcave.Common.Extensions
         /// <remarks>Based on code from Philipp Sumi. See http://www.hardcodet.net/2009/0
         public static SecureString ToSecureString(this IEnumerable<char> value)
         {
+            if (value == null)
+                return null;
+
             var secured = new SecureString();
 
             var charArray = value.ToArray();

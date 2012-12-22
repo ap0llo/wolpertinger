@@ -101,9 +101,9 @@ namespace Wolpertinger.Fileserver
             //manager.AddComponent(typeof(ClientInfoProvider), typeof(XmppLoggingConfigurator), typeof(FileShare));
 
             connectionManager = new DefaultConnectionManager();
-            connectionManager.ComponentFactory = new DefaultComponentFactory();
+            //connectionManager.ComponentFactory = new DefaultComponentFactory();
             connectionManager.LoadSettings(folder);            
-            connectionManager.Connect();
+            //connectionManager.Connect();
             connectionManager.AcceptIncomingConnections = true;
             XmppLogger.ConnectionManager = connectionManager;
             XmppLogger.LoadSettings();
