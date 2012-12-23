@@ -38,7 +38,7 @@ namespace Wolpertinger.Core
         /*XMPP spec says limit on server side must not be smaller than 10K, googling shows 65k is common
         Limiting to 30500 characters should result in message sizes of about 30K (splitting messages adds a little overhead) which seems like a good compromise */
         private const int MESSAGELENGTHLIMIT = 30500;
-        private const int TIMEOUTINTERVAL = 30000;      //interval after which a sent message times out (in milliseconds)
+        private const int TIMEOUTINTERVAL = 30000000;//30000;      //interval after which a sent message times out (in milliseconds)
 
         #endregion
 
@@ -261,7 +261,7 @@ namespace Wolpertinger.Core
             }
 
             //base64-encode the message's payload as string
-            string payloadStr = message.ToStringBase64();
+            string payloadStr = payload.ToStringBase64();
 
             //split the message's payload into multplie parts if necessary
             //the number of fragments the message will be split in (if length limit is not exceeded, it's 1, so message will not be split)
@@ -307,6 +307,9 @@ namespace Wolpertinger.Core
                     };
 
             timeoutTimer.Start();
+
+
+            logger.Info("Sending Message, Id {0} and waiting for delivery confimation", messageId);
 
             //Wait for the message transmission to complete
             sem.WaitOne();
@@ -398,7 +401,7 @@ namespace Wolpertinger.Core
             }
 
             //get the messages metadata and payload
-            IEnumerable<string> parts = message.Split(';');
+            IEnumerable<string> parts = message.Split(';').Where(x => !x.IsNullOrEmpty());
             string payload_str =  message.EndsWith(";") ?  null : parts.Last();
             parts = (payload_str == null) ? parts : parts.Take(parts.Count() - 1);
             
@@ -427,7 +430,7 @@ namespace Wolpertinger.Core
                 if (!Enum.TryParse(resultQuery.First().Item2, true, out deliveryResult))
                     deliveryResult = Result.UnknownError;
 
-                logger.Info("Received delivery confirmation for message {0}, Result: {1}", messageId, deliveryResult);
+                logger.Info("Received delivery confirmation for message {0} from {1}, Result: {2}", messageId, this.Recipient,  deliveryResult);
 
 
                 lock (this)
@@ -547,6 +550,8 @@ namespace Wolpertinger.Core
             }
 
 
+            result.Payload = payload;
+
             //everything went okay => send delivery notifiaction
             sendresult(Result.Success, messageId);
 
@@ -571,7 +576,7 @@ namespace Wolpertinger.Core
         }
 
         /// <summary>
-        /// Handles the MessageRecived event from the underlying messaging client
+        /// Handles the MessageReceived event from the underlying messaging client
         /// </summary>
         private void MessagingClient_MessageReceived(object sender, ObjectEventArgs<Message> e)
         {

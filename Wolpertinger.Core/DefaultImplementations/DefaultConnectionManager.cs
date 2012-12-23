@@ -105,6 +105,9 @@ namespace Wolpertinger.Core
         public event EventHandler<ObjectEventArgs<IClientConnection>> ClientConnectionAdded;
 
 
+        /// <summary>
+        /// Gets or sets the factory used for creating new instances of IClientConnection
+        /// </summary>
         public IConnectionFactory ConnectionFactory { get; set; }
 
         /// <summary>
@@ -172,7 +175,7 @@ namespace Wolpertinger.Core
         /// <summary>
         /// Loads the ConnectionManagers settings from the specified folder
         /// </summary>
-        /// <param name="folder">The folder to use for storing settings</param>
+        /// <param name="settingsFolder">The folder to use for storing settings</param>
         public void LoadSettings(string settingsFolder)
         {
             applicationDataFolder = settingsFolder;
@@ -196,7 +199,6 @@ namespace Wolpertinger.Core
                 messagingClient.MessageReceived += messagingClient_MessageReceived;
                 messagingClient.Connect();
    
-
 
 
                 var clients = settingsFile.GetItem<IEnumerable<object>>("KnownClients");
@@ -267,11 +269,19 @@ namespace Wolpertinger.Core
             return clientConnections.ContainsKey(target) ? clientConnections[target] : null;
         }
 
+        /// <summary>
+        /// Get a list of all ClientConnections currently managed by the ConnectionManager
+        /// </summary>
+        /// <returns></returns>
         public IEnumerable<IClientConnection> GetClientConnections()
         {
             return clientConnections.Values.ToList<IClientConnection>();
         }
 
+        /// <summary>
+        /// Returns a list if MessagingClients currently loaded
+        /// </summary>
+        /// <returns></returns>
         public IEnumerable<IMessagingClient> GetMessagingClients()
         {
             return messagingClients.ToList<IMessagingClient>();
@@ -385,7 +395,7 @@ namespace Wolpertinger.Core
                     var connection = AddClientConnection(e.Value.Sender);
                     connection.AcceptConnections = this.AcceptIncomingConnections && !(clientConnections.Count < AllowedConnectionCount);
                     connection.ComponentFactory = new DefaultComponentFactory();
-                    connection.WtlpClient = new DefaultWltpClient(sender as IMessagingClient, e.Value.Sender);
+                    //connection.WtlpClient = new DefaultWltpClient(sender as IMessagingClient, e.Value.Sender);
 
                     //TODO: crude hack, replace with a real solution
                     (sender as XmppMessagingClient).onMessageReceived(e.Value.Sender, e.Value.MessageBody);

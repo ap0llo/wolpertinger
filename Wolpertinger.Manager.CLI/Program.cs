@@ -77,7 +77,7 @@ namespace Wolpertinger.Manager.CLI
 			XmppLogger.ConnectionManager = connectionManager;
 
 
-            //Console.WriteLine("Account: {0}@{1}", connectionManager.XmppUsername, connectionManager.XmppServer);
+			//Console.WriteLine("Account: {0}@{1}", connectionManager.XmppUsername, connectionManager.XmppServer);
 			Console.WriteLine();
 
 			ILogger consoleLogger = new Wolpertinger.Core.ConsoleLogger();

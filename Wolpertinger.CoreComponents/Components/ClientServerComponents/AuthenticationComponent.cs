@@ -53,9 +53,12 @@ namespace Wolpertinger.Core
         /// </summary>
         public bool EstablishConnection()
         {
-
             bool accepted =  (bool)callRemoteMethod(AuthenticationMethods.EstablishConnection);
             this.ClientConnection.Connected = accepted;
+
+            this.ClientConnection.MyTrustLevel = 1;
+            this.ClientConnection.TrustLevel = 1;
+
             return accepted;
         }
 
@@ -75,8 +78,11 @@ namespace Wolpertinger.Core
             ECDiffieHellmanPublicKey otherKey = ECDiffieHellmanCngPublicKey.FromByteArray(response.GetBytesBase64(), CngKeyBlobFormat.EccPublicBlob);
 
             this.ClientConnection.WtlpClient.EncryptionKey = keyProvider.DeriveKeyMaterial(otherKey);
+            
             this.ClientConnection.TrustLevel = 2;
-            AwardTrustLevel(2);
+            this.ClientConnection.MyTrustLevel = 2;
+
+            this.ClientConnection.WtlpClient.EncryptMessages = true;
 
             keyProvider = null;            
         }
@@ -101,7 +107,7 @@ namespace Wolpertinger.Core
         public bool ClusterAuthVerify(string authToken)
         {
             clusterVerified_me = (bool)callRemoteMethod(AuthenticationMethods.ClusterAuthVerify, calculateClusterAuthKey(authToken, this.ClientConnection.ConnectionManager.ClusterKey));
-                        
+            
             return clusterVerified_me;
         }
 
@@ -117,6 +123,11 @@ namespace Wolpertinger.Core
             clusterAuthToken = token;
 
             bool verified = (bool)callRemoteMethod(AuthenticationMethods.ClusterAuthRequestVerification, token);
+
+            if (verified)
+            {
+                this.ClientConnection.TrustLevel = 3;
+            }
 
             return verified;
         }
@@ -144,16 +155,16 @@ namespace Wolpertinger.Core
             return (bool)callRemoteMethod(AuthenticationMethods.UserAuthVerify, username, authKey);
         }
 
-        /// <summary>
-        /// Sets a new TrustLevel for the target client and notifies the target about the change.
-        /// Asynchronously calls the AwardTrustLevel RemoteMethod.
-        /// </summary>
-        /// <param name="trustLevel">The level of trust to award</param>
-        public void AwardTrustLevel(int trustLevel)
-        {
-            this.ClientConnection.TrustLevel = trustLevel;
-            callRemoteMethodAsync(AuthenticationMethods.AwardTrustLevel, false, trustLevel);
-        }
+        ///// <summary>
+        ///// Sets a new TrustLevel for the target client and notifies the target about the change.
+        ///// Asynchronously calls the AwardTrustLevel RemoteMethod.
+        ///// </summary>
+        ///// <param name="trustLevel">The level of trust to award</param>
+        //public void AwardTrustLevel(int trustLevel)
+        //{
+        //    this.ClientConnection.TrustLevel = trustLevel;
+        //    callRemoteMethodAsync(AuthenticationMethods.AwardTrustLevel, false, trustLevel);
+        //}
 
 
         #endregion Client Implementation
@@ -172,12 +183,16 @@ namespace Wolpertinger.Core
             //Check if connection is to be accepted
             bool accepted = (this.ClientConnection.AcceptConnections && ClientConnection.ConnectionManager.AcceptIncomingConnections);
 
+            //var result = new ResponseResult(accepted);
+
             if (accepted)
             {
-                AwardTrustLevel(1);
+                this.ClientConnection.TrustLevel = 1;
+                this.ClientConnection.MyTrustLevel = 1;
                 this.ClientConnection.Connected = true;
             }
 
+            //return result;/
             return new ResponseResult(accepted);
         }
 
@@ -192,17 +207,25 @@ namespace Wolpertinger.Core
             ECDiffieHellmanPublicKey otherKey = ECDiffieHellmanCngPublicKey.FromByteArray(publicKey.GetBytesBase64(), CngKeyBlobFormat.EccPublicBlob);
 
             //derive connection key from target's public key
-            ClientConnection.WtlpClient.EncryptionKey = keyProvider.DeriveKeyMaterial(otherKey);
+
+            var key = keyProvider.DeriveKeyMaterial(otherKey);
+
+            ClientConnection.WtlpClient.EncryptionKey = key;
+            var initVector = iv.GetBytesBase64();
             ClientConnection.WtlpClient.EncryptionIV = iv.GetBytesBase64();
 
             //Increase Trust level (connection is now encrypted)
-            AwardTrustLevel(2);
+            
+            this.ClientConnection.TrustLevel = 2;
+            this.ClientConnection.MyTrustLevel = 2;
 
-//            ClientConnection.MessageProcessor.EncryptMessages = true;
 
             //Send back our own public key so target can derive connection key, too
             CallResult result = new ResponseResult(keyProvider.PublicKey.ToByteArray().ToStringBase64());
-            
+
+            //once the response has been sent, enable encryption for all following messages
+            result.PostProcessingAction += delegate { this.ClientConnection.WtlpClient.EncryptMessages = true; };
+
             //Reset key provider
             keyProvider = null;
 
@@ -246,7 +269,7 @@ namespace Wolpertinger.Core
 
                 //Increase trust level if target has been verified
                 if (clusterVerified_target)
-                    AwardTrustLevel(3);
+                    this.ClientConnection.TrustLevel = 3;
                 else
                     this.ClientConnection.ResetConnection();
                 
@@ -302,10 +325,11 @@ namespace Wolpertinger.Core
             if (verified)
             {
                 this.ClientConnection.TrustLevel = 4;
-                result.PostProcessingAction = new Action(delegate { AwardTrustLevel(4); });
+                //result.PostProcessingAction = new Action(delegate { AwardTrustLevel(4); });
             }
             else
             {
+
                 result.PostProcessingAction = new Action(delegate { this.ClientConnection.ResetConnection(true); });                
             }
 

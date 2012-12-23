@@ -25,6 +25,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Wolpertinger.Core
 {
@@ -156,26 +157,28 @@ namespace Wolpertinger.Core
 
         private void xmpp_OnMessage(object sender, agsXMPP.protocol.client.Message msg)
         {
-            //ignore empty messages
-            if (msg.Body.IsNullOrEmpty() || msg.Error != null)
-                return;
+            new Task(delegate
+                {
+                    //ignore empty messages
+                    if (msg.Body.IsNullOrEmpty() || msg.Error != null)
+                        return;
 
-            //get the message's sender, remove XMPP resource from the message
-            var messageSender = msg.From.ToString();
-            messageSender = messageSender.Contains("/") ? messageSender.Substring(0, messageSender.IndexOf("/")) : messageSender;
+                    //get the message's sender, remove XMPP resource from the message
+                    var messageSender = msg.From.ToString();
+                    messageSender = messageSender.Contains("/") ? messageSender.Substring(0, messageSender.IndexOf("/")) : messageSender;
 
-            //if messages bounced and sender is this client itself, ignore the message
-            if (messageSender.ToLower() == String.Format("{0}@{1}", this.Username, this.Server).ToLower())
-            {
-                logger.Warn("Bounced message revceived. Ignoring");
-                return;
-            }
+                    //if messages bounced and sender is this client itself, ignore the message
+                    if (messageSender.ToLower() == String.Format("{0}@{1}", this.Username, this.Server).ToLower())
+                    {
+                        logger.Warn("Bounced message revceived. Ignoring");
+                        return;
+                    }
 
-            logger.Info("Recieved message from {0}", messageSender);
+                    logger.Info("Received message from {0}", messageSender);
 
-            //Raise MessageReceived event
-            this.onMessageReceived(messageSender, msg.Body);
-
+                    //Raise MessageReceived event
+                        this.onMessageReceived(messageSender, msg.Body);
+                }).Start();
         }
 
 

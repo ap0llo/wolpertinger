@@ -534,7 +534,9 @@ namespace Wolpertinger.Fileserver
         {
             var orderedMounts = mounts.Union<MountInfo>(new List<MountInfo>() { new MountInfo() { LocalPath = rootPath, MountPoint = "/"}}).OrderByDescending(x => x.MountPoint);
 
-            var matchingMount = orderedMounts.First(x => virtualpath.ToLower().StartsWith(x.MountPoint.ToLower()));
+            var mountsQuery = orderedMounts.Where(x => virtualpath.ToLower().StartsWith(x.MountPoint.ToLower()));
+
+            var matchingMount = mountsQuery.Any() ? mountsQuery.First() : null;
 
             if (matchingMount == null)
             {

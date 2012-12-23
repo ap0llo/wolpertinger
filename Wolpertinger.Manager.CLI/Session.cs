@@ -493,6 +493,14 @@ namespace Wolpertinger.Manager.CLI
             if (dir == null)
             {
                 Program.ErrorLine(this, "DirectoryObject NULL");
+                return;
+            }
+
+
+            if (!dir.Directories.Any() && !dir.Files.Any())
+            {
+                Program.OutputLine(this, "");
+                return;
             }
 
             foreach (DirectoryObject item in dir.Directories)

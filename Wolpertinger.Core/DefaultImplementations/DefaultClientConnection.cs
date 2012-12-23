@@ -39,7 +39,7 @@ namespace Wolpertinger.Core
 
         private IWtlpClient _wtlpClient;
 
-        private System.Timers.Timer timeoutTimer = new System.Timers.Timer(30000);
+        private System.Timers.Timer timeoutTimer = new System.Timers.Timer(30000000);//30000);
         private Dictionary<string, IComponent> clientComponents = new Dictionary<string, IComponent>();
         private Dictionary<string, IComponent> serverComponents = new Dictionary<string, IComponent>();
 
@@ -118,11 +118,14 @@ namespace Wolpertinger.Core
             {
                 lock (this)
                 {
-                    if (value != _wtlpClient)
-                    {
-                        _wtlpClient = value;
+                    if (_wtlpClient != null)
+                        _wtlpClient.MessageReceived -= wtlpClient_MessageReceived;
+
+                    _wtlpClient = value;
+
+                    if(_wtlpClient != null)
                         _wtlpClient.MessageReceived += wtlpClient_MessageReceived;
-                    }
+
                 }
             }
         }
@@ -520,7 +523,6 @@ namespace Wolpertinger.Core
                 });
 
                 heartBeatTask.Start();
-
             }
             else if (msg is RemoteMethodResponse)
             {
