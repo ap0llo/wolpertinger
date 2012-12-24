@@ -92,6 +92,7 @@ namespace Wolpertinger.Core
         /// </summary>
         /// <param name="msg">The message to process and send</param>
         void SendMessage(RpcMessage msg);
+        
 
         /// <summary>
         /// Gets a <see cref="Wolpertinger.Core.ClientInfo"/> abouts the connection's target client

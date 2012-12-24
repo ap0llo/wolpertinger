@@ -44,7 +44,18 @@ namespace Wolpertinger.Core
 
         public event EventHandler<ObjectEventArgs<string>> PeerDisconnected;
 
-        
+
+        /// <summary>
+        /// Gets the name of the service.
+        /// </summary>
+        public string ServiceName
+        {
+            get
+            {
+                return "XMPP";
+            }
+
+        }
 
         public bool Connected 
         {
@@ -199,7 +210,7 @@ namespace Wolpertinger.Core
         /// </summary>
         /// <param name="from">The message's sender</param>
         /// <param name="message">The message's body</param>
-        internal void onMessageReceived(string from, string message)
+        private void onMessageReceived(string from, string message)
         {
             if (this.MessageReceived != null)
             {
@@ -248,13 +259,5 @@ namespace Wolpertinger.Core
 
 
 
-        public string ServiceName
-        {
-            get
-            {
-                return "XMPP";
-            }
-            
-        }
     }
 }

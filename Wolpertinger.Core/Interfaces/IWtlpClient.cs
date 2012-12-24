@@ -58,7 +58,14 @@ namespace Wolpertinger.Core
         /// </summary>
         /// <param name="message">The message to be sent</param>
         void Send(byte[] message);
-       
+
+
+        /// <summary>
+        /// Processes the specified message
+        /// </summary>
+        /// <param name="message">The message to be processed</param>
+        void HandleMessage(string message);
+
     }
 
     /// <summary>

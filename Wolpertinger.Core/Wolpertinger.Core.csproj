@@ -62,7 +62,7 @@
     <Compile Include="ComponentNames.cs" />
     <Compile Include="CoreComponent.cs" />
     <Compile Include="DefaultImplementations\DefaultConnectionFactory.cs" />
-    <Compile Include="DefaultImplementations\DefaultWltpClient.cs" />
+    <Compile Include="DefaultImplementations\DefaultWtlpClient.cs" />
     <Compile Include="DefaultImplementations\XmppMessagingClient.cs" />
     <Compile Include="Exceptions\WltpException.cs" />
     <Compile Include="Interfaces\IConnectionFactory.cs" />

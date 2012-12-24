@@ -7,9 +7,12 @@ namespace Wolpertinger.Core
 {
     public class DefaultConnectionFactory : IConnectionFactory
     {
-        public IClientConnection GetClientConnection()
+        public virtual IClientConnection GetClientConnection()
         {
-            return new DefaultClientConnection();
+            var factory = new DefaultClientConnection();
+            factory.ComponentFactory = new DefaultComponentFactory();
+
+            return factory;
         }
     }
 }

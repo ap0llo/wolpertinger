@@ -232,7 +232,7 @@ namespace Wolpertinger.Core
                 IClientConnection connection = ConnectionFactory.GetClientConnection();
                 connection.Target = target;
                 connection.ConnectionManager = this;
-                connection.WtlpClient = new DefaultWltpClient(this.messagingClients.First(), target);
+                connection.WtlpClient = new DefaultWtlpClient(this.messagingClients.First(), target);
                 clientConnections.Add(target.ToLower(), connection);
 
                 //subscribe to the connection's reset event, so it can be removed when it has been reset
@@ -386,7 +386,7 @@ namespace Wolpertinger.Core
             RemoveClientConnection((sender as IClientConnection).Target);
         }
 
-        private void messagingClient_MessageReceived(object sender, ObjectEventArgs<Message> e)
+        protected virtual void messagingClient_MessageReceived(object sender, ObjectEventArgs<Message> e)
         {
             if (!e.Handled)
             {
@@ -394,21 +394,9 @@ namespace Wolpertinger.Core
                 {
                     var connection = AddClientConnection(e.Value.Sender);
                     connection.AcceptConnections = this.AcceptIncomingConnections && !(clientConnections.Count < AllowedConnectionCount);
-                    connection.ComponentFactory = new DefaultComponentFactory();
-                    //connection.WtlpClient = new DefaultWltpClient(sender as IMessagingClient, e.Value.Sender);
 
-                    //TODO: crude hack, replace with a real solution
-                    (sender as XmppMessagingClient).onMessageReceived(e.Value.Sender, e.Value.MessageBody);
-                    
-                    /*
-                    //refire the event
-                    var method = ReflectionHelper.GetEventInvoker(sender, "MessageReceived");
-                    //method.Invoke(sender, new object[] { sender, new ObjectEventArgs<Message>() { Value = e.Value } });
-                    object[] args = new object[2];
-                    args[0] = sender;
-                    args[1] = e;
-                    method.Invoke(sender, args);
-                    */
+                    connection.WtlpClient.HandleMessage(e.Value.MessageBody);
+
                     e.Handled = true;
                 }
                 
@@ -417,8 +405,7 @@ namespace Wolpertinger.Core
 
         #endregion
 
-
-
-      
     }
+
+   
 }

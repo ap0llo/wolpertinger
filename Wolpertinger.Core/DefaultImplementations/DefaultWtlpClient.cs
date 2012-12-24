@@ -30,7 +30,7 @@ namespace Wolpertinger.Core
     /// <summary>
     /// Default implementation of the transmission layer of the protocol
     /// </summary>
-    public class DefaultWltpClient : IWtlpClient
+    public class DefaultWtlpClient : IWtlpClient
     {
 
         #region Constants
@@ -72,11 +72,11 @@ namespace Wolpertinger.Core
 
 
         /// <summary>
-        /// Initializes a new instance of <see cref="DefaultWltpClient" />
+        /// Initializes a new instance of <see cref="DefaultWtlpClient" />
         /// </summary>
         /// <param name="messagingClient">The underlying messaging client used for communication</param>
         /// <param name="recipient">The recipient to receive messages from and send messages to</param>
-        public DefaultWltpClient(IMessagingClient messagingClient, string recipient)
+        public DefaultWtlpClient(IMessagingClient messagingClient, string recipient)
         {
             //set messagingClient and recipient
             this.Recipient = recipient;
@@ -322,6 +322,12 @@ namespace Wolpertinger.Core
             else
                 throw new WtlpException(result);
         }
+
+        public void HandleMessage(string message) 
+        {
+            parseMessage(message);
+        }
+
 
 
         /// <summary>
