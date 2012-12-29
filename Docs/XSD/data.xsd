@@ -1,0 +1,92 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="data"
+    targetNamespace="http://nerdcave.eu/wolpertinger"
+    elementFormDefault="qualified"
+    xmlns="http://nerdcave.eu/wolpertinger"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+>
+  <xs:include schemaLocation="base.xsd" />
+  
+  <!--Type that encapsulates information about a client-->
+  <xs:complexType name="ClientInfo">
+    <xs:sequence>
+      <xs:element name="JId" type="xs:string" minOccurs="1" maxOccurs="1" />
+      <xs:element name="TrustLevel" type="trustlevel" minOccurs="1" maxOccurs="1" />
+      <xs:element name="ProtocolVersion" type="protocolVersion" minOccurs="1" maxOccurs="1" />
+      <xs:element name="Profiles" minOccurs="1" maxOccurs="1">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="object" type="string" minOccurs="0" maxOccurs="unbounded" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>   
+  </xs:complexType>
+
+  <!--Base class for directoryObject and fileObject-->
+  <xs:complexType name="filesystemObject" abstract="true">
+    <xs:sequence>
+      <xs:element name="Name" type="xs:string" minOccurs="1" maxOccurs="1" />
+      <xs:element name="Path" type="xs:string" minOccurs="1" maxOccurs="1" />
+      <xs:element name="LastEdited" type="xs:dateTime" minOccurs="1" maxOccurs="1" />
+      <xs:element name="Created" type="xs:dateTime" minOccurs="1" maxOccurs="1" />
+      <xs:element name="LastAccessed" type="xs:dateTime" minOccurs="1" maxOccurs="1" />
+    </xs:sequence>
+  </xs:complexType>
+
+  <!--Type that encapsulates information about a directory-->
+  <xs:complexType name="DirectoryObject">
+    <xs:complexContent>
+      <xs:extension base="filesystemObject">
+        <xs:sequence>
+          <xs:element name="Files">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="FileObject" type="FileObject" minOccurs="0" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="Directories">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="DirectoryObject" type="DirectoryObject" minOccurs="0" maxOccurs="unbounded" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!--Type that encapsulates information about a file-->
+  <xs:complexType name="FileObject">
+    <xs:complexContent>
+      <xs:extension base="filesystemObject">
+        <xs:sequence>
+          <xs:element name="Hash" type="xs:hexBinary" minOccurs="1" maxOccurs="1" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!--Describes a permission to access a item in the shared folder-->
+  <xs:complexType name="Permission">
+    <xs:sequence>
+      <xs:element name="Path" type="xs:string" minOccurs="1" maxOccurs="1" />
+      <xs:element name="PermittedClients">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="object" type="string" minOccurs="0" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  
+  <!--Allowed root elements-->
+  <xs:element name="ClientInfo" type="ClientInfo" />
+  <xs:element name="DirectoryObject" type="DirectoryObject" />
+  <xs:element name="FileObject" type="FileObject" />
+  <xs:element name="Permission" type="Permission" />
+  
+</xs:schema>

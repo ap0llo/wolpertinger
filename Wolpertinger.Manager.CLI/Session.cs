@@ -59,10 +59,15 @@ namespace Wolpertinger.Manager.CLI
                 connection.ConnectionTimedOut += connection_ConnectionTimedOut;
                 connection.RemoteErrorOccurred += connection_RemoteErrorOccurred;
             }
-            authComponent = (AuthenticationComponent)connection.GetClientComponent(ComponentNamesExtended.Authentication);
-            clientInfoComponent = (ClientInfoClientComponent)connection.GetClientComponent(ComponentNamesExtended.ClientInfoProvider);
-            loggingConfigurator = (XmppLoggingConfiguratorComponent)connection.GetClientComponent(ComponentNamesExtended.XmppLoggingConfigurator);
-            fileShareComponent = (FileShareClientComponent)connection.GetClientComponent(ComponentNamesExtended.FileShare);
+            //authComponent = (AuthenticationComponent)connection.GetClientComponent(ComponentNamesExtended.Authentication);
+            //clientInfoComponent = (ClientInfoClientComponent)connection.GetClientComponent(ComponentNamesExtended.ClientInfoProvider);
+            //loggingConfigurator = (XmppLoggingConfiguratorComponent)connection.GetClientComponent(ComponentNamesExtended.XmppLoggingConfigurator);
+            //fileShareComponent = (FileShareClientComponent)connection.GetClientComponent(ComponentNamesExtended.FileShare);
+
+            authComponent = new AuthenticationComponent() { ClientConnection = connection };
+            clientInfoComponent = new ClientInfoClientComponent() { ClientConnection = connection };
+            loggingConfigurator = new XmppLoggingConfiguratorComponent() { ClientConnection = connection };
+            fileShareComponent = new FileShareClientComponent() { ClientConnection = connection };
 
 
             //CommandInfo info = new CommandInfo();
@@ -120,21 +125,21 @@ namespace Wolpertinger.Manager.CLI
 
             try
             {
-                if (authComponent.EstablishConnection())
+                if (authComponent.EstablishConnectionAsync().Result)
                 {
                     Program.StatusLine(this, "Exchanging keys");
 
-                    authComponent.KeyExchange();
+                    authComponent.KeyExchangeAsync();
 
                     Program.StatusLine(this, "Key exchange completed");
                     Program.StatusLine(this, "Initiating Cluster Authentication");
 
-                    string token = authComponent.ClusterAuthGetToken();
+                    string token = authComponent.ClusterAuthGetTokenAsync().Result;
 
-                    if (authComponent.ClusterAuthVerify(token))
+                    if (authComponent.ClusterAuthVerifyAsync(token).Result)
                     {
                         Program.StatusLine(this, "Verified my Cluster Membership");
-                        if (authComponent.ClusterAuthRequestVerification())
+                        if (authComponent.ClusterAuthRequestVerificationAsync().Result)
                         {
                             Program.StatusLine(this, "Verified Cluster Membership of target client");
                             
@@ -157,8 +162,6 @@ namespace Wolpertinger.Manager.CLI
             catch (TimeoutException)
             {              
             }
-
-
         }
 
         internal void disconnectCommand(IEnumerable<string> cmds)
@@ -179,9 +182,9 @@ namespace Wolpertinger.Manager.CLI
                      
             SecureString securePassword = ConsoleHelper.GetPassword().ToSecureString();
 
-            string token = authComponent.UserAuthGetToken();
+            string token = authComponent.UserAuthGetTokenAsync().Result;
 
-            Program.StatusLine(this, authComponent.UserAuthVerify(cmds.First(), token, securePassword)
+            Program.StatusLine(this, authComponent.UserAuthVerifyAsync(cmds.First(), token, securePassword).Result
                                         ? "User Authentication successful"
                                         : "User Authentication failed");                
         }
@@ -190,7 +193,7 @@ namespace Wolpertinger.Manager.CLI
         {
             try
             {
-                Program.OutputLine(this, clientInfoComponent.GetClientInfo().ToString());
+                Program.OutputLine(this, clientInfoComponent.GetClientInfoAsync().Result.ToString());
             }
             catch (TimeoutException)
             { }
@@ -206,13 +209,12 @@ namespace Wolpertinger.Manager.CLI
         {
             try
             {
-                bool enabled = loggingConfigurator.GetEnable();
+                bool enabled = loggingConfigurator.GetEnableAsync().Result;
                 Program.OutputLine(this, enabled.ToString());
             }
             catch (TimeoutException)
             {
             }
-
         }
 
         protected void loggerSetEnabledCommand(IEnumerable<string> cmds)
@@ -228,7 +230,7 @@ namespace Wolpertinger.Manager.CLI
         {
             try
             {
-                Program.OutputLine(this, loggingConfigurator.GetLoglevel().ToString());
+                Program.OutputLine(this, loggingConfigurator.GetLoglevelAsync().Result.ToString());
             }
             catch (TimeoutException)
             {   }
@@ -248,7 +250,7 @@ namespace Wolpertinger.Manager.CLI
         {
             try
             {
-                Program.OutputLine(this, loggingConfigurator.GetRecipient().ToString());
+                Program.OutputLine(this, loggingConfigurator.GetRecipientAsync().Result.ToString());
             }
             catch (TimeoutException)
             {   }
@@ -263,7 +265,7 @@ namespace Wolpertinger.Manager.CLI
         {
             try
             {
-                Program.OutputLine(this, loggingConfigurator.GetEnableDebugLogging().ToString());
+                Program.OutputLine(this, loggingConfigurator.GetEnableDebugLoggingAsync().Result.ToString());
             }
             catch (TimeoutException)
             {   }
@@ -312,7 +314,7 @@ namespace Wolpertinger.Manager.CLI
         {
             try
             {
-                DirectoryObject dir = fileShareComponent.GetDirectoryInfo(cmds.First(), 1);
+                DirectoryObject dir = fileShareComponent.GetDirectoryInfoAsync(cmds.First(), 1).Result;
                 printDirectoryObject(dir);
             }
             catch(RemoteErrorException)
@@ -326,7 +328,7 @@ namespace Wolpertinger.Manager.CLI
         {
             try
             {
-                FileObject file = fileShareComponent.GetFileInfo(cmds.First());
+                FileObject file = fileShareComponent.GetFileInfoAsync(cmds.First()).Result;
                 printFileObject(file);
             }
             catch (RemoteErrorException)
@@ -353,7 +355,7 @@ namespace Wolpertinger.Manager.CLI
         {
             try
             {
-                List<MountInfo> mounts = fileShareComponent.GetMounts();
+                List<MountInfo> mounts = fileShareComponent.GetMountsAsync().Result;
 
                 if (mounts == null)
                 {
@@ -387,7 +389,7 @@ namespace Wolpertinger.Manager.CLI
         {
             try
             {
-                bool permitted = fileShareComponent.GetPermission(cmds.First());
+                bool permitted = fileShareComponent.GetPermissionAsync(cmds.First()).Result;
 
                 Program.OutputLine(this, "{0}", permitted);
             }
@@ -401,7 +403,7 @@ namespace Wolpertinger.Manager.CLI
         {
             try
             {
-                IEnumerable<Permission> permissions = fileShareComponent.GetAddedPermissions();
+                IEnumerable<Permission> permissions = fileShareComponent.GetAddedPermissionsAsync().Result;
 
                 foreach (Permission p in permissions)
                 {
@@ -423,7 +425,7 @@ namespace Wolpertinger.Manager.CLI
         {
             try
             {
-                string root = fileShareComponent.GetRootDirectoryPath();
+                string root = fileShareComponent.GetRootDirectoryPathAsync().Result;
                 Program.OutputLine(this, root);
             }
             catch (RemoteErrorException)

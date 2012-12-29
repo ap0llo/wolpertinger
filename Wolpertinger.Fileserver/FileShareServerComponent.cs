@@ -36,7 +36,7 @@ namespace Wolpertinger.Fileserver
     /// A server implementation of the FileShare component.
     /// See Wolpertinger API Documentation for details on the component.
     /// </summary>
-    [Component(ComponentNamesExtended.FileShare, ComponentType.Server)]
+    [Component(ComponentNamesExtended.FileShare)]
     public class FileShareServerComponent : IComponent
     {
 

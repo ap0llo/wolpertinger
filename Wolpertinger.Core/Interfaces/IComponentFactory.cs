@@ -31,19 +31,5 @@ namespace Wolpertinger.Core
         /// <returns>Returns a new IServerComponent if a matching implementation could be found, otherwise returns null</returns>
         IComponent GetServerComponent(string name);
 
-        /// <summary>
-        /// Gets a new instance of the IClientComponent that matches the specified component name.
-        /// </summary>
-        /// <param name="name">The name of the component</param>
-        /// <returns>Returns a new IClientComponent if a matching implementation could be found, otherwise returns null</returns>
-        IComponent GetClientComponent(string name);
-
-        /// <summary>
-        /// Checks whether the specified component is a combined client- and server-component        
-        /// </summary>
-        /// <param name="component">The component to check</param>
-        bool IsClientServerComponent(IComponent component);        
-
-
     }
 }

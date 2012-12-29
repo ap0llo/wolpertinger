@@ -1,0 +1,1 @@
+Int64====A signed 64bit integer value.Stores numbers in the range from –9,223,372,036,854,775,808 to 9,223,372,036,854,775,807.###XML SchemaXML Schema type: int64Defined in file [base.xsd](xsd/base.xsd)###Example	<object xmlns="http://nerdcave.eu/wolpertinger" type="int64">4873568236</object>

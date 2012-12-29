@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using Nerdcave.Common;
 
 namespace Wolpertinger.Core
@@ -27,91 +28,40 @@ namespace Wolpertinger.Core
     /// Client implementation of the ClientInfoProvider component.
     /// See Wolpertinger API Documentation for details on the component.
     /// </summary>
-    [Component(ComponentNamesExtended.ClientInfoProvider, ComponentType.Client)]
-    public class ClientInfoClientComponent : ClientComponent
+    public class ClientInfoClientComponent : IComponent
     {
-        /// <summary>
-        /// Occurs when a response to a GetClientInfo request is received
-        /// </summary>
-        public event EventHandler<ObjectEventArgs> GetClientInfoCompleted;
 
-        /// <summary>
-        /// Occurs when a response to a GetKnownClients request is received
-        /// </summary>
-        public event EventHandler<ObjectEventArgs> GetKnownClientsCompleted;    
-      
-        /// <summary>
-        /// Synchronously call the GetClientInfo RemoteMethod on the target client.
-        /// </summary>
-        /// <returns>Returns the repsonse when it is received (Blocking)</returns>
-        public ClientInfo GetClientInfo()
+
+
+        public IClientConnection ClientConnection { get; set; }
+
+
+        public ClientInfoClientComponent(IClientConnection clientConnection = null)
         {
-            return (ClientInfo)callRemoteMethod(ClientInfoProviderMethods.GetClientInfo.ToString());
-        }
-
-        /// <summary>
-        /// Asynchronously call the GetClientInfo RemoteMethod on the target client and 
-        /// raises the GetClientInfoCompleted event, once a response is received.
-        /// </summary>
-        public void GetClientInfoAsync()
-        {
-            callRemoteMethodAsync(ClientInfoProviderMethods.GetClientInfo,true);
-        }
-
-        /// <summary>
-        /// Synchronously calls the GetKnownClients RemoteMethod on the target client.
-        /// </summary>
-        /// <returns>Returns a lsit of clients known to the target cleint once a response is received (Blocking)</returns>
-        public IEnumerable<ClientInfo> GetKnownClients()
-        {
-            return (IEnumerable<ClientInfo>)callRemoteMethod(ClientInfoProviderMethods.GetKnownClients);
-        }
-
-        /// <summary>
-        /// Asynchronously calls the GetKnownClients RemoteMethod on the target client and
-        /// raises the GetKnownClientsCompleted event when a response is received.
-        /// </summary>
-        public void GetKnownClientsAsync()
-        {
-            callRemoteMethodAsync(ClientInfoProviderMethods.GetKnownClients, true);
-        }
-
-
-        /// <summary>
-        /// Response handler for the GetClientInfo RemoteMethod
-        /// </summary>
-        /// <param name="info">The ClientInfo returned by the target client</param>
-        [ResponseHandler(ClientInfoProviderMethods.GetClientInfo)]
-        protected void responseHandlerGetClientInfo(ClientInfo info)
-        {
-            if (info != null)           
-                onGetClientInfoCompleted(info);           
-        }
-
-        /// <summary>
-        /// Response handler for the GetKnownClients RemoteMethod
-        /// </summary>
-        /// <param name="clients">The list of clients returned by the target client.</param>
-        [ResponseHandler(ClientInfoProviderMethods.GetKnownClients)]
-        protected void responseHandlerGetKnownClients(IEnumerable<ClientInfo> clients)
-        {
-            if (clients != null)            
-                onGetKnownClientsCompleted(clients);            
+            this.ClientConnection = clientConnection;
         }
 
 
 
-        protected void onGetClientInfoCompleted(ClientInfo info)
+        public Task<ClientInfo> GetClientInfoAsync()
         {
-            if (GetClientInfoCompleted != null)            
-                GetClientInfoCompleted(this, new ObjectEventArgs(info));            
+            return Task.Factory.StartNew<ClientInfo>(delegate
+            {
+                return (ClientInfo)ClientConnection.CallRemoteFunction(ComponentNamesExtended.ClientInfoProvider, ClientInfoProviderMethods.GetClientInfo);
+            });
         }
 
-        protected void onGetKnownClientsCompleted(IEnumerable<ClientInfo> clients)
+
+        public Task<IEnumerable<ClientInfo>> GetKnownClientsAsync()
         {
-            if (this.GetKnownClientsCompleted != null)
-                this.GetKnownClientsCompleted(this, new ObjectEventArgs(clients));
+            return Task.Factory.StartNew<IEnumerable<ClientInfo>>(delegate
+            {
+                return (IEnumerable<ClientInfo>)ClientConnection.CallRemoteFunction(ComponentNamesExtended.ClientInfoProvider, ClientInfoProviderMethods.GetKnownClients);
+            });
         }
+
+
+        
     }
 
 

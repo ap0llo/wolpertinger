@@ -18,43 +18,23 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Text;
 
 namespace Wolpertinger.Core
 {
     /// <summary>
-    /// Combined server- and client-implementation of the "Core" component
+    /// Server-implementation of the "Core" component
     /// See Wolpertinger API Documentation for details on the component.
     /// </summary>
-    [Component("Core", ComponentType.ClientServer)]
-    public class CoreComponent : ClientComponent
+    [Component(ComponentNames.Core)]
+    public class CoreServerComponent : IComponent
     {
 
-        #region Client Implementation
 
-        /// <summary>
-        /// Asynchronously calls the Hearbeat RemoteMethod on the target client
-        /// </summary>
-        public void HeartbeatAsync()
-        {
-            callRemoteMethodAsync(CoreMethods.Heartbeat, false);
-        }
-
-        /// <summary>
-        /// Asnychronously calls the SendResetNotice in the target client
-        /// </summary>
-        public void SendResetNoticeAsync()
-        {
-            callRemoteMethodAsync(CoreMethods.SendResetNotice, false);
-        }
-
-
-        #endregion Client Implementation
+        public IClientConnection ClientConnection { get; set; }
         
 
-
-        
-        #region Server Implementation
 
         /// <summary>
         /// Server implementation of the Heartbeat RemoteMethod
@@ -79,7 +59,6 @@ namespace Wolpertinger.Core
         }
 
 
-        #endregion Server Implementation
 
     }
 }

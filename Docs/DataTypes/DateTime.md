@@ -1,0 +1,1 @@
+DateTime=======Represents a point in time. Wolpertinger uses the same format as specified for the dateTime type in XML Schema.###XML SchemaXML Schema type: datetimeDefined in file [base.xsd](xsd/base.xsd)####Example	<object  xmlns="http://nerdcave.eu/wolpertinger" type="DateTime">2002-10-10T19:00:00.0000000+02:00</object>

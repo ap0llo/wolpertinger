@@ -136,6 +136,7 @@ namespace Wolpertinger.Core
         public IComponentFactory ComponentFactory { get; set; }
         
 
+
         /// <summary>
         /// Initializes a new instance of DefaultClientConnection
         /// </summary>
@@ -146,41 +147,11 @@ namespace Wolpertinger.Core
             this.timeoutTimer.Elapsed += timeoutTimer_Elapsed;
         }
 
-        
 
 
 
-        /// <summary>
-        /// Send a message to the target client
-        /// </summary>
-        /// <param name="msg">The message to process and send</param>
-        public void SendMessage(RpcMessage msg)
-        {
-            //if message is a RemoteMethodCall, it will be cached to be able to process response messages
-            if (msg is RemoteMethodCall)
-            {
-                RemoteMethodCall call = msg as RemoteMethodCall;
-                if (call.ResponseExpected)
-                {
-                    unrepliedCalls.Add(call.CallId, call);
-                    expectedResponseCount++;
-                    timeoutTimer.Start();
-                }
-            }
 
-            //process the message using the MessageProcessor and pass the result to the ConnectionManager to send
-            try
-            {
-                this.WtlpClient.Send(msg.Serialize().ToString().GetBytesUTF8());
-            }
-            catch (WtlpException ex)
-            {
-                if (ex.Error == Result.Timeout)
-                    throw new TimeoutException();
-                else
-                    throw new RemoteErrorException();
-            }
-        }
+
 
 
         /// <summary>
@@ -203,7 +174,7 @@ namespace Wolpertinger.Core
             //if specified, notify the target client that the connection has been reset
             if (sendNotice)
             {
-                (GetClientComponent(ComponentNames.Core) as CoreComponent).SendResetNoticeAsync();
+                (new CoreClientComponent() { ClientConnection = this }).SendResetNoticeAsync();                
             }
 
             //reset TrustLevel and encryption keys
@@ -219,39 +190,39 @@ namespace Wolpertinger.Core
             onConnectionReset();
         }
 
-        /// <summary>
-        /// Gets the connection's client component that matches the given name
-        /// </summary>
-        /// <param name="name">The component-name to look for</param>
-        /// <returns>
-        /// Returns the matching client component or null if component could not be found
-        /// </returns>
-        public IComponent GetClientComponent(string name)
-        {
-            //check if a matching component has already been initialized
-            if (!clientComponents.ContainsKey(name))
-            {
-                //get a new component
-                IComponent component = ComponentFactory.GetClientComponent(name);
+        ///// <summary>
+        ///// Gets the connection's client component that matches the given name
+        ///// </summary>
+        ///// <param name="name">The component-name to look for</param>
+        ///// <returns>
+        ///// Returns the matching client component or null if component could not be found
+        ///// </returns>
+        //public IComponent GetClientComponent(string name)
+        //{
+        //    //check if a matching component has already been initialized
+        //    if (!clientComponents.ContainsKey(name))
+        //    {
+        //        //get a new component
+        //        IComponent component = ComponentFactory.GetClientComponent(name);
 
-                //check if a component was found
-                if (component == null)
-                    return null;
+        //        //check if a component was found
+        //        if (component == null)
+        //            return null;
                 
-                //check the component's type
-                ComponentAttribute attribute = (ComponentAttribute)component.GetType().GetCustomAttributes(typeof(ComponentAttribute), false).First();
+        //        //check the component's type
+        //        ComponentAttribute attribute = (ComponentAttribute)component.GetType().GetCustomAttributes(typeof(ComponentAttribute), false).First();
 
-                clientComponents.Add(name, component);
+        //        clientComponents.Add(name, component);
 
-                //if the component is a Client-Server component, also add it to the list of server components
-                if (ComponentFactory.IsClientServerComponent(component))
-                    serverComponents.Add(name, component);
-            }
+        //        //if the component is a Client-Server component, also add it to the list of server components
+        //        if (ComponentFactory.IsClientServerComponent(component))
+        //            serverComponents.Add(name, component);
+        //    }
 
-            clientComponents[name].ClientConnection = this;
-            //return the requested component
-            return clientComponents[name];
-        }
+        //    clientComponents[name].ClientConnection = this;
+        //    //return the requested component
+        //    return clientComponents[name];
+        //}
 
         /// <summary>
         /// Gets the connection's server component that matches the given name
@@ -263,7 +234,7 @@ namespace Wolpertinger.Core
         public IComponent GetServerComponent(string name)
         {
             //check if a matching component has already been initialized
-            if (!serverComponents.ContainsKey(name))
+            if (!serverComponents.ContainsKey(name.ToLower()))
             {
                 //get a new component
                 IComponent component = ComponentFactory.GetServerComponent(name);
@@ -272,19 +243,7 @@ namespace Wolpertinger.Core
                 if (component == null)
                     return null;
 
-                //check the component's type
-                ComponentAttribute attribute = (ComponentAttribute)component.GetType().GetCustomAttributes(typeof(ComponentAttribute), false).First();
-                
-                if (attribute.Type == ComponentType.Server)
-                {
-                    serverComponents.Add(name, component);
-                }
-                //if component is a ClientServer component, add it to both the list of client and server components
-                else if (attribute.Type == ComponentType.ClientServer)
-                {
-                    serverComponents.Add(name, component);
-                    clientComponents.Add(name, component);                    
-                }
+                serverComponents.Add(name.ToLower(), component);
             }
 
             serverComponents[name].ClientConnection = this;
@@ -293,53 +252,8 @@ namespace Wolpertinger.Core
             return serverComponents[name];
         }
 
-        /// <summary>
-        /// Gets a new EventWaitHandle that will be signaled once a response matching the given Id is received or the connection times out.
-        /// </summary>
-        /// <param name="callId">The CallId of the response to wait for</param>
-        /// <returns>
-        /// Returns a new EventWaitHandle
-        /// </returns>
-        public EventWaitHandle GetWaitHandle(Guid callId)
-        {
-            if (!synchronousCalls_WaitHandles.ContainsKey(callId))
-                synchronousCalls_WaitHandles.Add(callId, new EventWaitHandle(false, EventResetMode.ManualReset));
 
-            return synchronousCalls_WaitHandles[callId];
-        }
 
-        /// <summary>
-        /// Calls the remote specfied remote method and waits until a reponse is received.
-        /// </summary>
-        /// <param name="call">The remote method to call</param>
-        /// <returns>
-        /// Returns the value returned by the remote method call or a RemoteErrorException if the method call returned an error.
-        /// If the request timed out, throws a TimeoutException
-        /// </returns>
-        public object GetReponseValueBlocking(RemoteMethodCall call)
-        {            
-            //send the RemoteMethodCall
-            SendMessage(call);
-
-            //wait for the response using a EventWaitHandle
-            GetWaitHandle(call.CallId).WaitOne();
-
-            //get the returned value from the cache
-            object value = synchonousCalls_ValueCache[call.CallId];
-            
-            //remove the value from value cache
-            synchonousCalls_ValueCache.Remove(call.CallId);
-
-            if (value is TimeoutException)
-            {
-                throw (value as TimeoutException);
-            }
-            else
-            {
-                return value;
-            }
-
-        }
 
         /// <summary>
         /// Gets a <see cref="Wolpertinger.Core.ClientInfo" /> abouts the connection's target client
@@ -358,6 +272,19 @@ namespace Wolpertinger.Core
             }; 
         }
 
+
+        public void CallRemoteAction(string component, string name, params object[] args)
+        {
+            invokeRemoteMethod(component, name, args, false);
+        }
+
+        public object CallRemoteFunction(string component, string name, params object[] args)
+        {
+            return invokeRemoteMethod(component, name, args, true);
+        }
+
+
+        
 
 
         #region Event Handlers
@@ -416,7 +343,7 @@ namespace Wolpertinger.Core
             }
         }
 
-        protected virtual void onRemoteErrorOccurred(RemoteError err)        
+        protected virtual void onRemoteErrorOccurred(RemoteError err)
         {
             if (this.RemoteErrorOccurred != null)
                 this.RemoteErrorOccurred(this, err);
@@ -426,13 +353,86 @@ namespace Wolpertinger.Core
 
 
 
+        protected object invokeRemoteMethod(string component, string name, object[] args, bool responseExpected)
+        {
+            var call = new RemoteMethodCall() { TargetName = component, MethodName = name, Parameters = args.ToList<object>(), ResponseExpected = responseExpected };
+
+            //send the RemoteMethodCall
+            sendMessage(call);
+
+            //if a response is expected, wait for the recipient to send a response
+            if (responseExpected)
+            {
+                //wait for the response using a EventWaitHandle
+                if (!synchronousCalls_WaitHandles.ContainsKey(call.CallId))
+                    synchronousCalls_WaitHandles.Add(call.CallId, new EventWaitHandle(false, EventResetMode.ManualReset));
+
+                synchronousCalls_WaitHandles[call.CallId].WaitOne();
+
+                //get the returned value from the cache
+                object value = synchonousCalls_ValueCache[call.CallId];
+
+                //remove the value from value cache
+                synchonousCalls_ValueCache.Remove(call.CallId);
+
+                if (value is TimeoutException)
+                {
+                    throw (value as TimeoutException);
+                }
+                else if (value is RemoteError)
+                {
+                    throw new RemoteErrorException(value as RemoteError);
+                }
+                else
+                {
+                    return value;
+                }
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Send a message to the target client
+        /// </summary>
+        /// <param name="msg">The message to process and send</param>
+        protected virtual void sendMessage(RpcMessage msg)
+        {
+            //if message is a RemoteMethodCall, it will be cached to be able to process response messages
+            if (msg is RemoteMethodCall)
+            {
+                RemoteMethodCall call = msg as RemoteMethodCall;
+                if (call.ResponseExpected)
+                {
+                    unrepliedCalls.Add(call.CallId, call);
+                    expectedResponseCount++;
+                    timeoutTimer.Start();
+                }
+            }
+
+            //process the message using the MessageProcessor and pass the result to the ConnectionManager to send
+            try
+            {
+                this.WtlpClient.Send(msg.Serialize().ToString().GetBytesUTF8());
+            }
+            catch (WtlpException ex)
+            {
+                if (ex.Error == Result.Timeout)
+                    throw new TimeoutException();
+                else
+                    throw new RemoteErrorException();
+            }
+        }
+
+
         /// <summary>
         /// Processes an incoming message (using the MessageProcessor for deserialization)
         /// </summary>
         /// <param name="message">The message to be processed</param>
         private void processMessage(ParsingResult message)
         {
-
             //parse the message
             RpcMessage msg = null;
             var body = message.Payload.ToStringUTF8();            
@@ -458,10 +458,9 @@ namespace Wolpertinger.Core
             {
                 logger.Error("Could not parse message received from {0}", this.Target);
                 RemoteError error = new RemoteError(RemoteErrorCode.InvalidXmlError);
-                SendMessage(error);
+                sendMessage(error);
                 return;
             }
-
 
             
             //encryption is mandatory if TrustLevel is 2 or higher
@@ -475,58 +474,52 @@ namespace Wolpertinger.Core
 
                 //The RemoteError will not be encrypted
                 WtlpClient.EncryptMessages = false;
-                SendMessage(error);
+                sendMessage(error);
                 ResetConnection();
                 return;
             }
 
-            //get the component responsible for handling the message
-            string componentName = (msg as RpcMessage).TargetName;
-            //RemoteMethodCalls are handled by a server-component, RemoteMethodResponses by client-components
-            //RemoteErrors are handled by the ClientConnection itself
-            IComponent component = (msg is RemoteMethodCall)
-                                    ? GetServerComponent(componentName)
-                                    : GetClientComponent(componentName);
-
-            if (component == null)
-            {
-                //no component to handle the request was found => send a RemoteError as response and return
-                RemoteError error = new RemoteError(RemoteErrorCode.ComponentNotFoundError);
-                error.CallId = (msg as RemoteMethodCall).CallId;
-                SendMessage(error);
-                return;
-            }
 
 
             if (msg is RemoteMethodCall)
             {
-                //process method calls in a new thread to prevent method calls from blocking other threads
-                //ThreadPool.QueueUserWorkItem(delegate
-                // {
-                //     processRemoteMethodCall(result.Message as RemoteMethodCall, component);
-                // });
-                var processingTask = new Task(delegate
+                //get the component responsible for handling the message
+                string componentName = (msg as RpcMessage).TargetName;
+                var component = GetServerComponent(componentName);
+
+                if (component == null)
                 {
-                    processRemoteMethodCall(msg as RemoteMethodCall, component);
-                });
+                    //no component to handle the request was found => send a RemoteError as response and return
+                    RemoteError error = new RemoteError(RemoteErrorCode.ComponentNotFoundError);
+                    error.CallId = (msg as RemoteMethodCall).CallId;
+                    sendMessage(error);
+                    return;
+                }
+
+                var processingTask = new Task(delegate
+                    {
+                        processRemoteMethodCall(msg as RemoteMethodCall, component);
+                    });
 
                 processingTask.Start();
 
                 var heartBeatTask = new Task(delegate
-                {
-                    while (!processingTask.IsCompleted)
                     {
-                        Thread.Sleep(25000);
-                        if (!processingTask.IsCompleted)
-                            (this.GetClientComponent(ComponentNames.Core) as CoreComponent).HeartbeatAsync();
-                    }
-                });
+                        var coreComponent = new CoreClientComponent();
+                        coreComponent.ClientConnection = this;
+                        while (!processingTask.IsCompleted)
+                        {
+                            Thread.Sleep(25000);
+                            if (!processingTask.IsCompleted)
+                                coreComponent.HeartbeatAsync();
+                        }
+                    });
 
                 heartBeatTask.Start();
             }
             else if (msg is RemoteMethodResponse)
             {
-                processRemoteMethodResponse(msg as RemoteMethodResponse, component);
+                processRemoteMethodResponse(msg as RemoteMethodResponse);
             }
             else if (msg is RemoteError)
             {
@@ -535,10 +528,9 @@ namespace Wolpertinger.Core
             else
             {
                 logger.Error("ProcessMessage() encoutered an unknown type of Message");
-                SendMessage(new RemoteError(RemoteErrorCode.UnknownMessage));
+                sendMessage(new RemoteError(RemoteErrorCode.UnknownMessage));
             }
         }
-
 
         /// <summary>
         /// Tries to retrive a <see cref="CallResult"/> from the specified component for the speicified RemoteMethodCall using Reflection
@@ -618,7 +610,7 @@ namespace Wolpertinger.Core
             if (callResult is ErrorResult)
             {
                 //result was error => send RemoteError
-                SendMessage(
+                sendMessage(
                     new RemoteError((callResult as ErrorResult).ErrorCode)
                         {
                             CallId = call.CallId,
@@ -634,7 +626,7 @@ namespace Wolpertinger.Core
                 response.TargetName = call.TargetName;
                 response.ResponseValue = (callResult as ResponseResult).ResponseValue;
 
-                SendMessage(response);
+                sendMessage(response);
             }
             else if (callResult is VoidResult)
             {
@@ -658,8 +650,7 @@ namespace Wolpertinger.Core
         /// Processes an incoming RemoteMethodResponse
         /// </summary>
         /// <param name="response">The RemoteMethodResponse that is to be processed</param>
-        /// <param name="component">The component responsible for the response</param>
-        protected virtual void processRemoteMethodResponse(RemoteMethodResponse response, IComponent component)
+        protected virtual void processRemoteMethodResponse(RemoteMethodResponse response)
         {
             //get the RemoteMethodCall that triggered the response from the cache
             RemoteMethodCall call = unrepliedCalls.ContainsKey(response.CallId) ? unrepliedCalls[response.CallId] : null;
@@ -676,22 +667,7 @@ namespace Wolpertinger.Core
                     synchonousCalls_ValueCache.Add(call.CallId, response.ResponseValue);
                     synchronousCalls_WaitHandles[call.CallId].Set();
                 }
-                //pass ansynchronous calls to the client component that made the call
-                else
-                {
-                    //get methods that handle the response
-                    var methodInfos = component.GetType()
-                                        .GetMethods(BindingFlags.NonPublic| BindingFlags.Instance | BindingFlags.Public)
-                                        .Where(x => x.GetCustomAttributes(typeof(ResponseHandlerAttribute), true)
-                                            .Any(y => (y as ResponseHandlerAttribute).MethodName == call.MethodName));
-                    
-                    if(methodInfos.Any())
-                    {
-                        methodInfos.First().Invoke(component, new object[] { response.ResponseValue });
-                    }
-
-                }
-
+           
                 //remove call from unreplied calls
                 unrepliedCalls.Remove(response.CallId);
 

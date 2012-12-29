@@ -56,11 +56,10 @@
   <ItemGroup>
     <Compile Include="Attributes\ComponentAttribute.cs" />
     <Compile Include="Attributes\MethodCallHandlerAttribute.cs" />
-    <Compile Include="Attributes\ResponseHandlerAttribute.cs" />
     <Compile Include="CallResults.cs" />
-    <Compile Include="ClientComponent.cs" />
     <Compile Include="ComponentNames.cs" />
-    <Compile Include="CoreComponent.cs" />
+    <Compile Include="CoreServerComponent.cs" />
+    <Compile Include="CoreClientComponent.cs" />
     <Compile Include="DefaultImplementations\DefaultConnectionFactory.cs" />
     <Compile Include="DefaultImplementations\DefaultWtlpClient.cs" />
     <Compile Include="DefaultImplementations\XmppMessagingClient.cs" />

@@ -18,27 +18,54 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Text;
 
 namespace Wolpertinger.Core
 {
     /// <summary>
-    /// Marks a method as handler for the response of a RemoteMethod call
+    /// Client-implementation of the "Core" component
+    /// See Wolpertinger API Documentation for details on the component.
     /// </summary>
-    public sealed class ResponseHandlerAttribute : Attribute
+    public class CoreClientComponent : IComponent
     {
-        /// <summary>
-        /// The name of the RemoteMethod to handle
-        /// </summary>
-        public string MethodName { get; private set; }
 
         /// <summary>
-        /// Initializes a new instace of ResponseHandlerAttribute with the specified method name
+        /// The IClientConnection used to communicate with the target-client
         /// </summary>
-        /// <param name="methodname">The name of the RemoteMethod to handle</param>
-        public ResponseHandlerAttribute(string methodname)
+        public IClientConnection ClientConnection { get; set; }
+
+
+
+        public CoreClientComponent()
+        { }
+
+        public CoreClientComponent(IClientConnection clientConnection)
         {
-            this.MethodName = methodname;
+            this.ClientConnection = clientConnection;
         }
+
+
+        /// <summary>
+        /// Asynchronously calls the Hearbeat RemoteMethod on the target client
+        /// </summary>
+        public Task HeartbeatAsync()
+        {
+            var task = new Task(delegate { ClientConnection.CallRemoteAction(ComponentNames.Core, CoreMethods.Heartbeat); });
+            task.Start();
+            return task;            
+        }
+
+        /// <summary>
+        /// Asnychronously calls the SendResetNotice in the target client
+        /// </summary>
+        public Task SendResetNoticeAsync()
+        {
+            var task = new Task(delegate { ClientConnection.CallRemoteAction(ComponentNames.Core, CoreMethods.SendResetNotice); });
+            task.Start();
+            return task;
+        }
+ 
+
     }
 }

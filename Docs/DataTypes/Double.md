@@ -1,0 +1,1 @@
+Double=====A double-precision floating-point-number.###XML SchemaXML Schema type: doubleDefined in file [base.xsd](xsd/base.xsd)###Example	<object  xmlns="http://nerdcave.eu/wolpertinger" type="double">13.37</object>
