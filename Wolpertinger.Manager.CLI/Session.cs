@@ -129,7 +129,7 @@ namespace Wolpertinger.Manager.CLI
                 {
                     Program.StatusLine(this, "Exchanging keys");
 
-                    authComponent.KeyExchangeAsync();
+                    authComponent.KeyExchangeAsync().Wait();
 
                     Program.StatusLine(this, "Key exchange completed");
                     Program.StatusLine(this, "Initiating Cluster Authentication");

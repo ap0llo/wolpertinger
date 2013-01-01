@@ -246,10 +246,10 @@ namespace Wolpertinger.Core
                 serverComponents.Add(name.ToLower(), component);
             }
 
-            serverComponents[name].ClientConnection = this;
+            serverComponents[name.ToLower()].ClientConnection = this;
 
             //return the requested component
-            return serverComponents[name];
+            return serverComponents[name.ToLower()];
         }
 
 

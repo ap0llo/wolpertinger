@@ -1,9 +1,6 @@
 Communication Protocol
 ======================
 
-<b style="color:red;">Remark: The protocol described here is a draft that may still undergo changes. The reference implemenation currently does not implement the protocol described here but a older version of it. The implementation will be updated once the specification has been stabilized</b>
-
-
 Introduction
 -------------
 The protocol used by wolpertinger consists of 2 layers: 'Transmission Layer' and 'Message Layer'.
@@ -11,7 +8,7 @@ The protocol used by wolpertinger consists of 2 layers: 'Transmission Layer' and
 The Message Layer specifies high-level constructs for remote method calls and is based on XML.
 The Transmission Layer is responsible the transmission of these xml messages and handles encryption, compression etc.
 
-Wolpertinger was built to communicate via XMPP, but of course other protocols could be used to send the messages.
+Wolpertinger was built to with communcation via XMPP in mind, but of course other messaging protocols could be used instead.
 
 
 ![Protocol Layers](protocol_layers.png) 
@@ -27,24 +24,24 @@ Transmission Layer (Layer 1)
 
 ![Message Transmission Overview](MessageProcessing.png)
 
-The transmission layer handles the transmission and processing of messages from the message layer. I
+The transmission layer handles the transmission and processing of messages from the message layer. 
 
 
 ####Message Metadata
 The Transmission layer adds metadata to the actual message being sent which is required by the message's recipent to parse the message.
-Metadata is stored in a simple key-value format separated be semicolons added in front of the actual payload. A colon separates key and value. So a valid metadate will always looks like this:
+Metadata is stored in a simple key-value format separated be semicolons added in front of the actual payload. A colon separates key and value, so a valid metadate will always looks like this:
 
 		<KEY>:<VALUE>;
 
 
 ####Payload
-Layer 1 will always treat the message's payload as byte-data. How this byte-data is interpreted by the layers above is of no concern to layer 1.
+Layer 1 will always treat the message's payload as binary-data. How this byte-data is interpreted by the layers above is of no concern to layer 1.
 
 **The message's payload is always base64-encoded**
 
 
 ####Message Id and Delivery Confirmation
-Every message is assigned a message id by the sender. The id is a unsigned 32-bit integer value and needs to be unique per session (the sender might just use a message counter). 
+Every message gets assigned a message id by the sender. The id is a unsigned 32-bit integer value and needs to be unique per session (the sender might just use a message counter). 
 
 Integer overflows can be handled by just resetting the counter to 0. (It is highly unlikely that the number of messages that are processed at the same time exceeds 2^32)
 
@@ -61,9 +58,11 @@ to the sender.
 
 If no error occurred, set RESULTCODE to 0, otherwise return a error-code
 
+Of course, a client does not need to and even should not confirm the delvery of delivey notifications.
+
 ####Compression
 
-To save bandwidth, messages can be compressed using GZip. If this is the case, a metadata field is added that specifies the length of the data after compression in bytes. This is necessary, because AES encryption might add padding zeros at the end of the data (AES uses a fixed block size) which would make it impossible to decompress otherwise.
+To save bandwidth, messages can be compressed using GZip. If this is the case, a metadata field is added that specifies the length of the message's payload **after compression** in bytes. This is necessary, because AES encryption might add padding at the end of the data (AES uses a fixed block size) which would make it impossible to decompress otherwise.
 
 -	Key: 'gzip'
 -	Value: Length of the data in bytes after compression

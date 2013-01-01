@@ -136,7 +136,8 @@ namespace Wolpertinger.Core
             return Task.Factory.StartNew<bool>(delegate
             {
                 string token = getNewAuthToken();
-                clusterAuthToken = token;
+
+                (ClientConnection.GetServerComponent(ComponentNamesExtended.Authentication) as AuthenticationComponent).clusterAuthToken = token;
 
                 bool verified = (bool)ClientConnection.CallRemoteFunction(ComponentNamesExtended.Authentication, AuthenticationMethods.ClusterAuthRequestVerification, token);
 
@@ -255,7 +256,6 @@ namespace Wolpertinger.Core
             keyProvider = null;
 
             return result;
-
         }
 
         /// <summary>
