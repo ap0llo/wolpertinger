@@ -197,6 +197,7 @@ namespace Wolpertinger.Core
 
                 messagingClients.Add(messagingClient);
                 messagingClient.MessageReceived += messagingClient_MessageReceived;
+                messagingClient.PeerDisconnected += messagingClient_PeerDisconnected;
                 messagingClient.Connect();
    
 
@@ -212,6 +213,14 @@ namespace Wolpertinger.Core
                 settingsLoaded = true;
 
                 logger.Info("Sucessfully loaded settings");
+            }
+        }
+
+        void messagingClient_PeerDisconnected(object sender, ObjectEventArgs<string> e)
+        {
+            if (clientConnections.ContainsKey(e.Value.ToLower()))
+            {
+                clientConnections[e.Value.ToLower()].ResetConnection();
             }
         }
 
@@ -266,6 +275,7 @@ namespace Wolpertinger.Core
         /// </returns>
         public IClientConnection GetClientConnection(string target)
         {
+            target = target.ToLower();
             return clientConnections.ContainsKey(target) ? clientConnections[target] : null;
         }
 
@@ -293,6 +303,7 @@ namespace Wolpertinger.Core
         /// <param name="target">The target of the ClientConnection to be removed</param>
         public void RemoveClientConnection(string target)
         {
+            target = target.ToLower();
             if (clientConnections.ContainsKey(target))
             {
                 //before removing a ClientConnection, save it as known client
@@ -303,6 +314,9 @@ namespace Wolpertinger.Core
 
                 saveKnownClients();
                 logger.Info("Removing Client-Connection: {0}", target);
+
+              
+                
                 clientConnections.Remove(target);
             }
         }

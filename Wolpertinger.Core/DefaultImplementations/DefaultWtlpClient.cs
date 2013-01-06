@@ -38,7 +38,7 @@ namespace Wolpertinger.Core
         /*XMPP spec says limit on server side must not be smaller than 10K, googling shows 65k is common
         Limiting to 30500 characters should result in message sizes of about 30K (splitting messages adds a little overhead) which seems like a good compromise */
         private const int MESSAGELENGTHLIMIT = 30500;
-        private const int TIMEOUTINTERVAL = 30000000;//30000;      //interval after which a sent message times out (in milliseconds)
+        private const int TIMEOUTINTERVAL = 20000;      //interval after which a sent message times out (in milliseconds)
 
         #endregion
 
@@ -303,7 +303,13 @@ namespace Wolpertinger.Core
                             if(!messageResults.ContainsKey(messageId))
                                 messageResults.Add(messageId, Result.Timeout);
                         }
-                        sem.Release(); 
+                        sem.Release();
+
+                        lock (objectLock)
+                        {
+                            waitingThreads.Remove(messageId);
+                        }
+                        timeoutTimer.Stop();
                     };
 
             timeoutTimer.Start();
@@ -329,6 +335,10 @@ namespace Wolpertinger.Core
         }
 
 
+        public void Detach()
+        {
+            this.MessagingClient = null;
+        }
 
         /// <summary>
         /// Verfies a message's format is valid.

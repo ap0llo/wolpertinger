@@ -23,6 +23,7 @@ using System.Threading.Tasks;
 using Nerdcave.Common;
 using Slf;
 using Wolpertinger.Core;
+using Wolpertinger.FileShareCommon;
 
 namespace Wolpertinger.Manager.CLI
 {
@@ -201,7 +202,28 @@ namespace Wolpertinger.Manager.CLI
                     FileShareMethods.GetRootDirectoryPath);
             });
         }
-        
+
+
+        public Task<IEnumerable<SnapshotInfo>> GetSnapshotsAsync()
+        {
+            return Task.Factory.StartNew<IEnumerable<SnapshotInfo>>(delegate
+            {
+                return (IEnumerable<SnapshotInfo>)ClientConnection.CallRemoteFunction(
+                    ComponentNamesExtended.FileShare,
+                    FileShareMethods.GetSnapshots);
+            });
+        }
+
+
+        public Task<Guid> CreateSnapshotAsync()
+        {
+            return Task.Factory.StartNew<Guid>(delegate
+            {
+                return Guid.Parse((string)ClientConnection.CallRemoteFunction(
+                    ComponentNamesExtended.FileShare,
+                    FileShareMethods.CreateSnapshot));
+            });
+        }
 
     }
 

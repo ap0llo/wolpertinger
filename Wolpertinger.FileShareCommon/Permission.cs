@@ -23,7 +23,7 @@ using System.Xml.Linq;
 using Nerdcave.Common.Extensions;
 using Nerdcave.Common.Xml;
 
-namespace Wolpertinger.Core
+namespace Wolpertinger.FileShareCommon
 {
     /// <summary>
     /// Describes a permission to access a item in a shared folder.

@@ -15,53 +15,67 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 */
 
-using Nerdcave.Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Xml.Linq;
+using Nerdcave.Common.Extensions;
+using Nerdcave.Common.Xml;
 
-namespace Wolpertinger.Core
+namespace Wolpertinger.FileShareCommon
 {
     /// <summary>
-    /// Interface for the service for creating hash values of files
+    /// 
     /// </summary>
-    public interface IHashingService
+    [XmlTypeName("Wolpertinger.MountInfo")]
+    public class MountInfo : ISerializable
     {
-        /// <summary>
-        /// Occurs when a file's hash value has been calculted
-        /// </summary>
-        event EventHandler<GetHashEventArgs> GetHashAsyncCompleted;
+        public string MountPoint { get; set; }
 
-        /// <summary>
-        /// Queues the specified file for hashing
-        /// </summary>
-        /// <param name="filename">The name of the file to be hashed</param>
-        void GetHashAsync(string filename, Priority priority);
-
-        /// <summary>
-        /// Queues the specified file for hashing and waits for the hash to be finished
-        /// </summary>
-        /// <param name="filename">The name of the file nto be hashed</param>
-        /// <returns>Returns the hash of the file's contents as string (base64-encoded)</returns>
-        string GetHash(string filename, Priority priority);
-
-    }
+        public string LocalPath { get; set; }
 
 
-    /// <summary>
-    /// EventArgs for the GetHashAsyncCompleted event
-    /// </summary>
-    public class GetHashEventArgs : EventArgs
-    {
-        /// <summary>
-        /// The name of the file that has been hashed
-        /// </summary>
-        public string Path { get; set; }
+        public MountInfo()
+        {
+            this.MountPoint = "";
+            this.LocalPath = "";
+        }
 
-        /// <summary>
-        /// The calculated hash value
-        /// </summary>
-        public string Hash { get; set; }
+
+
+        #region ISerializable Members
+
+
+        public XElement Serialize()
+        {
+            XElement xml = new XElement("MountInfo");
+
+            xml.Add(new XElement("MountPoint") { Value = this.MountPoint });
+            xml.Add(new XElement("LocalPath") { Value = this.LocalPath });
+
+            return xml;
+        }
+
+        public object Deserialize(XElement xmlData)
+        {
+            if (xmlData == null || xmlData.Name.LocalName != "MountInfo")
+                return null;
+
+            try
+            {
+                MountInfo result = new MountInfo();
+                result.MountPoint = xmlData.Element("MountPoint").Value;
+                result.LocalPath = xmlData.Element("LocalPath").Value;
+                                             
+                return result;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        #endregion
     }
 }

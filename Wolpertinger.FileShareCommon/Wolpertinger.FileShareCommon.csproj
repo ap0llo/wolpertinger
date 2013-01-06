@@ -1,22 +1,19 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
-    <ProductVersion>8.0.30703</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{3F263993-CD7C-449D-A085-DC5D99813691}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{A7CFB891-5B66-43EE-8033-BD2E668A3680}</ProjectGuid>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Wolpertinger.Manager.CLI</RootNamespace>
-    <AssemblyName>Wolpertinger.Manager.CLI</AssemblyName>
+    <RootNamespace>Wolpertinger.FileShareCommon</RootNamespace>
+    <AssemblyName>Wolpertinger.FileShareCommon</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <TargetFrameworkProfile>
-    </TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
-    <PlatformTarget>x86</PlatformTarget>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -25,8 +22,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
-    <PlatformTarget>x86</PlatformTarget>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -34,18 +30,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup>
-    <ApplicationIcon>icon.ico</ApplicationIcon>
-  </PropertyGroup>
   <ItemGroup>
-    <Reference Include="NLog">
-      <HintPath>..\dependencies\NLog.dll</HintPath>
-    </Reference>
-    <Reference Include="SLF, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="SLF">
       <HintPath>..\dependencies\SLF.dll</HintPath>
-    </Reference>
-    <Reference Include="SLF.NLogFacade">
-      <HintPath>..\dependencies\SLF.NLogFacade.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -56,36 +43,27 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Context.cs" />
-    <Compile Include="FileShareClientComponent.cs" />
-    <Compile Include="MainContext.cs" />
-    <Compile Include="Program.cs" />
+    <Compile Include="DirectoryObject.cs" />
+    <Compile Include="DirectoryObjectDiff.cs" />
+    <Compile Include="FileObject.cs" />
+    <Compile Include="FilesystemObject.cs" />
+    <Compile Include="IHashingService.cs" />
+    <Compile Include="MountException.cs" />
+    <Compile Include="MountInfo.cs" />
+    <Compile Include="Permission.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Session.cs" />
+    <Compile Include="Snapshot.cs" />
+    <Compile Include="SnapshotInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Nerdcave.Common\Nerdcave.Common.csproj">
-      <Project>{B7FA3F58-FDF8-4AAD-AE7C-EF1A80CCF069}</Project>
+      <Project>{b7fa3f58-fdf8-4aad-ae7c-ef1a80ccf069}</Project>
       <Name>Nerdcave.Common</Name>
     </ProjectReference>
     <ProjectReference Include="..\Wolpertinger.CoreComponents\Wolpertinger.CoreComponents.csproj">
       <Project>{58effe36-cf9f-42c7-b2cf-d721b06683bf}</Project>
       <Name>Wolpertinger.CoreComponents</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Wolpertinger.Core\Wolpertinger.Core.csproj">
-      <Project>{42BF5AC0-A438-49FB-8049-9549DA556898}</Project>
-      <Name>Wolpertinger.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Wolpertinger.FileShareCommon\Wolpertinger.FileShareCommon.csproj">
-      <Project>{a7cfb891-5b66-43ee-8033-bd2e668a3680}</Project>
-      <Name>Wolpertinger.FileShareCommon</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="icon.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="app.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

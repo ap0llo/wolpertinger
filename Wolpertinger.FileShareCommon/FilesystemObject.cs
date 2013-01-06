@@ -24,7 +24,7 @@ using Nerdcave.Common.Xml;
 using Nerdcave.Common.Extensions;
 using System.Globalization;
 
-namespace Wolpertinger.Core
+namespace Wolpertinger.FileShareCommon
 {
     /// <summary>
     /// Base class for FileObject and DirectoryObject

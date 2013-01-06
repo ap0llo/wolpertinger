@@ -27,7 +27,7 @@ using Nerdcave.Common.IO;
 using Nerdcave.Common.Xml;
 using Slf;
 
-namespace Wolpertinger.Core
+namespace Wolpertinger.FileShareCommon
 {
     /// <summary>
     /// Class encapsulating information about a directory and it's files

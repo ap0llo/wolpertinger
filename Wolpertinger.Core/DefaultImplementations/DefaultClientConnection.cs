@@ -39,7 +39,7 @@ namespace Wolpertinger.Core
 
         private IWtlpClient _wtlpClient;
 
-        private System.Timers.Timer timeoutTimer = new System.Timers.Timer(30000000);//30000);
+        private System.Timers.Timer timeoutTimer = new System.Timers.Timer(30000);
         private Dictionary<string, IComponent> clientComponents = new Dictionary<string, IComponent>();
         private Dictionary<string, IComponent> serverComponents = new Dictionary<string, IComponent>();
 
@@ -182,7 +182,11 @@ namespace Wolpertinger.Core
             MyTrustLevel = 0;
             WtlpClient.EncryptMessages = false;
             WtlpClient.EncryptionKey = null;
-            WtlpClient.EncryptionIV = null;            
+            WtlpClient.EncryptionIV = null;
+
+            WtlpClient.Detach();
+            WtlpClient = null;
+
 
             Connected = false;            
 

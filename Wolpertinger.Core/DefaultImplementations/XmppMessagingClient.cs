@@ -159,11 +159,13 @@ namespace Wolpertinger.Core
 
         private void xmpp_OnPresence(object sender, Presence pres)
         {
-            string from = String.Format("{0}@{1}", pres.From.User, pres.From.Server);
+            if (pres.Type == PresenceType.unavailable)
+            {
+                string from = String.Format("{0}@{1}", pres.From.User, pres.From.Server);
 
-            logger.Info("{0} disconnected", from);
-            
-            onPeerDisconnected(from);
+                logger.Info("{0} disconnected", from);
+                    onPeerDisconnected(from);
+            }
         }
 
         private void xmpp_OnMessage(object sender, agsXMPP.protocol.client.Message msg)

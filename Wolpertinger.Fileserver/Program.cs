@@ -26,6 +26,7 @@ using System.IO;
 using System.IO.Pipes;
 using System.Reflection;
 using Wolpertinger.Core;
+using Wolpertinger.FileShareCommon;
 
 namespace Wolpertinger.Fileserver
 {
@@ -91,11 +92,7 @@ namespace Wolpertinger.Fileserver
             if (!Directory.Exists(folder))
                 Directory.CreateDirectory(folder);
 
-            //Set the directory for cahing hashes of files
-            string hashCachePath = Path.Combine(folder, "Cached Hashes");
-            if (!Directory.Exists(hashCachePath))
-                Directory.CreateDirectory(hashCachePath);            
-
+   
             //Initalize ConnectionManager
             //TODO manager.AddProfile(Profile.FileServer);
             //manager.AddComponent(typeof(ClientInfoProvider), typeof(XmppLoggingConfigurator), typeof(FileShare));
