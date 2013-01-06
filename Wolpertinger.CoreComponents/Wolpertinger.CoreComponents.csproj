@@ -54,13 +54,6 @@
     <Compile Include="Components\ClientServerComponents\AuthenticationComponent.cs" />
     <Compile Include="Components\ClientServerComponents\XmppLoggingConfiguratorComponent.cs" />
     <Compile Include="Components\ServerComponets\ClientInfoServerComponent.cs" />
-    <Compile Include="Core Data Types\DirectoryObject.cs" />
-    <Compile Include="Core Data Types\FileObject.cs" />
-    <Compile Include="Core Data Types\FilesystemObject.cs" />
-    <Compile Include="Core Data Types\MountInfo.cs" />
-    <Compile Include="Core Data Types\Permission.cs" />
-    <Compile Include="IHashingService.cs" />
-    <Compile Include="MountException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

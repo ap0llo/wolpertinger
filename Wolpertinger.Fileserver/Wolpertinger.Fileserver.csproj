@@ -127,6 +127,10 @@
       <Project>{42BF5AC0-A438-49FB-8049-9549DA556898}</Project>
       <Name>Wolpertinger.Core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Wolpertinger.FileShareCommon\Wolpertinger.FileShareCommon.csproj">
+      <Project>{a7cfb891-5b66-43ee-8033-bd2e668a3680}</Project>
+      <Name>Wolpertinger.FileShareCommon</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="icon.ico" />

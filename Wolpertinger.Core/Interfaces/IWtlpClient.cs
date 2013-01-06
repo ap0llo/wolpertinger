@@ -66,6 +66,11 @@ namespace Wolpertinger.Core
         /// <param name="message">The message to be processed</param>
         void HandleMessage(string message);
 
+
+        void Detach();
+        
+
+
     }
 
     /// <summary>

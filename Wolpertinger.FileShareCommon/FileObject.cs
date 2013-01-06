@@ -26,8 +26,9 @@ using Nerdcave.Common.Xml;
 using Nerdcave.Common.IO;
 using System.Threading;
 using Nerdcave.Common;
+using Wolpertinger.Core;
 
-namespace Wolpertinger.Core
+namespace Wolpertinger.FileShareCommon
 {
     /// <summary>
     /// Class encapsulating information about a file

@@ -24,6 +24,7 @@ using Slf;
 using System.Security;
 using Nerdcave.Common;
 using Nerdcave.Common.Extensions;
+using Wolpertinger.FileShareCommon;
 
 namespace Wolpertinger.Manager.CLI
 {

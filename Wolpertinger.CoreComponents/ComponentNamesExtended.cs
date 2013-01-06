@@ -34,17 +34,20 @@ namespace Wolpertinger.Core
     /// </summary>
     public static class FileShareMethods
     {
-       public const string  AddSharedDirectory = "AddSharedDirectory";
-       public const string  RemoveSharedDirectory = "RemoveSharedDirectory";
-       public const string  GetDirectoryInfo = "GetDirectoryInfo";
-       public const string  GetFileInfo = "GetFileInfo";
-       public const string  GetMounts = "GetMounts";
-       public const string  AddPermission = "AddPermission";
-       public const string  GetPermission = "GetPermission";
-       public const string  GetAddedPermissions = "GetAddedPermissions";
-       public const string  RemovePermission = "RemovePermission";
-       public const string  SetRootDirectoryPath = "SetRootDirectoryPath";
-       public const string GetRootDirectoryPath = "GetRootDirectoryPath";
+        public const string AddSharedDirectory = "AddSharedDirectory";
+        public const string RemoveSharedDirectory = "RemoveSharedDirectory";
+        public const string GetDirectoryInfo = "GetDirectoryInfo";
+        public const string GetFileInfo = "GetFileInfo";
+        public const string GetMounts = "GetMounts";
+        public const string AddPermission = "AddPermission";
+        public const string GetPermission = "GetPermission";
+        public const string GetAddedPermissions = "GetAddedPermissions";
+        public const string RemovePermission = "RemovePermission";
+        public const string SetRootDirectoryPath = "SetRootDirectoryPath";
+        public const string GetRootDirectoryPath = "GetRootDirectoryPath";
+        public const string GetSnapshots = "GetSnapshots";
+        public const string CreateSnapshot = "CreateSnapshot";
+
     }
 
 
