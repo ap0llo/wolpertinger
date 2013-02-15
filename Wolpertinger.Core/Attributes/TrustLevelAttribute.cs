@@ -38,7 +38,7 @@ namespace Wolpertinger.Core
         public byte RequiredTrustLevel { get; private set; }
 
         /// <summary>
-        /// Initializes a new instace of TrustLevelAttribute with the specified trust-level
+        /// Initializes a new instance of TrustLevelAttribute with the specified trust-level
         /// </summary>
         /// <param name="requiredTrustLevel">The minimum required trust-level to access the method</param>
         public TrustLevelAttribute(byte requiredTrustLevel)

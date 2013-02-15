@@ -1,5 +1,5 @@
 ﻿/*
-
+ * 
 Licensed under the new BSD-License
  
 Copyright (c) 2011-2013, Andreas Grünwald 
@@ -29,22 +29,23 @@ namespace Wolpertinger.FileShareCommon
     public interface IHashingService
     {
         /// <summary>
-        /// Occurs when a file's hash value has been calculted
+        /// Occurs when a file's hash value has been calculated
         /// </summary>
         event EventHandler<GetHashEventArgs> GetHashAsyncCompleted;
-
-        /// <summary>
-        /// Queues the specified file for hashing
-        /// </summary>
-        /// <param name="filename">The name of the file to be hashed</param>
-        void GetHashAsync(string filename, Priority priority);
 
         /// <summary>
         /// Queues the specified file for hashing and waits for the hash to be finished
         /// </summary>
         /// <param name="filename">The name of the file nto be hashed</param>
         /// <returns>Returns the hash of the file's contents as string (base64-encoded)</returns>
+        /// <returns>Returns the file's hash. On errror returns null</returns>
         string GetHash(string filename, Priority priority);
+
+        /// <summary>
+        /// Queues the specified file for hashing and returns immediatelly
+        /// </summary>
+        /// <param name="filename">The name of the file to be hashed</param>
+        void GetHashAsync(string filename, Priority priority);
 
     }
 

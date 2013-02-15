@@ -39,180 +39,13 @@ namespace Wolpertinger.Fileserver
 	/// </summary>
 	public class HashingService : IHashingService
 	{
-		/*
-		private ILogger logger;
-
-		private static Task hashingTask;
-		private static PriorityBlockingQueue<string> queuedHashes = new PriorityBlockingQueue<string>();
-
-		private static ConcurrentDictionary<string, EventWaitHandle> waitHandles = new ConcurrentDictionary<string, EventWaitHandle>();
-		private static ConcurrentDictionary<string, string> hashCache = new ConcurrentDictionary<string, string>();
-
-		private static SHA1CryptoServiceProvider sha1h;
-
+		
+		//The only instance of HashingService (Singleton class)
 		private static HashingService instance;
 
-
-		public event EventHandler<GetHashEventArgs> GetHashAsyncCompleted;
-
-
-		
-		static HashingService()
-		{
-			sha1h = new SHA1CryptoServiceProvider();
-
-			instance = new HashingService();
-
-			hashingTask = new Task(instance.calculateHashes);
-			hashingTask.Start();
-
-		}
-
-
-		public static IHashingService GetHashingService()
-		{
-			return instance;
-		}
-
-
-		//Private constructor (singleton class)
-		private HashingService()
-		{
-			 logger = LoggerService.GetLogger("HashingService");
-		}
-
-
-
-
-		public void GetHashAsync(string filename, Priority priority)
-		{
-
-			filename = filename.ToLower();
-
-			if(!File.Exists(filename))
-			{
-				onGetHashAsyncCompleted(filename, null);
-				return;
-			}
-
-			using (var session = Program.Database.OpenSession())
-			{
-
-#if DEBUG
-		 
-			   
-#endif
-
-				var info = session.Load<HashInfo>(getKeyForFileName(filename));
-				FileInfo fInfo = new FileInfo(filename);
-
-				if (info != null)
-				{
-					if (info.FileName == filename.ToLower() &&
-						info.Created == fInfo.CreationTimeUtc &&
-						info.LastEdited == fInfo.LastWriteTimeUtc &&
-						info.Size == fInfo.Length)
-					{
-						onGetHashAsyncCompleted(filename, info.Hash);
-						return;
-					}
-				}
-			}
-
-			//no cached value found or file has been modified => queue file for hashing
-			queuedHashes.Add(filename, priority);
-
-		}
-
-
-		private string getKeyForFileName(string filename)
-		{
-			return "filehash/" + filename.ToLower().GetHashSHA1();
-		}
-
-
-
-		public string GetHash(string filename, Priority priority)
-		{
-			filename = filename.ToLower();
-
-			EventWaitHandle waitHandle;
-
-			lock (this)
-			{
-				waitHandle = new EventWaitHandle(false, EventResetMode.AutoReset);
-				waitHandles.AddOrUpdate(filename, waitHandle, (k, v) => v);
-				waitHandle = waitHandles[filename];
-			}
-
-			GetHashAsync(filename, priority);
-
-			waitHandle.WaitOne();
-
-			return hashCache[filename];
-
-		}
-
-
-		private void calculateHashes()
-		{
-			while (true)
-			{
-				string file = queuedHashes.Take();
-
-				if (File.Exists(file))
-				{
-					FileInfo fInfo = new FileInfo(file);
-					HashInfo info = new HashInfo()
-						{
-							FileName = file.ToLower(),
-							Created = fInfo.CreationTimeUtc,
-							LastEdited = fInfo.LastWriteTimeUtc,
-							Size = fInfo.Length
-						};
-
-					logger.Info("Calculating Hash for {0}", file);
-					info.Hash = getHashSHA1(file);
-
-					using (var session = Program.Database.OpenSession())
-					{
-						session.Store(info, getKeyForFileName(file));
-						session.SaveChanges();
-					}
-					onGetHashAsyncCompleted(file, info.Hash);
-				}
-				else
-				{
-					//raise event to release threads that may be waiting for hasing to finish
-					onGetHashAsyncCompleted(file, null);
-				}
-			}
-		}
-
-	
-
-
-
-		private void onGetHashAsyncCompleted(string filename, string hash)
-		{
-			if (waitHandles.ContainsKey(filename))
-			{
-				var waitHandle = waitHandles[filename];
-				hashCache.AddOrUpdate(filename, hash, (k, v) => hash);
-				waitHandle.Set();
-			}
-
-			if (GetHashAsyncCompleted != null)
-				GetHashAsyncCompleted(null, new GetHashEventArgs() { Path = filename, Hash = hash });
-		}
-
-		*/
-
-		static HashingService instance;
-
-		ILogger logger = LoggerService.GetLogger("HashingService");
-		SHA1CryptoServiceProvider sha1Provider = new SHA1CryptoServiceProvider();
-		PriorityBlockingQueue<string> queue = new PriorityBlockingQueue<string>();
+		private ILogger logger = LoggerService.GetLogger("HashingService");
+		private SHA1CryptoServiceProvider sha1Provider = new SHA1CryptoServiceProvider();
+		private PriorityBlockingQueue<string> queue = new PriorityBlockingQueue<string>();
 
 
 		static HashingService()
@@ -220,18 +53,32 @@ namespace Wolpertinger.Fileserver
 			instance = new HashingService();
 		}
 
+
+		/// <summary>
+		/// Gets the hashing service instance.
+		/// </summary>
 		public static IHashingService GetHashingService()
 		{
 			return instance;
 		}
 
+
+		/// <summary>
+		/// Prevents a default instance of the <see cref="HashingService" /> class from being created.
+		/// </summary>
 		private HashingService()
 		{
+			//Start a new Thread to do the actual hashing
 			var threadStart = new ThreadStart(delegate { processQueuedFiles(); });
 			new Thread(threadStart).Start();
 		}
 
 
+		/// <summary>
+		/// Gets the key used to store the hash in the database for the speicified filename
+		/// </summary>
+		/// <param name="fileName">Name of the file to genereate the key for</param>
+		/// <returns>Returns a key for the speicified filename</returns>
 		private string getKey(string fileName)
 		{
 			return "filehash/" + fileName.Trim().ToLower().GetHashSHA1();
@@ -242,24 +89,23 @@ namespace Wolpertinger.Fileserver
 		/// </summary>
 		/// <param name="fileName">The path of the file that's to be hashed.</param>
 		/// <returns></returns>
-		private string calculateHash(string fileName)
+		private string calculateHash(FileStream stream)
 		{
-			//Console.WriteLine("Generating Hash for " + fileName);
-
 			string sHash = "";
-			using (StreamReader sr = new StreamReader(fileName))
+			using (StreamReader sr = new StreamReader(stream))
 			{
 				sHash = sha1Provider.ComputeHash(sr.BaseStream).ToHexString();
 			}
-
-			//Console.WriteLine("Done.");
 
 			return sHash;
 		}
 
 		/// <summary>
-		/// Gets the hash for the specified file from the cache
+		/// Gets the hash for the specified file from the cache and checks if the cached value is still valid
 		/// </summary>
+		/// <returns>
+		/// Returns the file's hash from the cache or null if no hash or only an outdated hash has been found
+		/// </returns>
 		private string queryHash(string fileName)
 		{
 			//normalize filename
@@ -298,17 +144,24 @@ namespace Wolpertinger.Fileserver
 		}
 
 
+		/// <summary>
+		/// Generates a new instance of HashInfo which stores information about the hash
+		/// </summary>
+		/// <param name="filename">The name of the file that has been hashed</param>
+		/// <param name="hash">The file's hash</param>
+		/// <returns>Returns a new instance of HashInfo containing information avout the specified file. On error returns null</returns>
 		private HashInfo getHashInfo(string filename, string hash)
 		{            
-			if (!File.Exists(filename) || hash == null)
+			//check if file exists and hash is valid
+			if (!File.Exists(filename) || hash.IsNullOrEmpty())
 				return null;
 
-			var result = new HashInfo();
-			result.FileName = filename;
-			result.Hash = hash;
+			//Initialize new instance of HashInfo
+			var result = new HashInfo() { FileName = filename, Hash = hash };
 
+			//Load information about the file from disk and set HashInfo properties
 			var info = new FileInfo(filename);
-
+			
 			result.Created = info.CreationTimeUtc;
 			result.LastEdited = info.LastWriteTimeUtc;
 			result.Size = info.Length;
@@ -316,66 +169,63 @@ namespace Wolpertinger.Fileserver
 			return result;
 		}
 
+
+		/// <summary>
+		/// Runs in an infinite loop and calculates hashes for all files that have been queued.
+		/// If the queue is empty, waits until new items are enqueued
+		/// </summary>
 		private void processQueuedFiles()
 		{
 			while (true)
 			{
+				//get the next file to be hashed from the queue
 				string file = queue.Take();
 
+				//cannot calculate hash if file does not exist
 				if (!File.Exists(file))
 				{
 					hashCompleted(file, null);
 				}
 				else
 				{
+					//check if a up-to-date hash is stored in the cache
 					string hash = queryHash(file);
 					if (hash != null)
 					{
 						hashCompleted(file, hash);
 					}
+					//calculate the hash for the file
 					else
 					{
+						//Lock file to prevent modifications while hash is calculated and stored in the cache
+						var stream = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.Read);
+						
 						logger.Info("Calculating Hash for {0}", file);
-						//calcualte the hash for the file
-                        try
-                        {
-                            hash = calculateHash(file);
-                        }
-                        catch (IOException)
-                        {
-                            Thread.Sleep(1000);
-                            queue.Add(file, Priority.Low);
-                        }
+						try
+						{
+							hash = calculateHash(stream);
+						}
+						catch (IOException)
+						{
+							//error calculating hash, re-enqueue file and try again later
+							Thread.Sleep(1000);
+							queue.Add(file, Priority.Low);
+						}
 
 						//store the file's hash for later use
+						
+						//wrap the hash into a HashInfo object
 						var info = getHashInfo(file, hash);
 
-
-						
+						//store HashInfo in cache
 						using (var session = Program.Database.OpenSession())
-						{
-							//var results =
-							//(
-							//    from item in session.Query<HashInfo>()
-							//    select item
-							//)
-							//.ToArray();
-
-							//logger.Debug("ResultCount before Store: " + results.Length);
-
+						{				
 							session.Store(info, getKey(file));
 							session.SaveChanges();
-
-
-							//results =
-							//(
-							//    from item in session.Query<HashInfo>()
-							//    select item
-							//)
-							//.ToArray();
-
-							//logger.Debug("ResultCount after Store: " + results.Length);
 						}
+
+						//Release lock on the file
+						stream.Close(); 
 					}
 				}
 
@@ -383,19 +233,30 @@ namespace Wolpertinger.Fileserver
 			}
 		}
 
-
+		/// <summary>
+		/// Raises the GetHashAsyncCompleted event with the specified values
+		/// </summary>
+		/// <param name="filename">The file which's hash has been calculated</param>
+		/// <param name="hash">The file's hash</param>
 		private void hashCompleted(string filename, string hash)
 		{
 			if (this.GetHashAsyncCompleted != null)
-			{
 				this.GetHashAsyncCompleted(this, new GetHashEventArgs() { Path = filename, Hash = hash });
-			}
 		}
+
 
 		#region IHashingService Members
 
+		/// <summary>
+		/// Occurs when a file's hash value has been calculated
+		/// </summary>
 		public event EventHandler<GetHashEventArgs> GetHashAsyncCompleted;
 
+		/// <summary>
+		/// Queues the specified file for hashing and returns immediatelly
+		/// </summary>
+		/// <param name="filename">The name of the file to be hashed</param>
+		/// <returns>Returns the file's hash. On errror returns null</returns>
 		public string GetHash(string filename, Priority priority)
 		{
 			if (!File.Exists(filename))
@@ -424,7 +285,12 @@ namespace Wolpertinger.Fileserver
 			return hash;
 
 		}
-		
+
+		/// <summary>
+		/// Queues the specified file for hashing and waits for the hash to be finished
+		/// </summary>
+		/// <param name="filename">The name of the file nto be hashed</param>
+		/// <returns>Returns the hash of the file's contents as string (base64-encoded)</returns>
 		public void GetHashAsync(string filename, Priority priority)
 		{
 			if (!File.Exists(filename))
@@ -454,18 +320,36 @@ namespace Wolpertinger.Fileserver
 
 	
 
-
+	/// <summary>
+	/// Class used to store hashes in the cache
+	/// </summary>
 	public class HashInfo
 	{
+		/// <summary>
+		/// The name of the file that has been hashed
+		/// </summary>
 		public string FileName { get; set; }
 
+		/// <summary>
+		/// The Creation-Time in UTC of the file at the time the hash was calculated
+		/// </summary>
 		public DateTime Created { get; set; }
 
+		/// <summary>
+		/// The LastEdited time in UTC of the file at the time the hash was calculated
+		/// </summary>
 		public DateTime LastEdited { get; set; }
 
+		/// <summary>
+		/// The file's size at the time the hash was calculated
+		/// </summary>
 		public long Size { get; set;}
 
+		/// <summary>
+		/// The hash of the file 
+		/// </summary>
 		public string Hash { get; set; }
+
 	}
 
 
