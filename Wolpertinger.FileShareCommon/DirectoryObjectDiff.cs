@@ -10,7 +10,7 @@ using Nerdcave.Common.Xml;
 
 namespace Wolpertinger.FileShareCommon
 {
-    public class DirectoryObjectDiff : ISerializable
+    public class DirectoryObjectDiff// TODO : ISerializable
     {
         /// <summary>
         /// Name that identifies the 'left' DirectoryObject that has been compared

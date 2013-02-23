@@ -84,7 +84,7 @@ namespace Nerdcave.Common.Xml
         public void SaveItem(string key, object value)
         {
             //serialzie the item and add a 'key' attribute
-            XElement xmlItem = XmlSerializationHelper.SerializeToXmlObjectElement(value);
+            XElement xmlItem = XmlSerializer.Serialize(value);
             xmlItem.Add(new XAttribute("key", key));
 
             //check if item with that key already exists => overwrite it
@@ -128,7 +128,7 @@ namespace Nerdcave.Common.Xml
                 return default(T);
 
             //try to deserialize the item
-            object oItem = XmlSerializationHelper.DeserializeFromXMLObjectElement(item);
+            object oItem = XmlSerializer.Deserialize(item);
             Type type = oItem.GetType();
 
             //return item if it could be derserialized to the specified type, otherwise return default value

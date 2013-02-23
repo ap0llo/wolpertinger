@@ -98,31 +98,38 @@ namespace Wolpertinger.FileShareCommon
 
         #region ISerializable Members
 
+        protected class XmlElementNames
+        {
+            public static string XmlNamespace = "http://nerdcave.eu/wolpertinger";
+            public static XName FilesystemObject = XName.Get("FilesystemObject", XmlNamespace);
+            public static XName Name = XName.Get("Name", XmlNamespace);
+            public static XName Path = XName.Get("Path", XmlNamespace);
+            public static XName LastEdited = XName.Get("LastEdited", XmlNamespace);
+            public static XName LastAccessed = XName.Get("LastAccessed", XmlNamespace);
+            public static XName Created = XName.Get("Created", XmlNamespace);
+
+        }
     
         public virtual XElement Serialize()
         {
-            XElement xml = new XElement("FilesystemObject");
+            XElement xml = new XElement(XmlElementNames.FilesystemObject);
 
-            xml.Add(new XElement("Name") { Value = this.Name });
-            xml.Add(new XElement("Path") { Value = this.Path });
-            xml.Add(new XElement("LastEdited") { Value = this.LastEdited.ToUniversalTime().ToString(CultureInfo.CreateSpecificCulture("en-gb")) });
-            xml.Add(new XElement("LastAccessed") { Value = this.LastAccessed.ToUniversalTime().ToString(CultureInfo.CreateSpecificCulture("en-gb")) });
-            xml.Add(new XElement("Created") { Value = this.Created.ToUniversalTime().ToString(CultureInfo.CreateSpecificCulture("en-gb")) });
+            xml.Add(new XElement(XmlElementNames.Name, this.Name));
+            xml.Add(new XElement(XmlElementNames.Path, this.Path));
+            xml.Add(new XElement(XmlElementNames.Created, XmlSerializer.Serialize(this.Created.ToUniversalTime()).Value));
+            xml.Add(new XElement(XmlElementNames.LastEdited, XmlSerializer.Serialize(this.LastEdited.ToUniversalTime()).Value));
+            xml.Add(new XElement(XmlElementNames.LastAccessed, XmlSerializer.Serialize(this.LastAccessed.ToUniversalTime()).Value));
 
             return xml;
         }
 
-        public virtual object Deserialize(XElement xmlData)
+        public virtual void Deserialize(XElement xmlData)
         {
-            FilesystemObject result = new FilesystemObject();
+            this.Name = xmlData.Element(XmlElementNames.Name).Value;
 
-            result.Name = xmlData.Element("Name").Value;
-
-            result.LastEdited = DateTime.Parse(xmlData.Element("LastEdited").Value, CultureInfo.CreateSpecificCulture("en-gb"));
-            result.LastAccessed = DateTime.Parse(xmlData.Element("LastAccessed").Value, CultureInfo.CreateSpecificCulture("en-gb"));
-            result.Created = DateTime.Parse(xmlData.Element("Created").Value, CultureInfo.CreateSpecificCulture("en-gb"));
-
-            return result;
+            this.LastEdited = XmlSerializer.DeserializeAs<DateTime>(xmlData.Element(XmlElementNames.LastEdited)).ToUniversalTime();
+            this.LastAccessed = XmlSerializer.DeserializeAs<DateTime>(xmlData.Element(XmlElementNames.LastAccessed)).ToUniversalTime();
+            this.Created = XmlSerializer.DeserializeAs<DateTime>(xmlData.Element(XmlElementNames.Created)).ToUniversalTime();
         }
 
         #endregion

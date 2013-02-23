@@ -50,7 +50,7 @@ namespace Wolpertinger.FileShareCommon
                 this.Name = info.Name;
                 this.Created = info.CreationTimeUtc;
                 this.LastAccessed = info.LastAccessTimeUtc;
-                this.LastEdited = info.LastWriteTime;
+                this.LastEdited = info.LastWriteTimeUtc;
                 this.Hash = HashingService.GetHash(this.LocalPath, Priority.High);
             }
             else
@@ -79,41 +79,32 @@ namespace Wolpertinger.FileShareCommon
 
         #region ISerializable Members
 
-        public override XElement Serialize()
+        private class XmlElementNamesExtended : XmlElementNames
         {
+            public static XName FileObject = XName.Get("FileObject", XmlNamespace);
+            public static XName Hash = XName.Get("Hash", XmlNamespace);
+        }
+
+        public override XElement Serialize()
+        {           
             XElement xml = base.Serialize();
 
-            xml.Name = new XElement("FileObject").Name;
-            xml.Add(new XElement("Hash"));
-            xml.Element("Hash").Add(new XAttribute("hashtype", "sha1"));
-            xml.Element("Hash").Value = (this.Hash == null) ? "" : this.Hash;
+            xml.Name = XmlElementNamesExtended.FileObject;
+            xml.Add(new XElement(XmlElementNamesExtended.Hash));
+            xml.Element(XmlElementNamesExtended.Hash).Add(new XAttribute("hashtype", "sha1"));
+            xml.Element(XmlElementNamesExtended.Hash).Value = (this.Hash == null) ? "" : this.Hash;
 
             return xml;
         }
 
-        public override object Deserialize(XElement xmlData)
+        public override void Deserialize(XElement xmlData)
         {
-            if (xmlData == null || xmlData.Name.LocalName != "FileObject")
-                return null;
+            base.Deserialize(xmlData);
 
-            FilesystemObject baseResult = (FilesystemObject)base.Deserialize(xmlData);
+            this.Hash = xmlData.Element(XmlElementNamesExtended.Hash).Value;
 
-            FileObject result = new FileObject();
-
-            result.Name = baseResult.Name;
-            //result.Path = baseResult.Path;
-
-            result.LastEdited = baseResult.LastEdited;
-            result.LastAccessed = baseResult.LastAccessed;
-            result.Created = baseResult.Created;
-
-            result.Hash = xmlData.Element("Hash").Value;
-
-
-            if (xmlData.Element("Hash").Attribute("hashtype").Value != "sha1")
+            if (xmlData.Element(XmlElementNamesExtended.Hash).Attribute("hashtype").Value != "sha1")
                 throw new Exception("FileObject: Unsupported Hash-Type encountered");
-
-            return result;
         }
 
         #endregion

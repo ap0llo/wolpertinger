@@ -24,10 +24,11 @@ using System.Xml.Linq;
 namespace Nerdcave.Common.Xml
 {
     /// <summary>
-    /// Interface that must be implemented by classes to be (de-)seraialized by XmlSerializationHelper
+    /// Interface that must be implemented by classes to be (de-)seraialized by XmlSerializer
     /// </summary>
     public interface ISerializable
     {
+
         /// <summary>
         /// Serializes the object into XML
         /// </summary>
@@ -35,11 +36,9 @@ namespace Nerdcave.Common.Xml
         XElement Serialize();
 
         /// <summary>
-        /// Deserialzes the specified XML into a object on the implementing class
+        /// Deserializes the given XML and sets the callee's Properties accordingliy
         /// </summary>
         /// <param name="xmlData">The data to be deserialized</param>
-        /// <returns>Returns a new object of the implementing class </returns>
-        object Deserialize(XElement xmlData);
-
+        void Deserialize(XElement xmlData);
     }
 }

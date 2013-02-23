@@ -459,7 +459,7 @@ namespace Wolpertinger.Manager.CLI
         {
             if (!e.Handled)
             {
-                Program.ErrorLine(this, "RemoteError: {0} in {1}", e.Value.ErrorCode.ToString(), e.Value.TargetName);
+                Program.ErrorLine(this, "RemoteError: {0} in {1}", e.Value.ErrorCode.ToString(), e.Value.ComponentName);
                 e.Handled = true;
             }
         }

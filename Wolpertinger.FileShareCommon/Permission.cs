@@ -48,34 +48,34 @@ namespace Wolpertinger.FileShareCommon
 
         #region ISerializable Members
 
-        public XElement Serialize()
+
+        private class XmlElementNames
         {
-            XElement result = new XElement("Permission");
-
-            result.Add(new XElement("Path") { Value = this.Path });
-            result.Add(new XElement("PermittedClients"));
-
-            foreach (string item in PermittedClients)
-            {
-                result.Element("PermittedClients").Add(XmlSerializationHelper.SerializeToXmlObjectElement(item));
-            }
-
-            return result;
-
+            public static string XmlNamespace = "http://nerdcave.eu/wolpertinger";
+            public static XName Permission = XName.Get("Permission", XmlNamespace);
+            public static XName Path = XName.Get("Path", XmlNamespace);
+            public static XName PermittedClients = XName.Get("PermittedClients", XmlNamespace);
+            public static XName Client = XName.Get("Client", XmlNamespace);
         }
 
-        public object Deserialize(XElement xmlData)
+        public XElement Serialize()
         {
-            Permission p = new Permission();
+            XElement result = new XElement(XmlElementNames.Permission);
 
-            p.Path = xmlData.Element("Path").Value;
+            result.Add(new XElement(XmlElementNames.Path, this.Path));
+            result.Add(new XElement(XmlElementNames.PermittedClients, this.PermittedClients.Select(x => new XElement(XmlElementNames.Client, x))));
+            
+            return result;
+        }
 
-            foreach (XElement item in xmlData.Element("PermittedClients").Elements())
-            {
-                p.PermittedClients.Add((string)XmlSerializationHelper.DeserializeFromXMLObjectElement(item));
-            }
+        public void Deserialize(XElement xmlData)
+        {
+            Path = xmlData.Element(XmlElementNames.Path).Value;
 
-            return p;
+            var clients = from client in xmlData.Element(XmlElementNames.PermittedClients).Elements(XmlElementNames.Client)
+                        select client.Value;
+
+            PermittedClients = clients.ToList<string>();
         }
 
         #endregion
@@ -91,6 +91,10 @@ namespace Wolpertinger.FileShareCommon
 
             return result;
         }
+
+
+
+
 
     }
 }

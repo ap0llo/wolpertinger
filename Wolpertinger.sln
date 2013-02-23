@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wolpertinger.CoreComponents
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wolpertinger.FileShareCommon", "Wolpertinger.FileShareCommon\Wolpertinger.FileShareCommon.csproj", "{A7CFB891-5B66-43EE-8033-BD2E668A3680}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wolpertinger.Testing", "Wolpertinger.Testing\Wolpertinger.Testing.csproj", "{67D92FD8-7A45-4E43-81E6-F26C7ABB33C0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -83,6 +85,16 @@ Global
 		{A7CFB891-5B66-43EE-8033-BD2E668A3680}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{A7CFB891-5B66-43EE-8033-BD2E668A3680}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{A7CFB891-5B66-43EE-8033-BD2E668A3680}.Release|x86.ActiveCfg = Release|Any CPU
+		{67D92FD8-7A45-4E43-81E6-F26C7ABB33C0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{67D92FD8-7A45-4E43-81E6-F26C7ABB33C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{67D92FD8-7A45-4E43-81E6-F26C7ABB33C0}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{67D92FD8-7A45-4E43-81E6-F26C7ABB33C0}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{67D92FD8-7A45-4E43-81E6-F26C7ABB33C0}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{67D92FD8-7A45-4E43-81E6-F26C7ABB33C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{67D92FD8-7A45-4E43-81E6-F26C7ABB33C0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{67D92FD8-7A45-4E43-81E6-F26C7ABB33C0}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{67D92FD8-7A45-4E43-81E6-F26C7ABB33C0}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{67D92FD8-7A45-4E43-81E6-F26C7ABB33C0}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

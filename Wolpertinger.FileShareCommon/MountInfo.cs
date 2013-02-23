@@ -47,33 +47,28 @@ namespace Wolpertinger.FileShareCommon
         #region ISerializable Members
 
 
+        private static class XmlElementNames
+        {
+            public static string XmlNamespace = "http://nerdcave.eu/wolpertinger";
+            public static XName MountInfo = XName.Get("MountInfo", XmlNamespace);
+            public static XName MountPoint = XName.Get("MountPoint", XmlNamespace);
+            public static XName LocalPath = XName.Get("LocalPath", XmlNamespace);
+        }
+
         public XElement Serialize()
         {
-            XElement xml = new XElement("MountInfo");
+            XElement xml = new XElement(XmlElementNames.MountInfo);
 
-            xml.Add(new XElement("MountPoint") { Value = this.MountPoint });
-            xml.Add(new XElement("LocalPath") { Value = this.LocalPath });
+            xml.Add(new XElement(XmlElementNames.MountPoint, this.MountPoint));
+            xml.Add(new XElement(XmlElementNames.LocalPath, this.LocalPath));
 
             return xml;
         }
 
-        public object Deserialize(XElement xmlData)
-        {
-            if (xmlData == null || xmlData.Name.LocalName != "MountInfo")
-                return null;
-
-            try
-            {
-                MountInfo result = new MountInfo();
-                result.MountPoint = xmlData.Element("MountPoint").Value;
-                result.LocalPath = xmlData.Element("LocalPath").Value;
-                                             
-                return result;
-            }
-            catch (Exception)
-            {
-                return null;
-            }
+        public void Deserialize(XElement xmlData)
+        {            
+            this.MountPoint = xmlData.Element(XmlElementNames.MountPoint).Value;
+            this.LocalPath = xmlData.Element(XmlElementNames.LocalPath).Value;
         }
 
         #endregion

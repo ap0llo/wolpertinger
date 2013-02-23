@@ -19,10 +19,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Xml;
 using System.Xml.Serialization;
 using System.Xml.Linq;
 using Slf;
 using Nerdcave.Common.Xml;
+using System.Diagnostics;
 
 namespace Wolpertinger.Core
 {
@@ -32,6 +34,9 @@ namespace Wolpertinger.Core
     [XmlTypeName("Wolpertinger.ClientInfo")]
     public class ClientInfo : ISerializable
     {
+
+        static ILogger logger = LoggerService.GetLogger("ClientInfo");
+
         /// <summary>
         /// The Jabber-Id of the client the ClientInfo describes
         /// </summary>
@@ -50,9 +55,9 @@ namespace Wolpertinger.Core
         /// <summary>
         /// The most-recent supported version of the Wolpteringer protocol supported by the client
         /// </summary>
-        public byte ProtocolVersion { get; set; }
+        public int ProtocolVersion { get; set; }
 
-
+        [DebuggerStepThrough]
         public ClientInfo()
         {
             this.TrustLevel = -1;
@@ -76,54 +81,61 @@ namespace Wolpertinger.Core
 
         #region ISerializable Members
 
-        static ILogger logger = LoggerService.GetLogger("ClientInfo");
 
+
+        
 
         public XElement Serialize()
         {
-            XElement result = new XElement("ClientInfo");
-            result.Add(new XElement("JId") { Value = this.JId });
+            XElement result = new XElement(XmlElementNames.ClientInfo);
             
-            result.Add(new XElement("TrustLevel") { Value = this.TrustLevel.ToString() });
-            result.Add(new XElement("Profiles"));
-
-            foreach (Profile item in Profiles)
-            {
-                result.Element("Profiles").Add(XmlSerializationHelper.SerializeToXmlObjectElement(item.ToString()));
-            }
-
+            result.Add(new XElement(XmlElementNames.JId, this.JId));            
+            result.Add(new XElement(XmlElementNames.TrustLevel, this.TrustLevel.ToString()));
+            result.Add(new XElement(XmlElementNames.ProtocolVersion, this.ProtocolVersion));
+            result.Add(new XElement(XmlElementNames.Profiles, this.Profiles.Select(x => new XElement(XmlElementNames.Profile, x))));
+            
             return result;
-
         }
 
-        public object Deserialize(XElement xmlData)
+        public void Deserialize(XElement xmlData)
         {
 
-            if (xmlData == null) { return null; }
-            if (xmlData.Name != "ClientInfo") { return null; }
+            if (xmlData == null)
+                throw new XmlException("'xmlData' is null");
 
+            if (xmlData.Name.LocalName != "ClientInfo")
+                throw new XmlException("Invalid root element");
 
             try
             {
-                ClientInfo info = new ClientInfo();
-                info.JId = xmlData.Element("JId").Value;
+                this.JId = xmlData.Element(XmlElementNames.JId).Value;
+                this.TrustLevel = int.Parse(xmlData.Element(XmlElementNames.TrustLevel).Value);
+                this.ProtocolVersion = int.Parse(xmlData.Element(XmlElementNames.ProtocolVersion).Value);
 
-                info.Profiles = new List<Profile>();
+                var profiles = from elem in xmlData.Element(XmlElementNames.Profiles).Elements(XmlElementNames.Profile)
+                               select (Profile)(Enum.Parse(typeof(Profile), elem.Value, true));
 
-                foreach(XElement item in xmlData.Element("Profiles").Elements())
-                {
-                    info.Profiles.Add((Profile)(Enum.Parse(typeof(Profile), ((string)XmlSerializationHelper.DeserializeFromXMLObjectElement(item)))));
-                }
-
-                info.TrustLevel = int.Parse(xmlData.Element("TrustLevel").Value);
-                return info;
+                this.Profiles = profiles.ToList<Profile>();
             }
             catch (NullReferenceException ex)
             {
                 logger.Error(ex);
-                return null;
+                throw new XmlException("Could not parse xml");
             }
+        }
 
+
+        private static class XmlElementNames
+        {
+            public static string XmlNamespace = "http://nerdcave.eu/wolpertinger";
+
+            public static XName ClientInfo = XName.Get("ClientInfo", XmlNamespace);
+
+            public static XName JId = XName.Get("JId", XmlNamespace);
+            public static XName TrustLevel = XName.Get("TrustLevel", XmlNamespace);
+            public static XName ProtocolVersion = XName.Get("ProtocolVersion", XmlNamespace);
+            public static XName Profiles = XName.Get("Profiles", XmlNamespace);
+            public static XName Profile = XName.Get("Profile", XmlNamespace);
         }
 
         #endregion

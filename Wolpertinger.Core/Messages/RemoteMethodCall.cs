@@ -21,7 +21,6 @@ using System.Linq;
 using System.Xml.Linq;
 using System.Text;
 using System.Diagnostics;
-using System.Xml.Serialization;
 using Slf;
 using Nerdcave.Common.Xml;
 
@@ -31,7 +30,7 @@ namespace Wolpertinger.Core
     /// Encapsulates the call a remote Method
     /// </summary>
     [XmlTypeName("Wolpertinger.RemoteMethodCall")]
-    public class RemoteMethodCall : RpcMessage
+    public class RemoteMethodCall : RpcMessage, ISerializable
     {
         private static ILogger logger = LoggerService.GetLogger("RemoteMethodCall");
 
@@ -64,57 +63,22 @@ namespace Wolpertinger.Core
         public override XElement Serialize()
         {
             XElement xml = new XElement("RemoteMethodCall");
-            xml.Add(new XElement("TargetName") { Value = this.TargetName });
-            xml.Add(new XElement("CallId") { Value = this.CallId.ToString() });
-            xml.Add(new XElement("MethodName") { Value = this.MethodName });
-            xml.Add(new XElement("Parameters"));
-
-
-            foreach (object o in this.Parameters)
-            {
-                xml.Element("Parameters").Add(XmlSerializationHelper.SerializeToXmlObjectElement(o));
-            }
+            xml.Add(new XElement("ComponentName", this.ComponentName));
+            xml.Add(new XElement("CallId", this.CallId.ToString()));
+            xml.Add(new XElement("MethodName", this.MethodName));
+            
+            xml.Add(new XElement("Parameters"), Parameters.Select(x=> XmlSerializer.Serialize(x)));
 
             return xml;
         }
 
-        public override object Deserialize(XElement xmlData)
+        public override void Deserialize(XElement xmlData)
         {
-            if (xmlData == null) return null;
-            if (xmlData.Name.LocalName != "RemoteMethodCall") return null;
-
-            try
-            {
-                RemoteMethodCall call = new RemoteMethodCall();
-                call.TargetName = xmlData.Element("TargetName").Value;
-                call.MethodName = xmlData.Element("MethodName").Value;
-                Guid id;
-
-                if(!Guid.TryParse(xmlData.Element("CallId").Value, out id))
-                {
-                    logger.Error("No CallId found, illegal RemoteMethodCall. Returning null");
-                    return null;
-                }
-                else
-                {
-                    call.CallId = id;
-                }
-
-
-                foreach (XElement elem in xmlData.Element("Parameters").Elements())
-                {
-                    object o = XmlSerializationHelper.DeserializeFromXMLObjectElement(elem);
-                    if(o != null)call.Parameters.Add(o);
-                }
-
-                return call;
-            }
-            catch (NullReferenceException e)
-            {
-                logger.Error(e);
-                return null;
-            }
-
+            ComponentName = xmlData.Element("ComponentName").Value;
+            MethodName = xmlData.Element("MethodName").Value;
+                      
+            CallId = XmlSerializer.DeserializeAs<Guid>(xmlData.Element("CallId"));            
+            Parameters = xmlData.Element("Parameters").Elements().Select(x => XmlSerializer.Deserialize(x)).ToList<object>();            
         }
 
         #endregion

@@ -20,23 +20,24 @@ namespace Wolpertinger.FileShareCommon
 
         public DateTime Time { get; set; }
 
+
+        #region ISerializable Members
+
         public XElement Serialize()
         {
             XElement result = new XElement("SnapshotInfo");
-            result.Add(new XElement("Id") { Value = this.Id.ToString() });
-            result.Add(new XElement("Time") { Value = this.Time.ToUniversalTime().ToString(CultureInfo.CreateSpecificCulture("en-gb"))});
+            result.Add(new XElement("Id", this.Id));
+            result.Add(new XElement("Time", this.Time.ToUniversalTime().ToString("o")));
 
             return result;
         }
 
-        public object Deserialize(XElement xmlData)
+        public void Deserialize(XElement xmlData)
         {
-            var result = new SnapshotInfo();
-
-            result.Id = Guid.Parse(xmlData.Element("Id").Value);
-            result.Time = DateTime.Parse(xmlData.Element("Time").Value, CultureInfo.CreateSpecificCulture("en-gb"));
-
-            return result;
+            this.Id = Guid.Parse(xmlData.Element("Id").Value);
+            this.Time = DateTime.Parse(xmlData.Element("Time").Value);//, CultureInfo.CreateSpecificCulture("en-gb"));
         }
+        
+        #endregion
     }
 }

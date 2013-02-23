@@ -340,38 +340,27 @@ namespace Wolpertinger.FileShareCommon
             return xml;
         }
 
-        public override object Deserialize(XElement xmlData)
+        public override void Deserialize(XElement xmlData)
         {
 
-            if (xmlData == null || xmlData.Name.LocalName != "DirectoryObject")
-                return null;
+            base.Deserialize(xmlData);
 
-            FilesystemObject baseResult = (FilesystemObject)base.Deserialize(xmlData);
+            files = new Dictionary<string, FileObject>();
 
-            DirectoryObject result = new DirectoryObject();
-
-            result.Name = baseResult.Name;
-
-            result.LastEdited = baseResult.LastEdited;
-            result.LastAccessed = baseResult.LastAccessed;
-            result.Created = baseResult.Created;
-
-            FileObject file = new FileObject();
-            result.files = new Dictionary<string, FileObject>();
-            foreach (XElement item in xmlData.Element("Files").Elements())
+            foreach (XElement item in xmlData.Element("Files").Elements("FileObject"))
             {
-                FileObject newFile = file.Deserialize(item) as FileObject;
-                result.files.Add(newFile.Path.ToLower(), newFile);
+                FileObject newFile = new FileObject();
+                newFile.Deserialize(item);
+                files.Add(newFile.Name.ToLower(), newFile);
             }
 
-            result.directories = new Dictionary<string, DirectoryObject>();
-            foreach (XElement item in xmlData.Element("Directories").Elements())
+            directories = new Dictionary<string, DirectoryObject>();
+            foreach (XElement item in xmlData.Element("Directories").Elements("DirectoryObject"))
             {
-                DirectoryObject newDir = Deserialize(item) as DirectoryObject; 
-                result.directories.Add(newDir.Path.ToLower(), newDir);
+                DirectoryObject newDir = new DirectoryObject();
+                newDir.Deserialize(item);
+                directories.Add(newDir.Name.ToLower(), newDir);
             }
-
-            return result;
         }
 
         #endregion

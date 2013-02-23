@@ -359,7 +359,7 @@ namespace Wolpertinger.Core
 
         protected object invokeRemoteMethod(string component, string name, object[] args, bool responseExpected)
         {
-            var call = new RemoteMethodCall() { TargetName = component, MethodName = name, Parameters = args.ToList<object>(), ResponseExpected = responseExpected };
+            var call = new RemoteMethodCall() { ComponentName = component, MethodName = name, Parameters = args.ToList<object>(), ResponseExpected = responseExpected };
 
             //send the RemoteMethodCall
             sendMessage(call);
@@ -444,16 +444,23 @@ namespace Wolpertinger.Core
             {
                 //try to parse it as XML
                 XElement xmlMessage = XElement.Parse(body);
+                                     
                 switch (xmlMessage.Name.LocalName.ToLower())
                 {
                     case "remotemethodcall":
-                        msg = (RpcMessage)new RemoteMethodCall().Deserialize(xmlMessage);
+                        var callMessage = new RemoteMethodCall();
+                        callMessage.Deserialize(xmlMessage);
+                        msg = callMessage;
                         break;
                     case "remotemethodresponse":
-                        msg = (RpcMessage)new RemoteMethodResponse().Deserialize(xmlMessage);
+                        var responseMessage = new RemoteMethodResponse();
+                        responseMessage.Deserialize(xmlMessage);
+                        msg = responseMessage;
                         break;
                     case "remoteerror":
-                        msg = (RpcMessage)new RemoteError(RemoteErrorCode.UnspecifiedError).Deserialize(xmlMessage);
+                        var errorMessage = new RemoteError(RemoteErrorCode.UnspecifiedError);
+                        errorMessage.Deserialize(xmlMessage);
+                        msg = errorMessage;
                         break;
                 }
             }
@@ -474,7 +481,7 @@ namespace Wolpertinger.Core
                 RemoteError error = new RemoteError(RemoteErrorCode.EncryptionError);
                 if (msg.CallId != Guid.Empty)
                     error.CallId = msg.CallId;
-                error.TargetName = "Authentication";
+                error.ComponentName = "Authentication";
 
                 //The RemoteError will not be encrypted
                 WtlpClient.EncryptMessages = false;
@@ -488,7 +495,7 @@ namespace Wolpertinger.Core
             if (msg is RemoteMethodCall)
             {
                 //get the component responsible for handling the message
-                string componentName = (msg as RpcMessage).TargetName;
+                string componentName = (msg as RpcMessage).ComponentName;
                 var component = GetServerComponent(componentName);
 
                 if (component == null)
@@ -618,7 +625,7 @@ namespace Wolpertinger.Core
                     new RemoteError((callResult as ErrorResult).ErrorCode)
                         {
                             CallId = call.CallId,
-                            TargetName = call.TargetName
+                            ComponentName = call.ComponentName
                         }
                     );
             }
@@ -627,7 +634,7 @@ namespace Wolpertinger.Core
                 //result was a response => send RemoteMethodResponse
                 RemoteMethodResponse response = new RemoteMethodResponse();
                 response.CallId = call.CallId;
-                response.TargetName = call.TargetName;
+                response.ComponentName = call.ComponentName;
                 response.ResponseValue = (callResult as ResponseResult).ResponseValue;
 
                 sendMessage(response);

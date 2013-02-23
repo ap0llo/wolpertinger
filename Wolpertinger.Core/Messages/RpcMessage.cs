@@ -30,7 +30,7 @@ namespace Wolpertinger.Core
         /// <summary>
         /// The name of the component the message is adressed to
         /// </summary>
-        public string TargetName { get; set; }
+        public string ComponentName { get; set; }
 
         /// <summary>
         /// The Id associated with the RemoteMethodCall
@@ -47,7 +47,7 @@ namespace Wolpertinger.Core
             this.CallId = Guid.NewGuid();
         }
 
-
+        
         #region ISerializable Members
 
         //No implementation here, methods need to be overridden in sub-classes
@@ -57,13 +57,13 @@ namespace Wolpertinger.Core
             throw new NotImplementedException();
         }
 
-        public virtual object Deserialize(XElement xmlData)
+        public virtual void Deserialize(XElement xmlData)
         {
             throw new NotImplementedException();
         }
 
         #endregion
-
+        
 
     }
 }
