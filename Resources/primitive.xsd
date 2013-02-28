@@ -25,7 +25,10 @@
       <xs:enumeration value="directoryObject" />
       <xs:enumeration value="fileObject" />
       <xs:enumeration value="permission" />
-      <xs:enumeration value="mountInfo" />              
+      <xs:enumeration value="mountInfo" />
+      <xs:enumeration value="remoteMethodCall"/>
+      <xs:enumeration value="remoteMethodResponse"/>
+      <xs:enumeration value="remoteError"/>
     </xs:restriction>
   </xs:simpleType>
   

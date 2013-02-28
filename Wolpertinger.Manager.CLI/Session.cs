@@ -529,9 +529,7 @@ namespace Wolpertinger.Manager.CLI
                 //Program.OutputLine(this, "Path:         {0}", file.Path);
                 Program.OutputLine(this, "LastEdited:   {0}", file.LastEdited);
                 Program.OutputLine(this, "Created:      {0}", file.Created);
-                Program.OutputLine(this, "LastAccessed: {0}", file.LastAccessed);
                 Program.OutputLine(this, "Hash:         {0}", file.Hash);
-
             }
         }
 

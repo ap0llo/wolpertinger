@@ -31,6 +31,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="agsXMPP">
+      <HintPath>..\packages\agsXMPP.1.1.1.0\lib\agsXMPP.dll</HintPath>
+    </Reference>
     <Reference Include="SLF">
       <HintPath>..\dependencies\SLF.dll</HintPath>
     </Reference>
@@ -64,6 +67,9 @@
       <Project>{58effe36-cf9f-42c7-b2cf-d721b06683bf}</Project>
       <Name>Wolpertinger.CoreComponents</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

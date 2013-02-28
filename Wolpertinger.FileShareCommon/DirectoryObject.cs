@@ -35,6 +35,8 @@ namespace Wolpertinger.FileShareCommon
     [XmlTypeName("Wolpertinger.DirectoryObject")]
     public class DirectoryObject : FilesystemObject
     {
+        private string _path;
+
 
         ILogger logger = LoggerService.GetLogger("DirectoryObject");
 
@@ -46,6 +48,28 @@ namespace Wolpertinger.FileShareCommon
 
         public IEnumerable<DirectoryObject> Directories { get { return directories.Values; } }
 
+
+        public override string Path 
+        {
+            get { return _path; }
+            set
+            {
+                if (value != _path)
+                {
+                    _path = value;
+
+                    foreach (var item in files.Values)
+                    {
+                        item.Path = System.IO.Path.Combine(value, item.Name).Replace("\\", "/");
+                    }
+
+                    foreach (var item in directories.Values)
+                    {
+                        item.Path = System.IO.Path.Combine(value, item.Name).Replace("\\", "/");
+                    }
+                }
+            }
+        }
 
         /// <summary>
         /// Adds a directory to the data-structure
@@ -143,8 +167,7 @@ namespace Wolpertinger.FileShareCommon
 
             this.Name = info.Name;
             this.Created = info.CreationTimeUtc;
-            this.LastAccessed = info.LastAccessTimeUtc;
-            this.LastEdited = info.LastWriteTime;
+            this.LastEdited = info.LastWriteTimeUtc;
 
 
             //  ##  Update files    ##
@@ -310,33 +333,39 @@ namespace Wolpertinger.FileShareCommon
         }
 
 
-        
-
 
         #region ISerializable Members
 
+        private class XmlElementNamesExtended : XmlElementNames
+        {
+            public static XName DirectoryObject = XName.Get("DirectoryObject", XmlNamespace);
+            public static XName FileObject = XName.Get("FileObject", XmlNamespace);
+            public static XName Files = XName.Get("Files", XmlNamespace);
+            public static XName Directories = XName.Get("Directories", XmlNamespace);
+        }
      
         public override XElement Serialize()
         {
             XElement xml = base.Serialize();
 
-            xml.Name = new XElement("DirectoryObject").Name;
+            xml.Name = XmlElementNamesExtended.DirectoryObject;
             
             //Serialize files in the directory
-            xml.Add(new XElement("Files"));
+            var files = new XElement(XmlElementNamesExtended.Files);
+            xml.Add(files);
             foreach (FileObject item in Files)
             {
-                xml.Element("Files").Add(item.Serialize());
+                files.Add(item.Serialize());
             }
 
             //Serialize child directories
-            xml.Add(new XElement("Directories"));
+            var dirs = new XElement(XmlElementNamesExtended.Directories);
+            xml.Add(dirs);
             foreach (DirectoryObject item in Directories)
             {
-                xml.Element("Directories").Add(item.Serialize());
+                dirs.Add(item.Serialize());
             }
             
-
             return xml;
         }
 
@@ -347,7 +376,7 @@ namespace Wolpertinger.FileShareCommon
 
             files = new Dictionary<string, FileObject>();
 
-            foreach (XElement item in xmlData.Element("Files").Elements("FileObject"))
+            foreach (XElement item in xmlData.Element(XmlElementNamesExtended.Files).Elements(XmlElementNamesExtended.FileObject))
             {
                 FileObject newFile = new FileObject();
                 newFile.Deserialize(item);
@@ -355,7 +384,7 @@ namespace Wolpertinger.FileShareCommon
             }
 
             directories = new Dictionary<string, DirectoryObject>();
-            foreach (XElement item in xmlData.Element("Directories").Elements("DirectoryObject"))
+            foreach (XElement item in xmlData.Element(XmlElementNamesExtended.Directories).Elements(XmlElementNamesExtended.DirectoryObject))
             {
                 DirectoryObject newDir = new DirectoryObject();
                 newDir.Deserialize(item);
@@ -364,6 +393,7 @@ namespace Wolpertinger.FileShareCommon
         }
 
         #endregion
+
 
         /// <summary>
         /// Clones the  directory object and all it's files and directories
@@ -386,7 +416,6 @@ namespace Wolpertinger.FileShareCommon
             
             //Clone ServiceName values
             copy.Created = this.Created;
-            copy.LastAccessed = this.LastAccessed;
             copy.LastEdited = this.LastEdited;
             copy.LocalPath = this.LocalPath;
             copy.Name = this.Name;
@@ -412,4 +441,3 @@ namespace Wolpertinger.FileShareCommon
 
     }
 }
- 

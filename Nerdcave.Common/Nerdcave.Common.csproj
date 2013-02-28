@@ -31,6 +31,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="agsXMPP">
+      <HintPath>..\packages\agsXMPP.1.1.1.0\lib\agsXMPP.dll</HintPath>
+    </Reference>
     <Reference Include="ReparsePoints">
       <HintPath>Dependencies\ReparsePoints.dll</HintPath>
     </Reference>
@@ -58,6 +61,9 @@
     <Compile Include="Xml\KeyValueStore.cs" />
     <Compile Include="Xml\XmlSerializer.cs" />
     <Compile Include="Xml\XmlTypeNameAttribute.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

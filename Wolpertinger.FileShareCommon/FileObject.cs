@@ -49,7 +49,6 @@ namespace Wolpertinger.FileShareCommon
                 FileInfo info = new FileInfo(LocalPath);
                 this.Name = info.Name;
                 this.Created = info.CreationTimeUtc;
-                this.LastAccessed = info.LastAccessTimeUtc;
                 this.LastEdited = info.LastWriteTimeUtc;
                 this.Hash = HashingService.GetHash(this.LocalPath, Priority.High);
             }
@@ -67,7 +66,6 @@ namespace Wolpertinger.FileShareCommon
             //Copy ServiceName values
             copy.Created = this.Created;
             copy.Hash = this.Hash;
-            copy.LastAccessed = this.LastAccessed;
             copy.LastEdited = this.LastEdited;
             copy.LocalPath = this.LocalPath;
             copy.Name = this.Name;

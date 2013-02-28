@@ -120,7 +120,7 @@ namespace Wolpertinger.Core
             catch (NullReferenceException ex)
             {
                 logger.Error(ex);
-                throw new XmlException("Could not parse xml");
+                throw new XmlException("Could not parse xml", ex);
             }
         }
 

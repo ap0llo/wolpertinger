@@ -54,6 +54,17 @@ namespace Wolpertinger.Fileserver
             ConsoleHelper.WriteLine(ConsoleColor.Red, " Wolpertinger.Core       {0}", Assembly.GetAssembly(typeof(DefaultConnectionManager)).GetName().Version.ToString());
             Console.WriteLine();
 
+            //Set up XmlSerializer
+            XmlSerializer.RegisterType(typeof(ClientInfo), "clientInfo");
+            XmlSerializer.RegisterType(typeof(DirectoryObject), "directoryObject");
+            XmlSerializer.RegisterType(typeof(FileObject), "fileObject");
+            XmlSerializer.RegisterType(typeof(Permission), "permission");
+            XmlSerializer.RegisterType(typeof(MountInfo), "mountInfo");
+            XmlSerializer.RegisterType(typeof(RemoteMethodCall), "remoteMethodCall");
+            XmlSerializer.RegisterType(typeof(RemoteMethodResponse), "remoteMethodResponse");
+            XmlSerializer.RegisterType(typeof(RemoteError), "remoteError");
+
+
             //Set up logger            
             LoggerService.SetLogger(new CompositeLogger(new Wolpertinger.Core.ConsoleLogger(), new XmppLogger()));
             logger = LoggerService.GetLogger("Wolpertinger.Fileserver");
@@ -67,22 +78,6 @@ namespace Wolpertinger.Fileserver
             FileObject.HashingService = HashingService.GetHashingService();
 
             AuthenticationComponent foo = new AuthenticationComponent();
-
-
-
-            ////make sure an instance of Wolpertinger.SymlinkHelper is running
-            //if (!Process.GetProcessesByName("Wolpertinger.SymlinkHelper").Any())
-            //{
-            //    try
-            //    {
-            //        Process.Start(new ProcessStartInfo("Wolpertinger.SymlinkHelper.exe") { Verb = "runas" });
-            //    }
-            //    catch (Win32Exception)
-            //    {
-            //        logger.Error("Could not start SymlinkHelper");
-            //    }
-            //}
-
 
 
             if (!Directory.Exists(Path.GetDirectoryName(folder)))
@@ -115,7 +110,6 @@ namespace Wolpertinger.Fileserver
             //Console.WriteLine("Account: " + connectionManager.XmppUsername + "@" + connectionManager.XmppServer);
 
             Console.ReadLine();
-
         }
 
 
@@ -146,8 +140,6 @@ namespace Wolpertinger.Fileserver
             ConsoleHelper.WriteSpaces(spacescount);
             ConsoleHelper.Write(color, @"                |_|                          |___/           ");
             Console.Write("\n");
-
-
 
         }
 

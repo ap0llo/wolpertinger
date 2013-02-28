@@ -171,7 +171,7 @@ namespace Nerdcave.Common.Xml
 			}
 
 			//get the type the object will be deserialized to
-			string typeName = xml.Attribute("type") == null ? null : xml.Attribute("type").Value.ToLower();
+			string typeName = xml.Attribute("type") == null ? null : xml.Attribute("type").Value;
 
 			//check validity of typeName
 			if (typeName.IsNullOrEmpty())
@@ -314,7 +314,7 @@ namespace Nerdcave.Common.Xml
 
 		private static object parseList(XElement xml)
 		{
-			return xml.Elements("object").Select(x => Deserialize(xml)).ToList<object>();
+			return xml.Elements("object").Select(x => Deserialize(x)).ToList<object>();
 		}
 
 
