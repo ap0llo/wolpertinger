@@ -104,11 +104,18 @@
 		</xs:sequence>
 	</xs:complexType>
 	
+	<xs:complexType name="snapshotInfo">
+		<xs:sequence>
+			<xs:element name="Id" type="guid" />
+			<xs:element name="Time" type="xs:dateTime" />
+		</xs:sequence>
+	</xs:complexType>
+	
 	<!--Allowed root elements-->
 	<xs:element name="ClientInfo" type="clientInfo" />
 	<xs:element name="MountInfo" type="mountInfo"/>
 	<xs:element name="Permission" type="permission" />
 	<xs:element name="DirectoryObject" type="directoryObject" />
 	<xs:element name="FileObject" type="fileObject" />
-
+	<xs:element name="SnapshotInfo" type="snapshotInfo" />
 </xs:schema>

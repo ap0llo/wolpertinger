@@ -33,6 +33,8 @@ namespace Nerdcave.Common.Xml
 	{
 		//list that mappes type-names to primitive (treating string as primitive type) types
 
+        private const string xmlNamespace = "http://nerdcave.eu/wolpertinger";
+
 		private static Dictionary<string, Type> knownTypes = new Dictionary<string, Type>() 
 			{
 				{"boolean", typeof(Boolean)},
@@ -314,7 +316,7 @@ namespace Nerdcave.Common.Xml
 
 		private static object parseList(XElement xml)
 		{
-			return xml.Elements("object").Select(x => Deserialize(x)).ToList<object>();
+			return xml.Elements(XName.Get("object", xmlNamespace)).Select(x => Deserialize(x)).ToList<object>();
 		}
 
 

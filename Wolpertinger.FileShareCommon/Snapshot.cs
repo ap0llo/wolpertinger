@@ -9,13 +9,13 @@ using System.Globalization;
 
 namespace Wolpertinger.FileShareCommon
 {
+    [Serializable]
     public class Snapshot
     {
 
         public Snapshot()
         {
             this.Info = new SnapshotInfo();
-
         }
 
 

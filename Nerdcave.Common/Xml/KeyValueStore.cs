@@ -32,6 +32,16 @@ namespace Nerdcave.Common.Xml
     /// </summary>
     public class KeyValueStore
     {
+
+
+        private class XmlNames
+        {
+            private const string xmlNamespace = "http://nerdcave.eu/wolpertinger";
+
+            public static XName Items = XName.Get("items", xmlNamespace);
+            public static XName Object = XName.Get("object", xmlNamespace);
+        }
+
         string filename;
         XDocument storageFile;
 
@@ -55,7 +65,7 @@ namespace Nerdcave.Common.Xml
                 {
                     storageFile = XDocument.Load(filename);
 
-                    if (storageFile.Root.Name.LocalName != "items")
+                    if (storageFile.Root.Name != XmlNames.Items)
                         storageFile = null;
                 }
                 catch (XmlException)
@@ -68,7 +78,7 @@ namespace Nerdcave.Common.Xml
             if (storageFile == null)
             {
                 storageFile = new XDocument(new XDeclaration("1.0", "utf-8", "yes"), new XComment("Wolpertinger KeyValueStore"));
-                storageFile.Add(new XElement("items"));
+                storageFile.Add(new XElement(XmlNames.Items));
                 
                 //save the xml file
                 if(Directory.Exists(Path.GetDirectoryName(filename)))
@@ -88,10 +98,10 @@ namespace Nerdcave.Common.Xml
             xmlItem.Add(new XAttribute("key", key));
 
             //check if item with that key already exists => overwrite it
-            if (storageFile.Root.Elements("object").Any() && 
-                storageFile.Root.Elements("object").Any(x => x.Attribute("key").Value == key))
+            if (storageFile.Root.Elements(XmlNames.Object).Any() &&
+                storageFile.Root.Elements(XmlNames.Object).Any(x => x.Attribute("key").Value == key))
             {
-                var item = storageFile.Root.Elements("object").First(x => x.Attribute("key").Value == key);
+                var item = storageFile.Root.Elements(XmlNames.Object).First(x => x.Attribute("key").Value == key);
 
                 item.Remove();
                 storageFile.Root.Add(xmlItem);               
@@ -114,13 +124,13 @@ namespace Nerdcave.Common.Xml
         public T GetItem<T>(string key)
         {
             //check if there are any items stored in the file
-            if (!storageFile.Root.Elements("object").Any())
+            if (!storageFile.Root.Elements(XmlNames.Object).Any())
                 return default(T);
 
             //try to get the specified value
-            var item = storageFile.Root.Elements("object")
-                        .Any(x => x.Attribute("key").Value == key) 
-                            ? storageFile.Root.Elements("object").First(x => x.Attribute("key").Value == key) 
+            var item = storageFile.Root.Elements(XmlNames.Object)
+                        .Any(x => x.Attribute("key").Value == key)
+                            ? storageFile.Root.Elements(XmlNames.Object).First(x => x.Attribute("key").Value == key) 
                             : null;
             
             //item could not be found => return default value

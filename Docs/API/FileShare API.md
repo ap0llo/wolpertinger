@@ -87,6 +87,20 @@ FileShare exposes an API for both managing shared directories (shares, mountpoin
         <td>4</td>
         <td>none</td>
         <td><code>string</code></td>
-        <td>Returns te local path on the target machine of the folder that is currently used as root-directory. If no root-directory has been set, the return-value will be an empty string.</td>
+        <td>Returns the local path on the target machine of the folder that is currently used as root-directory. If no root-directory has been set, the return-value will be an empty string.</td>
     </tr>
+	<tr>
+		<td>GetSnapshots</td>
+		<td>3</td>
+		<td>none</td>
+		<td><code>List&lt;SnapshotInfo&gt;</code></td>
+		<td>Returns a lsit of all available filesystem snapshot</td>
+	</tr>
+	<tr>
+		<td>CreateSnapshot</td>
+		<td>3</td>
+		<td>none</td>
+		<td><code>Guid</code></td>
+		<td>Creates a new filesystem snapshot and returns its Id</td>
+	</tr>
 </table>

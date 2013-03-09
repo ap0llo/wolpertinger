@@ -223,6 +223,32 @@ namespace Wolpertinger.Testing
 
         }
 
+
+
+
+
+        [TestMethod]
+        public void TestSnapshotInfoSerialization()
+        {
+            var snapshotInfo = new SnapshotInfo();
+            snapshotInfo.Time = DateTime.Now.ToUniversalTime();
+
+            var strResult = snapshotInfo.Serialize().ToString();
+
+            XDocument.Parse(strResult).Validate(schemas, null);
+
+            var roundTrip = new SnapshotInfo();
+            roundTrip.Deserialize(XElement.Parse(strResult));
+
+
+            Assert.IsNotNull(snapshotInfo);
+            Assert.IsNotNull(roundTrip);
+
+            Assert.AreEqual<Guid>(snapshotInfo.Id, roundTrip.Id);
+            Assert.AreEqual<DateTime>(snapshotInfo.Time, roundTrip.Time);
+
+        }
+
     }
 
 

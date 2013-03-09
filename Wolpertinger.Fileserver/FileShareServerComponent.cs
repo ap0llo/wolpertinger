@@ -15,11 +15,11 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 */
 
+using BinaryRage;
 using Nerdcave.Common;
 using Nerdcave.Common.Extensions;
 using Nerdcave.Common.IO;
 using Nerdcave.Common.Xml;
-using Raven.Client;
 using Slf;
 using System;
 using System.Collections.Generic;
@@ -48,7 +48,9 @@ namespace Wolpertinger.Fileserver
 
 		protected static KeyValueStore storage = new KeyValueStore(Path.Combine(DefaultConnectionManager.SettingsFolder, "FileShare.xml"));
 
-		static bool initComplete = false;
+		protected static readonly string SnapshotDbFolder;
+        
+        protected const string SnapshotsIndexDbKey = "Snapshots";
 
 		protected static string rootPath;
 		protected static FileSystemWatcher fsWatcher;
@@ -60,7 +62,7 @@ namespace Wolpertinger.Fileserver
 
 		static FileShareServerComponent()
 		{
-		 //   Init();
+			SnapshotDbFolder = Path.Combine(Program.DatabaseFolder, "FileShareSnapshots");
 		}
 
 		internal static void Init()
@@ -99,17 +101,8 @@ namespace Wolpertinger.Fileserver
 						permissions.Add(((Permission)item).Path.ToLower(), (Permission)item);
 				}
 
-				initComplete = true;
 
 				//scan local directories to make sure hashes are available fast when requested
-				//new Task(delegate
-				//    {
-				//        foreach (var item in mounts)
-				//        {
-				//            scanDirectory(item.LocalPath);
-				//        }
-				//    }).Start();
-
 				foreach (var item in mounts)
 				{
 					scanDirectory(item.LocalPath);
@@ -483,49 +476,90 @@ namespace Wolpertinger.Fileserver
 		[MethodCallHandler(FileShareMethods.GetSnapshots)]
 		public CallResult GetSnapshots()
 		{
-			IEnumerable<SnapshotInfo> snapshots;
+            //Get the index of snapshot form the database
+            IEnumerable<Guid> snapshotIndex;
+            try
+            {
+                snapshotIndex = DB<List<Guid>>.Get(SnapshotsIndexDbKey, SnapshotDbFolder);
+            }
+            catch (DirectoryNotFoundException)
+            {
+                //index not found => use an empty one instead
+                snapshotIndex = new List<Guid>();
+            }
 
-			using (var session = Program.Database.OpenSession())
-			{
-				snapshots = session.Query<Snapshot>().Select(x => x.Info);
-			}
+            //Get all snapshots in the list from the database
+            IEnumerable<SnapshotInfo> snapshots;
+            if (snapshotIndex.Any())
+            {
+                try
+                {
+                    snapshots = snapshotIndex.Select(x => x.ToString())
+                                             .Select(x => DB<Snapshot>.Get(x, SnapshotDbFolder))
+                                             .Select(x => x.Info);
+                }
+                catch (DirectoryNotFoundException)
+                {
+                    logger.Warn("Invalid Snapshot id in database");
+                    snapshots = new List<SnapshotInfo>();                    
+                }
+            }
+            else
+            {
+                snapshots = new List<SnapshotInfo>();
+            }
 
-			return new ResponseResult(snapshots);
+            return new ResponseResult(snapshots);
 		}
 
 		[TrustLevel(3)]
 		[MethodCallHandler(FileShareMethods.CreateSnapshot)]
 		public CallResult CreateSnapshot()
 		{
-			var snapshot = new Snapshot();
-			snapshot.Permissions = permissions.Values;
-			
-			if(mountErrorOccurred)
-			{
-				return new ErrorResult(RemoteErrorCode.MountError);                
-			}
+            var snapshot = new Snapshot();
+            snapshot.Permissions = permissions.Values;
 
-			snapshot.FilesystemState = new DirectoryObject();
-			snapshot.FilesystemState.LocalPath = getLocalPath("/");
+            if (mountErrorOccurred)
+            {
+                return new ErrorResult(RemoteErrorCode.MountError);
+            }
 
-			try 
-			{
-				snapshot.FilesystemState.LoadFromDisk();    
-			}
-			catch (DirectoryNotFoundException)
-			{
-				return new ErrorResult(RemoteErrorCode.FileserverError);
-			}
+            snapshot.FilesystemState = new DirectoryObject();
+            snapshot.FilesystemState.LocalPath = getLocalPath("/");
 
-			snapshot.Info.Time = DateTime.Now.ToUniversalTime();
+            try
+            {
+                snapshot.FilesystemState.LoadFromDisk();
+            }
+            catch (DirectoryNotFoundException)
+            {
+                return new ErrorResult(RemoteErrorCode.FileserverError);
+            }
 
-			using (var session = Program.Database.OpenSession())
-			{
-				session.Store(snapshot);
-				session.SaveChanges();
-			}
+            snapshot.Info.Time = DateTime.Now.ToUniversalTime();
 
-			return new ResponseResult(snapshot.Info.Id.ToString());
+            //Get list of all snapshots from the database
+            List<Guid> snapshotIndex;
+            try 
+	        {	        
+		        snapshotIndex = BinaryRage.DB<List<Guid>>.Get(SnapshotsIndexDbKey, SnapshotDbFolder);
+	        }
+	        catch (DirectoryNotFoundException)
+	        {
+                //Snapshot-Index was not found in database => create index
+		        snapshotIndex = new List<Guid>();
+	        }
+
+            //save new snapshot in the database
+            var key = snapshot.Info.Id;
+            BinaryRage.DB<Snapshot>.Insert(key.ToString(), snapshot, SnapshotDbFolder);
+
+            //add the key to the snapshot index and save the updated index
+            snapshotIndex.Add(key);
+            BinaryRage.DB<List<Guid>>.Insert(SnapshotsIndexDbKey, snapshotIndex, SnapshotDbFolder);
+            
+
+            return new ResponseResult(snapshot.Info.Id.ToString());
 		}
 
 
@@ -534,7 +568,7 @@ namespace Wolpertinger.Fileserver
 		protected static void scanDirectory(string path, bool newThread = true)
 		{
 
-            logger.Info("Scanning directory {0}", path);
+			logger.Info("Scanning directory {0}", path);
 
 			var t = new ThreadStart(delegate
 				{

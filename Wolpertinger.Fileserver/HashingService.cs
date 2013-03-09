@@ -17,8 +17,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 using Nerdcave.Common;
 using Nerdcave.Common.Extensions;
-using Raven.Client;
-using Raven.Client.Embedded;
 using Slf;
 using System;
 using System.Collections.Concurrent;
@@ -39,7 +37,9 @@ namespace Wolpertinger.Fileserver
 	/// </summary>
 	public class HashingService : IHashingService
 	{
-		
+
+		private static string hashDbFolder;
+
 		//The only instance of HashingService (Singleton class)
 		private static HashingService instance;
 
@@ -51,6 +51,11 @@ namespace Wolpertinger.Fileserver
 		static HashingService()
 		{
 			instance = new HashingService();
+			hashDbFolder = Path.Combine(Program.DatabaseFolder, "Hashes");
+            //if (!Directory.Exists(hashDbFolder))
+            //{
+            //    Directory.CreateDirectory(hashDbFolder);
+            //}
 		}
 
 
@@ -81,7 +86,7 @@ namespace Wolpertinger.Fileserver
 		/// <returns>Returns a key for the speicified filename</returns>
 		private string getKey(string fileName)
 		{
-			return "filehash/" + fileName.Trim().ToLower().GetHashSHA1();
+			return BinaryRage.Key.GenerateMD5Hash(fileName);
 		}
 
 		/// <summary>
@@ -112,35 +117,41 @@ namespace Wolpertinger.Fileserver
 			fileName = fileName.Replace("/", "\\");
 
 			var key = getKey(fileName);
+			HashInfo query;
 
-			using (var session = Program.Database.OpenSession())
+			try
 			{
-				var query = session.Load<HashInfo>(key);
+				query = BinaryRage.DB<HashInfo>.Get(key, hashDbFolder);
+			}
+			catch (DirectoryNotFoundException)
+			{
+				query = null;
+			}
 
-				if (query == null)
+			if (query == null)
+			{
+				//hash not found
+				return null;
+			}
+			else
+			{
+				var currentFile = new FileInfo(fileName);
+
+				if (currentFile.CreationTimeUtc == query.Created &&
+					fileName.ToLower() == query.FileName.ToLower() &&
+					currentFile.LastWriteTimeUtc == query.LastEdited &&
+					currentFile.Length == query.Size)
 				{
-					//hash not found
-					return null;
+					//all attributes match
+					return query.Hash;
 				}
 				else
 				{
-					var currentFile = new FileInfo(fileName);
-
-					if (currentFile.CreationTimeUtc == query.Created &&
-						fileName.ToLower() == query.FileName.ToLower() &&
-						currentFile.LastWriteTimeUtc == query.LastEdited &&
-						currentFile.Length == query.Size)
-					{
-						//all attributes match
-						return query.Hash;
-					}
-					else
-					{
-						//hash not up to date
-						return null;
-					}
+					//hash not up to date
+					return null;
 				}
 			}
+			
 		}
 
 
@@ -218,12 +229,8 @@ namespace Wolpertinger.Fileserver
 						var info = getHashInfo(file, hash);
 
 						//store HashInfo in cache
-						using (var session = Program.Database.OpenSession())
-						{				
-							session.Store(info, getKey(file));
-							session.SaveChanges();
-						}
-
+						BinaryRage.DB<HashInfo>.Insert(getKey(file), info, hashDbFolder);
+						
 						//Release lock on the file
 						stream.Close(); 
 					}
@@ -299,16 +306,7 @@ namespace Wolpertinger.Fileserver
 			}
 			else
 			{
-				string hash = queryHash(filename);
-				if (hash != null)
-				{
-					logger.Info("found hash for {0} in cache", filename);
-					hashCompleted(filename, hash);
-				}
-				else
-				{
-					queue.Add(filename, priority);
-				}
+				queue.Add(filename, priority);
 			}
 		}
 
@@ -323,6 +321,7 @@ namespace Wolpertinger.Fileserver
 	/// <summary>
 	/// Class used to store hashes in the cache
 	/// </summary>
+	[Serializable]
 	public class HashInfo
 	{
 		/// <summary>
