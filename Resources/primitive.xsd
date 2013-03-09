@@ -3,10 +3,7 @@
     targetNamespace="http://nerdcave.eu/wolpertinger"
     elementFormDefault="qualified"
     xmlns="http://nerdcave.eu/wolpertinger"
-    xmlns:xs="http://www.w3.org/2001/XMLSchema"
->
-
-
+    xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
   <xs:simpleType name="type">
     <xs:restriction base="xs:string">
@@ -19,8 +16,9 @@
       <xs:enumeration value="uint64" />
       <xs:enumeration value="string" />
       <xs:enumeration value="guid" />
-      <xs:enumeration value="list" />
+      
       <!--Complex Types-->
+      <xs:enumeration value="list" />      
       <xs:enumeration value="clientInfo" />
       <xs:enumeration value="directoryObject" />
       <xs:enumeration value="fileObject" />
@@ -50,14 +48,7 @@
       </xs:extension>
     </xs:simpleContent>
   </xs:complexType>
- 
-  <!--list object-->
-  <xs:complexType name="list">
-    <xs:sequence>
-      <xs:element name="object" type="object" minOccurs="0" maxOccurs ="unbounded" />
-    </xs:sequence>
-    <xs:attribute name="type" use="required" fixed="list"/>
-  </xs:complexType>
+
 
 
   <!--GUID-->

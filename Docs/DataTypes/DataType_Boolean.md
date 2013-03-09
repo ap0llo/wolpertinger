@@ -1,0 +1,1 @@
+Boolean======A boolean value (True/False). The item's content is interpreted case-insensitive. ###XML SchemaXML Schema type: boolean###Example	<object xmlns="http://nerdcave.eu/wolpertinger" type="boolean">true</object>

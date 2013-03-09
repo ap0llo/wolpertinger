@@ -6,9 +6,9 @@ Introduction
 The protocol used by wolpertinger consists of 2 layers: 'Transmission Layer' and 'Message Layer'.
 
 The Message Layer specifies high-level constructs for remote method calls and is based on XML.
-The Transmission Layer is responsible the transmission of these xml messages and handles encryption, compression etc.
+The Transmission Layer is responsible for the transmission of these xml messages and handles encryption, compression etc.
 
-Wolpertinger was built to with communcation via XMPP in mind, but of course other messaging protocols could be used instead.
+Wolpertinger was buildt with communication via XMPP in mind, but of course other messaging protocols could be used instead as there is no dependency on XMPP anywhere in the protocol.
 
 
 ![Protocol Layers](protocol_layers.png) 
@@ -28,11 +28,12 @@ The transmission layer handles the transmission and processing of messages from 
 
 
 ####Message Metadata
-The Transmission layer adds metadata to the actual message being sent which is required by the message's recipent to parse the message.
-Metadata is stored in a simple key-value format separated be semicolons added in front of the actual payload. A colon separates key and value, so a valid metadate will always looks like this:
+The Transmission layer adds metadata to the actual message being sent, which is required by the message's recipient to parse the message.
+Metadata is stored in a simple key-value format. A colon separates key and value, a semicolon indicates the end of a key-value pair, so a valid metadate will always looks like this:
 
 		<KEY>:<VALUE>;
 
+All of a message's key-value pairs are added in front of the actual message-payload.
 
 ####Payload
 Layer 1 will always treat the message's payload as binary-data. How this byte-data is interpreted by the layers above is of no concern to layer 1.
@@ -50,7 +51,8 @@ Integer overflows can be handled by just resetting the counter to 0. (It is high
 
 **Note: The message_id field is mandatory**
 
-After a client has received a message, it must confirm that the message has been received. (No matter how the message is processed after that). To do that it just needs to send a message in this format
+After a client has received a message, it must confirm that the message has been received. (No matter how the message is processed after that).  
+To do that it just needs to send a message in this format
 	
 		result:<RESULTCODE>;message_id:<MESSAGE_ID>;
 
@@ -58,7 +60,6 @@ to the sender.
 
 If no error occurred, set RESULTCODE to 0, otherwise return a error-code
 
-Of course, a client does not need to and even should not confirm the delvery of delivey notifications.
 
 ####Compression
 
@@ -88,8 +89,8 @@ At the moment, only AES is supported.
 
 
 ####Message Splitting
-A message might be too long to be sent in one piece. In this case, the message's payload is split. Metadata is added to **all** message pieces. 
-Additionally, to more metadata fields are added to the message.
+A message might be too long to be sent in one piece. In this case, the message's payload is split. All Metadata is added to **all** message pieces. 
+Additionally more metadata fields are added to the message.
 
 -	Fragment Index
 	-	Key: <code>fragment_index</code>
@@ -98,12 +99,10 @@ Additionally, to more metadata fields are added to the message.
 	-	Key: <code>fragment_count</code>
 	-	Value: The total number of pieces the message has been split into
 
-These fields can also be added if the message has not been splitted (fragment\_index=0, fragment_count=1) but can be omitted in this case.
+These fields can also be added if the message has not been split (fragment\_index=0, fragment_count=1) but can be omitted in this case.
 
-The delivery confirmation has to be sent only once for a splitted message, once the message has been received completely.
+The delivery confirmation has to be sent only once for a split message, once the message has been received completely.
 
-####Message Encoding
-If the message has been compressed and/or encrypted the data is base64-encoded. Otherwise it is just sent as XML string.
 
 ###Examples
 
@@ -127,7 +126,7 @@ If the message has been compressed and/or encrypted the data is base64-encoded. 
 Message Layer (Layer 2)
 --------------
 
-There is only 3 types of messages that can be exchanged between wolpertinger clients: RemoteMethodCall, RemoteMethodResponse and RemoteError. The message format is XML based and thus should be straightforward to implement.
+There are only 3 types of messages that can be exchanged between wolpertinger clients: RemoteMethodCall, RemoteMethodResponse and RemoteError. The message format is XML based and thus should be straightforward to implement.
 
 
 ###Message Types
@@ -135,23 +134,23 @@ There is only 3 types of messages that can be exchanged between wolpertinger cli
 All messages may contain any Unicode character, as long as they are valid XML.
 Furthermore, all messages need to conform to the [Protocol XML Schema](xsd/protocol.xsd). Messages that cannot be validated should not be processed any further and the recipient should respond with a RemoteError (Error-Code 301).
 
-All messages have a common 'TargetName' property that specifies the component the request will be passed to. There is no component hierarchy, so components cannot contain "child"-components.
+All messages have a 'ComponentName' property that specifies the component the request will be passed to. There is no component hierarchy, so components cannot contain "child"-components.
 
 ####RemoteMethodCall
-A RemoteMethodCall, as the name indicates, invokes a procedure on the target system. The caller needs to specify the method's name an all required parameters.
-For every call there needs to be specified a unique CallId value. This Id will be sent with the response, so the caller can associate response messages to method calls.
+A RemoteMethodCall, as the name indicates, invokes a procedure on the target system. The caller needs to specify the method's name and all required parameters.
+For every call the caller needs to specify a unique CallId value. This Id will be sent with the response, so the caller can associate response messages to method calls.
 
 Responses are not mandatory and the callee may offer methods without response value.
 
 #####Elements
--	<code>TargetName: String</code> - the name of the component that offers the method
+-	<code>ComponentName: String</code> - the name of the component that offers the method
 -	<code>MethodName: String</code> - the name of the method to be invoked
 -	<code>CallId: String</code> - The call's unique identifier
 -	<code>Parameters : List < Object ></code> - the parameters the method requires
 
 #####Example
 	<RemoteMethodCall>
-		<TargetName>Core</TargetName>
+		<ComponentName>Core</ComponentName>
 		<CallId>F5AFEC97-5839-4666-B8D3-8C108B241720</CallId>
 		<MethodName>testMethod1</MethodName>
 		<Parameters>
@@ -165,13 +164,13 @@ Responses are not mandatory and the callee may offer methods without response va
 If a method returns a value, it will be sent back to the caller using a RemoteMethodResponse
 
 #####Elements
--	<code>TargetName : String</code> - the name of the component that handled the RemoteMethodCall
+-	<code>ComponentName : String</code> - the name of the component that handled the RemoteMethodCall
 -	<code>CallId : String</code> - the unique identifier of the method call that produced the response
 -	<code>ResponseValue : Object</code>- the value returned by the method
 
 #####Example
 	<RemoteMethodResponse>
-		<TargetName>Core</TargetName>
+		<ComponentName>Core</ComponentName>
 		<CallId>F5AFEC97-5839-4666-B8D3-8C108B241720</CallId>
 		<ResponseValue>
 			<object type="boolean">true</object>
@@ -185,13 +184,13 @@ This message-type can be used to notify other clients about errors that occurred
 In case of a synchronous error, the CallId of the method call that caused the error will be specified in the RemoteError's CallId property. Otherwise this element will be omitted.
 
 #####Elements
--	<code>TargetName : String</code> - the name of the component that caused the error
+-	<code>ComponentName : String</code> - the name of the component that caused the error
 -	<code>ErrorCode : Int32</code> - the error-code specifying the kind of error that occurred. A list of all specified error codes can be found [here](MISSINGLINK)
 -	<code>CallId : String</code>  *(optional)* - the CallId of the method call that triggered the error in case of a synchronous error
 
 #####Example
 	<RemoteError>
-		<TargetName>Core</TargetName>    
+		<ComponentName>Core</ComponentName>    
 		<ErrorCode>1</ErrorCode>
 		<CallId>F5AFEC97-5839-4666-B8D3-8C108B241720</CallId>
 	</RemoteError>

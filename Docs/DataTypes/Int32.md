@@ -1,1 +1,0 @@
-Int32====A signed 32bit integer value. Stores numbers in the range from 0 to 4,294,967,295.###XML SchemaXML Schema type: int32Defined in file [base.xsd](xsd/base.xsd)###Example	<object xmlns="http://nerdcave.eu/wolpertinger" type="int32">42</object>

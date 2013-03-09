@@ -1,0 +1,1 @@
+uInt64=====A unsinged 64bit integer value.Stores numbers in the range from 0 to 18,446,744,073,709,551,615.###XML SchemaXML Schema type: uint64###Example	<object xmlns="http://nerdcave.eu/wolpertinger" type="uint64">1618798794918</object>
