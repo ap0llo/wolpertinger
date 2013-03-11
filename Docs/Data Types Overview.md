@@ -18,5 +18,6 @@ Complex Types
 -	[ClientInfo](datatype_clientinfo)
 -	[Permission](datatype_permission)
 -	[MountInfo](datatype_mountinfo)
+-	[SnapshotInfo](datatype_snapshotinfo)
 -	[DirectoryObject](datatype_directoryobject)
 -	[FileObject](datatype_fileobject)

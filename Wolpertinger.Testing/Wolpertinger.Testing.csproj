@@ -61,7 +61,14 @@
   </Choose>
   <ItemGroup>
     <Compile Include="KeyValueStoreTests.cs" />
-    <Compile Include="XmlSerializationTest.cs" />
+    <Compile Include="TestHashingService.cs" />
+    <Compile Include="XmlSerialization\ClientInfoSerializationTests.cs" />
+    <Compile Include="XmlSerialization\DirectoryObjectSerializationTests.cs" />
+    <Compile Include="XmlSerialization\FileObjectSerializationTests.cs" />
+    <Compile Include="XmlSerialization\MountInfoSerializationTests.cs" />
+    <Compile Include="XmlSerialization\PermissionSerializationTests.cs" />
+    <Compile Include="XmlSerialization\SnapshotSerializationTests.cs" />
+    <Compile Include="XmlSerialization\XmlSerializationTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

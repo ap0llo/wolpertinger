@@ -36,10 +36,10 @@ namespace Nerdcave.Common.Xml
 
         private class XmlNames
         {
-            private const string xmlNamespace = "http://nerdcave.eu/wolpertinger";
+            public const string XmlNamespace = "http://nerdcave.eu/wolpertinger";
 
-            public static XName Items = XName.Get("items", xmlNamespace);
-            public static XName Object = XName.Get("object", xmlNamespace);
+            public static XName Items = XName.Get("items", XmlNamespace);
+            public static XName Object = XName.Get("object", XmlNamespace);
         }
 
         string filename;
@@ -93,8 +93,13 @@ namespace Nerdcave.Common.Xml
         /// <param name="value">The item to store</param>
         public void SaveItem(string key, object value)
         {
+            if (value == null)
+            {
+                return;
+            }
+
             //serialzie the item and add a 'key' attribute
-            XElement xmlItem = XmlSerializer.Serialize(value);
+            XElement xmlItem = XmlSerializer.Serialize(value, XmlNames.XmlNamespace);
             xmlItem.Add(new XAttribute("key", key));
 
             //check if item with that key already exists => overwrite it

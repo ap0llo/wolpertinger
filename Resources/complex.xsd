@@ -112,10 +112,10 @@
 	</xs:complexType>
 	
 	<!--Allowed root elements-->
-	<xs:element name="ClientInfo" type="clientInfo" />
+	<!--<xs:element name="ClientInfo" type="clientInfo" />
 	<xs:element name="MountInfo" type="mountInfo"/>
 	<xs:element name="Permission" type="permission" />
 	<xs:element name="DirectoryObject" type="directoryObject" />
 	<xs:element name="FileObject" type="fileObject" />
-	<xs:element name="SnapshotInfo" type="snapshotInfo" />
+	<xs:element name="SnapshotInfo" type="snapshotInfo" />-->
 </xs:schema>
