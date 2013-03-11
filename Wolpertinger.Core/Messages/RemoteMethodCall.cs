@@ -29,7 +29,6 @@ namespace Wolpertinger.Core
     /// <summary>
     /// Encapsulates the call a remote Method
     /// </summary>
-    [XmlTypeName("Wolpertinger.RemoteMethodCall")]
     public class RemoteMethodCall : RpcMessage, ISerializable
     {
         private static ILogger logger = LoggerService.GetLogger("RemoteMethodCall");

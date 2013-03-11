@@ -28,7 +28,6 @@ namespace Wolpertinger.FileShareCommon
     /// <summary>
     /// Describes a permission to access a item in a shared folder.
     /// </summary>
-    [XmlTypeName("Wolpertinger.Permission")]
     public class Permission : ISerializable
     {
 

@@ -29,7 +29,6 @@ namespace Wolpertinger.FileShareCommon
     /// <summary>
     /// Base class for FileObject and DirectoryObject
     /// </summary>
-    [XmlTypeName("Wolpertinger.FilesystemObject")]
     public class FilesystemObject : ISerializable
     {
 

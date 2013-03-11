@@ -31,7 +31,6 @@ namespace Wolpertinger.Core
     /// <summary>
     /// Class is used to exchange information about wolpertinger clients
     /// </summary>
-    [XmlTypeName("Wolpertinger.ClientInfo")]
     public class ClientInfo : ISerializable
     {
 

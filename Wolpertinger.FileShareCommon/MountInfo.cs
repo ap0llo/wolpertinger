@@ -28,7 +28,6 @@ namespace Wolpertinger.FileShareCommon
     /// <summary>
     /// 
     /// </summary>
-    [XmlTypeName("Wolpertinger.MountInfo")]
     public class MountInfo : ISerializable
     {
         public string MountPoint { get; set; }

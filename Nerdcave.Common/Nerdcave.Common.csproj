@@ -62,7 +62,6 @@
     <Compile Include="Xml\ISerializable.cs" />
     <Compile Include="Xml\KeyValueStore.cs" />
     <Compile Include="Xml\XmlSerializer.cs" />
-    <Compile Include="Xml\XmlTypeNameAttribute.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -32,7 +32,6 @@ namespace Wolpertinger.FileShareCommon
     /// <summary>
     /// Class encapsulating information about a directory and it's files
     /// </summary>
-    [XmlTypeName("Wolpertinger.DirectoryObject")]
     public class DirectoryObject : FilesystemObject
     {
         private string _path;

@@ -33,7 +33,6 @@ namespace Wolpertinger.FileShareCommon
     /// <summary>
     /// Class encapsulating information about a file
     /// </summary>
-    [XmlTypeName("Wolpertinger.FileObject")]
     public class FileObject : FilesystemObject
     {
         public static IHashingService HashingService;

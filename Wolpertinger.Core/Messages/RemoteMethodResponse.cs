@@ -26,7 +26,6 @@ using System.Xml;
 
 namespace Wolpertinger.Core
 {
-    [XmlTypeName("Wolpertinger.RemoteMethodResponse")]
     public class RemoteMethodResponse : RpcMessage, ISerializable
     {
         private static ILogger logger = LoggerService.GetLogger("RemoteMethodResponse");

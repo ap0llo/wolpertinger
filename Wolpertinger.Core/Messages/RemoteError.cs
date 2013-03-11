@@ -26,7 +26,6 @@ using Nerdcave.Common.Xml;
 
 namespace Wolpertinger.Core
 {
-	[XmlTypeName("Wolpertinger.RemoteError")]
 	public class RemoteError : RpcMessage
 	{
 
