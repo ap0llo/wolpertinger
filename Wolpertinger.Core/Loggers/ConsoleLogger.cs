@@ -28,10 +28,17 @@ namespace Wolpertinger.Core
     /// </summary>
     public class ConsoleLogger : CustomLogger
     {
+        /// <summary>
+        /// Initializes a new instance of ConsoleLogger
+        /// </summary>
         public ConsoleLogger()
             : base()
         { }
 
+        /// <summary>
+        /// Initializes a new instance of ConsoleLogger
+        /// </summary>
+        /// <param name="name">The logger's name</param>
         public ConsoleLogger(string name)
             : base(name)
         { }

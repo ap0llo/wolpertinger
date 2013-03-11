@@ -26,6 +26,9 @@ using Nerdcave.Common.Xml;
 
 namespace Wolpertinger.Core
 {
+    /// <summary>
+    /// A error-message exchanged between clients
+    /// </summary>
 	public class RemoteError : RpcMessage
 	{
 
@@ -43,15 +46,17 @@ namespace Wolpertinger.Core
 			}
 		}
 
-		/// <summary>
-		/// The Id of the remote method call that caused the error
-		/// </summary>
-		public Guid CallId { get; set; }
 
-
+        /// <summary>
+        /// Initializes a new instance of RemoteError
+        /// </summary>
 		public RemoteError() : this(RemoteErrorCode.UnspecifiedError) 
 		{ }
 
+        /// <summary>
+        /// Initializes a new instance of RemoteError
+        /// </summary>
+        /// <param name="errorCode">The error that occured</param>
 		public RemoteError(RemoteErrorCode errorCode)
 		{
 			this.CallId = Guid.Empty;
@@ -97,6 +102,9 @@ namespace Wolpertinger.Core
 	}
 
 
+    /// <summary>
+    /// List of possible errors that can be sent as RemoteError
+    /// </summary>
 	public enum RemoteErrorCode
 	{
 		//General Errors

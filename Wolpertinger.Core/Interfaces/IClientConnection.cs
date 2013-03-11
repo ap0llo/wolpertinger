@@ -24,6 +24,9 @@ using Nerdcave.Common;
 
 namespace Wolpertinger.Core
 {
+    /// <summary>
+    /// Interface for client-connections
+    /// </summary>
     public interface IClientConnection
     {
         /// <summary>
@@ -128,26 +131,10 @@ namespace Wolpertinger.Core
         IComponent GetServerComponent(string name);
 
 
-        ///// <summary>
-        ///// Gets a new EventWaitHandle that will be signaled once a response matching the given Id is received or the connection times out.
-        ///// </summary>
-        ///// <param name="callId">The CallId of the response to wait for</param>
-        ///// <returns>Returns a new EventWaitHandle</returns>
-        //EventWaitHandle GetWaitHandle(Guid callId);
-
-        ///// <summary>
-        ///// Calls the remote specfied remote method and waits until a reponse is received.
-        ///// </summary>
-        ///// <param name="call">The remote method to call</param>
-        ///// <returns>
-        ///// Returns the value returned by the remote method call or a RemoteErrorException if the method call returned an error.
-        ///// If the request timed out, throws a TimeoutException
-        ///// </returns>
-        //object GetReponseValueBlocking(RemoteMethodCall call);
-
         /// <summary>
         /// Calls the specified remote method
         /// </summary>
+        /// <param name="component">The remote-method's component name</param>
         /// <param name="name">The name of the method to call</param>
         /// <param name="args">The parameters to pass to the method</param>
         void CallRemoteAction(string component, string name, params object[] args);
@@ -155,6 +142,7 @@ namespace Wolpertinger.Core
         /// <summary>
         /// Calls the specified remote method and returns it's return value
         /// </summary>
+        /// <param name="component">The remote-method's component name</param>
         /// <param name="name">The name of the method to call</param>
         /// <param name="args">The parameters to pass to the method</param>
         /// <returns>Returns the value returned by the remote method</returns>

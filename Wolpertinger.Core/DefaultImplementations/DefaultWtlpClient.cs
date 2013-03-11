@@ -64,8 +64,14 @@ namespace Wolpertinger.Core
 
         #region Events
 
+        /// <summary>
+        /// Event that is raised each time a message has been received and parsed.
+        /// </summary>
         public event EventHandler<ObjectEventArgs<ParsingResult>> MessageReceived;
 
+        /// <summary>
+        /// Event that is raised when the connection timed out
+        /// </summary>
         public event EventHandler TransmissionTimedOut;
 
         #endregion
@@ -329,12 +335,18 @@ namespace Wolpertinger.Core
                 throw new WtlpException(result);
         }
 
+        /// <summary>
+        /// Processes the specified message
+        /// </summary>
+        /// <param name="message">The message to be processed</param>
         public void HandleMessage(string message) 
         {
             parseMessage(message);
         }
 
-
+        /// <summary>
+        /// Unsubscribes from all events of the underlying IMessagingClient the WtlpClient is subscribed to
+        /// </summary>
         public void Detach()
         {
             this.MessagingClient = null;
@@ -637,7 +649,9 @@ namespace Wolpertinger.Core
         }
     }
 
-
+    /// <summary>
+    /// List of possible results that can be sent back to a message's sender
+    /// </summary>
     public enum Result
     {
         Success,
@@ -646,13 +660,5 @@ namespace Wolpertinger.Core
         SplittingError,
         EncryptionError,
         InvalidFormat
-/*        Unknown,
-        Successful,
-        InvalidFormat,
-        UnknownKey,
-        DuplicateKey,
-        InvalidMessageId,
-        EncryptionMethodNotSupported,
-        SplittingError*/
     }
 }

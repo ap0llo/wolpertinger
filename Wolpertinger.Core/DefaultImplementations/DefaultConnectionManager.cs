@@ -64,7 +64,6 @@ namespace Wolpertinger.Core
 
 
         private KeyValueStore settingsFile;
-        private bool settingsLoaded = false;
 
 
         private int _allowedConnectionCount;
@@ -209,8 +208,6 @@ namespace Wolpertinger.Core
                     knownClientsCache = clients
                                     .Cast<ClientInfo>()
                                     .ToDictionary(x => x.JId);
-
-                settingsLoaded = true;
 
                 logger.Info("Sucessfully loaded settings");
             }
@@ -400,6 +397,10 @@ namespace Wolpertinger.Core
             RemoveClientConnection((sender as IClientConnection).Target);
         }
 
+        /// <summary>
+        /// Handles the MessageReceived event of the MessagingClient and instantiates a new
+        /// IClientConnection if no connection responsibel for the message's sender exists
+        /// </summary>
         protected virtual void messagingClient_MessageReceived(object sender, ObjectEventArgs<Message> e)
         {
             if (!e.Handled)

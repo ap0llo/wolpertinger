@@ -36,7 +36,7 @@ namespace Nerdcave.Common.Xml
         XElement Serialize();
 
         /// <summary>
-        /// Deserializes the given XML and sets the callee's Properties accordingliy
+        /// Deserializes the given XML and sets the callee's Properties accordingly
         /// </summary>
         /// <param name="xmlData">The data to be deserialized</param>
         void Deserialize(XElement xmlData);

@@ -248,7 +248,9 @@ namespace Wolpertinger.Core
         
     }
 
-
+    /// <summary>
+    /// List of possible LogLevels 
+    /// </summary>
     public enum LogLevel    
     {
         None = 0,

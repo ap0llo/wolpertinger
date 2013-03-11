@@ -194,39 +194,6 @@ namespace Wolpertinger.Core
             onConnectionReset();
         }
 
-        ///// <summary>
-        ///// Gets the connection's client component that matches the given name
-        ///// </summary>
-        ///// <param name="name">The component-name to look for</param>
-        ///// <returns>
-        ///// Returns the matching client component or null if component could not be found
-        ///// </returns>
-        //public IComponent GetClientComponent(string name)
-        //{
-        //    //check if a matching component has already been initialized
-        //    if (!clientComponents.ContainsKey(name))
-        //    {
-        //        //get a new component
-        //        IComponent component = ComponentFactory.GetClientComponent(name);
-
-        //        //check if a component was found
-        //        if (component == null)
-        //            return null;
-                
-        //        //check the component's type
-        //        ComponentAttribute attribute = (ComponentAttribute)component.GetType().GetCustomAttributes(typeof(ComponentAttribute), false).First();
-
-        //        clientComponents.Add(name, component);
-
-        //        //if the component is a Client-Server component, also add it to the list of server components
-        //        if (ComponentFactory.IsClientServerComponent(component))
-        //            serverComponents.Add(name, component);
-        //    }
-
-        //    clientComponents[name].ClientConnection = this;
-        //    //return the requested component
-        //    return clientComponents[name];
-        //}
 
         /// <summary>
         /// Gets the connection's server component that matches the given name
@@ -277,11 +244,24 @@ namespace Wolpertinger.Core
         }
 
 
+        /// <summary>
+        /// Calls the specified remote method
+        /// </summary>
+        /// <param name="component">The remote-method's component name</param>
+        /// <param name="name">The name of the method to call</param>
+        /// <param name="args">The parameters to pass to the method</param>
         public void CallRemoteAction(string component, string name, params object[] args)
         {
             invokeRemoteMethod(component, name, args, false);
         }
 
+        /// <summary>
+        /// Calls the specified remote method and returns it's return value
+        /// </summary>
+        /// <param name="component">The remote-method's component name</param>
+        /// <param name="name">The name of the method to call</param>
+        /// <param name="args">The parameters to pass to the method</param>
+        /// <returns>Returns the value returned by the remote method</returns>
         public object CallRemoteFunction(string component, string name, params object[] args)
         {
             return invokeRemoteMethod(component, name, args, true);
@@ -331,6 +311,9 @@ namespace Wolpertinger.Core
 
         #region Event Raisers
 
+        /// <summary>
+        /// Raises the ConnectionTimedOut event
+        /// </summary>
         protected virtual void onConnectionTimedOut()
         {
             if (this.ConnectionTimedOut != null)
@@ -339,6 +322,9 @@ namespace Wolpertinger.Core
             }
         }
 
+        /// <summary>
+        /// Raises the ConnectionReset event
+        /// </summary>
         protected virtual void onConnectionReset()
         {
             if (this.ConnectionReset != null)
@@ -347,6 +333,10 @@ namespace Wolpertinger.Core
             }
         }
 
+        /// <summary>
+        /// Raises the RemoteErrorOccurred event
+        /// </summary>
+        /// <param name="err"></param>
         protected virtual void onRemoteErrorOccurred(RemoteError err)
         {
             if (this.RemoteErrorOccurred != null)

@@ -56,6 +56,9 @@ namespace Wolpertinger.Core
         /// </summary>
         public int ProtocolVersion { get; set; }
 
+        /// <summary>
+        /// Initializes a new instace of ClientInfo
+        /// </summary>
         [DebuggerStepThrough]
         public ClientInfo()
         {
@@ -82,8 +85,11 @@ namespace Wolpertinger.Core
 
 
 
-        
 
+        /// <summary>
+        /// Serializes the object into XML
+        /// </summary>
+        /// <returns>Returns a XML representation of the object</returns>
         public XElement Serialize()
         {
             XElement result = new XElement(XmlElementNames.ClientInfo);
@@ -96,6 +102,10 @@ namespace Wolpertinger.Core
             return result;
         }
 
+        /// <summary>
+        /// Deserializes the given XML and sets the callee's Properties accordingly
+        /// </summary>
+        /// <param name="xmlData">The data to be deserialized</param>
         public void Deserialize(XElement xmlData)
         {
 
@@ -141,7 +151,9 @@ namespace Wolpertinger.Core
     }
 
 
-
+    /// <summary>
+    /// List of possible Profiles a client can support
+    /// </summary>
     public enum Profile
     {
         ManagementClient,

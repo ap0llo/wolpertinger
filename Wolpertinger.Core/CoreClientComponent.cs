@@ -36,10 +36,16 @@ namespace Wolpertinger.Core
         public IClientConnection ClientConnection { get; set; }
 
 
-
+        /// <summary>
+        /// Initializes a new instance of CoreClientComponent
+        /// </summary>
         public CoreClientComponent()
         { }
 
+        /// <summary>
+        /// Initializes a new instance of CoreClientComponent
+        /// </summary>
+        /// <param name="clientConnection">The ClientConnection used by the component</param>
         public CoreClientComponent(IClientConnection clientConnection)
         {
             this.ClientConnection = clientConnection;

@@ -35,7 +35,6 @@ namespace Wolpertinger.FileShareCommon
         private string _localPath;
         private DateTime _lastEdited;
         private DateTime _created;
-        private DateTime _lastAccessed;
 
         public DirectoryObject Parent { get; set; }
 

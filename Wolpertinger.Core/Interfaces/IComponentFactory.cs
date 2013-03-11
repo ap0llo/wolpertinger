@@ -22,6 +22,9 @@ using System.Text;
 
 namespace Wolpertinger.Core
 {
+    /// <summary>
+    /// Interface for factory used by ClientConnections to instantiate new components
+    /// </summary>
     public interface IComponentFactory
     {
         /// <summary>
