@@ -28,14 +28,12 @@ namespace Wolpertinger.Testing.XmlSerialization
         {
             var xml = mountInfo.Serialize();
 
-            var strResult = xml.ToString();
-
-
-            validate(strResult, "MountInfo", "mountInfo");
+            var strResult = xml.ToString();            
 
 
 
             var roundtrip = new MountInfo();
+            Assert.IsTrue(roundtrip.Validate(xml));
             roundtrip.Deserialize(xml);
 
             Assert.IsNotNull(mountInfo);

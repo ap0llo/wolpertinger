@@ -15,6 +15,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 */
 
+using Nerdcave.Common.Extensions;
+using Nerdcave.Common.IO;
+using Nerdcave.Common.Xml;
+using Slf;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -22,10 +26,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml.Linq;
-using Nerdcave.Common.Extensions;
-using Nerdcave.Common.IO;
-using Nerdcave.Common.Xml;
-using Slf;
+using System.Xml.Schema;
 
 namespace Wolpertinger.FileShareCommon
 {
@@ -34,6 +35,30 @@ namespace Wolpertinger.FileShareCommon
     /// </summary>
     public class DirectoryObject : FilesystemObject
     {
+        private class XmlHelperExtended : XmlHelper
+        {
+            protected override string rootElementName { get { return "DirectoryObject"; } }
+            protected override string schemaTypeName { get { return "directoryObject"; } }
+
+            public static XmlSchemaSet SchemaSet;
+
+            public static XName DirectoryObject;
+            public static XName FileObject;
+            public static XName Files;
+            public static XName Directories;
+
+            public XmlHelperExtended()
+            {
+                SchemaSet = schemaSet;
+
+                DirectoryObject = XName.Get(rootElementName, xmlNamespace);
+                FileObject = XName.Get("FileObject", xmlNamespace);
+                Files = XName.Get("Files", xmlNamespace);
+                Directories = XName.Get("Directories", xmlNamespace);
+            }
+        }
+
+
         private string _path;
 
 
@@ -42,6 +67,14 @@ namespace Wolpertinger.FileShareCommon
         protected Dictionary<string, FileObject> files = new Dictionary<string, FileObject>();
         protected Dictionary<string, DirectoryObject> directories = new Dictionary<string, DirectoryObject>();       
 
+
+
+        static DirectoryObject()
+        {
+            //Initialize a instace of XmlHelper (this will set it's static members)
+            XmlHelperExtended xmlHelper = new XmlHelperExtended();
+        }
+            
 
         public IEnumerable<FileObject> Files { get { return files.Values; } }
 
@@ -335,22 +368,27 @@ namespace Wolpertinger.FileShareCommon
 
         #region ISerializable Members
 
-        private class XmlElementNamesExtended : XmlElementNames
+        public override bool Validate(XElement xml)
         {
-            public static XName DirectoryObject = XName.Get("DirectoryObject", XmlNamespace);
-            public static XName FileObject = XName.Get("FileObject", XmlNamespace);
-            public static XName Files = XName.Get("Files", XmlNamespace);
-            public static XName Directories = XName.Get("Directories", XmlNamespace);
+            if (xml == null)
+            {
+                return false;
+            }
+
+            bool valid = true;
+            new XDocument(xml).Validate(XmlHelperExtended.SchemaSet, (s, e) => { valid = false; });
+            return valid;
+
         }
      
         public override XElement Serialize()
         {
             XElement xml = base.Serialize();
 
-            xml.Name = XmlElementNamesExtended.DirectoryObject;
+            xml.Name = XmlHelperExtended.DirectoryObject;
             
             //Serialize files in the directory
-            var files = new XElement(XmlElementNamesExtended.Files);
+            var files = new XElement(XmlHelperExtended.Files);
             xml.Add(files);
             foreach (FileObject item in Files)
             {
@@ -358,7 +396,7 @@ namespace Wolpertinger.FileShareCommon
             }
 
             //Serialize child directories
-            var dirs = new XElement(XmlElementNamesExtended.Directories);
+            var dirs = new XElement(XmlHelperExtended.Directories);
             xml.Add(dirs);
             foreach (DirectoryObject item in Directories)
             {
@@ -375,7 +413,7 @@ namespace Wolpertinger.FileShareCommon
 
             files = new Dictionary<string, FileObject>();
 
-            foreach (XElement item in xmlData.Element(XmlElementNamesExtended.Files).Elements(XmlElementNamesExtended.FileObject))
+            foreach (XElement item in xmlData.Element(XmlHelperExtended.Files).Elements(XmlHelperExtended.FileObject))
             {
                 FileObject newFile = new FileObject();
                 newFile.Deserialize(item);
@@ -383,7 +421,7 @@ namespace Wolpertinger.FileShareCommon
             }
 
             directories = new Dictionary<string, DirectoryObject>();
-            foreach (XElement item in xmlData.Element(XmlElementNamesExtended.Directories).Elements(XmlElementNamesExtended.DirectoryObject))
+            foreach (XElement item in xmlData.Element(XmlHelperExtended.Directories).Elements(XmlHelperExtended.DirectoryObject))
             {
                 DirectoryObject newDir = new DirectoryObject();
                 newDir.Deserialize(item);

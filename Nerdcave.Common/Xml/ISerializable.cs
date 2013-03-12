@@ -30,6 +30,14 @@ namespace Nerdcave.Common.Xml
     {
 
         /// <summary>
+        /// Validates a piece of XML and determines wheter it can be deserialized
+        /// </summary>
+        /// <param name="xml">The XML to be validated</param>
+        /// <returns>Returns true when the specified xml is valid and can be deserialzed into a object. Otherwise returns false</returns>
+        bool Validate(XElement xml);
+
+
+        /// <summary>
         /// Serializes the object into XML
         /// </summary>
         /// <returns>Returns a XML representation of the object</returns>

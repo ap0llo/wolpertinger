@@ -15,13 +15,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 */
 
+using Nerdcave.Common.Extensions;
+using Nerdcave.Common.Xml;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml.Linq;
-using Nerdcave.Common.Extensions;
-using Nerdcave.Common.Xml;
+using System.Xml.Schema;
 
 namespace Wolpertinger.FileShareCommon
 {
@@ -30,10 +31,44 @@ namespace Wolpertinger.FileShareCommon
     /// </summary>
     public class MountInfo : ISerializable
     {
+        private class XmlHelper : XmlHelperBase
+        {
+
+            protected override string xmlNamespace { get { return "http://nerdcave.eu/wolpertinger"; } }
+            protected override string schemaFile { get { return "complex.xsd"; } }
+            protected override string schemaTypeName { get { return "mountInfo"; } }
+            protected override string rootElementName { get { return "MountInfo"; } }
+
+
+            public static XmlSchemaSet SchemaSet;
+
+            public static XName MountInfo;
+            public static XName MountPoint;
+            public static XName LocalPath;
+
+
+            public XmlHelper()
+            {
+                SchemaSet = schemaSet;
+
+                MountInfo = XName.Get(rootElementName, xmlNamespace);
+                MountPoint = XName.Get("MountPoint", xmlNamespace);
+                LocalPath = XName.Get("LocalPath", xmlNamespace);
+            }
+
+        }
+
+
         public string MountPoint { get; set; }
 
         public string LocalPath { get; set; }
 
+
+        static MountInfo()
+        {
+            //Initialize a instace of XmlHelper (this will set it's static members)
+            XmlHelper xmlHelper = new XmlHelper();
+        }
 
         public MountInfo()
         {
@@ -46,28 +81,34 @@ namespace Wolpertinger.FileShareCommon
         #region ISerializable Members
 
 
-        private static class XmlElementNames
+
+
+        public virtual bool Validate(XElement xml)
         {
-            public static string XmlNamespace = "http://nerdcave.eu/wolpertinger";
-            public static XName MountInfo = XName.Get("MountInfo", XmlNamespace);
-            public static XName MountPoint = XName.Get("MountPoint", XmlNamespace);
-            public static XName LocalPath = XName.Get("LocalPath", XmlNamespace);
+            if (xml == null)
+            {
+                return false;
+            }
+
+            bool valid = true;
+            new XDocument(xml).Validate(XmlHelper.SchemaSet, (s, e) => { valid = false; });
+            return valid;
         }
 
         public XElement Serialize()
         {
-            XElement xml = new XElement(XmlElementNames.MountInfo);
+            XElement xml = new XElement(XmlHelper.MountInfo);
 
-            xml.Add(new XElement(XmlElementNames.MountPoint, this.MountPoint));
-            xml.Add(new XElement(XmlElementNames.LocalPath, this.LocalPath));
+            xml.Add(new XElement(XmlHelper.MountPoint, this.MountPoint));
+            xml.Add(new XElement(XmlHelper.LocalPath, this.LocalPath));
 
             return xml;
         }
 
         public void Deserialize(XElement xmlData)
         {            
-            this.MountPoint = xmlData.Element(XmlElementNames.MountPoint).Value;
-            this.LocalPath = xmlData.Element(XmlElementNames.LocalPath).Value;
+            this.MountPoint = xmlData.Element(XmlHelper.MountPoint).Value;
+            this.LocalPath = xmlData.Element(XmlHelper.LocalPath).Value;
         }
 
         #endregion

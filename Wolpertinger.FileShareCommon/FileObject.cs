@@ -15,17 +15,18 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 */
 
+using Nerdcave.Common;
+using Nerdcave.Common.Extensions;
+using Nerdcave.Common.IO;
+using Nerdcave.Common.Xml;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Xml.Linq;
-using Nerdcave.Common.Extensions;
-using Nerdcave.Common.Xml;
-using Nerdcave.Common.IO;
 using System.Threading;
-using Nerdcave.Common;
+using System.Xml.Linq;
+using System.Xml.Schema;
 using Wolpertinger.Core;
 
 namespace Wolpertinger.FileShareCommon
@@ -35,8 +36,38 @@ namespace Wolpertinger.FileShareCommon
     /// </summary>
     public class FileObject : FilesystemObject
     {
+
+        private class XmlHelperExtended : XmlHelper
+        {
+            protected override string rootElementName { get { return "FileObject"; } }
+            protected override string schemaTypeName { get { return "fileObject"; } }
+
+
+            public static XmlSchemaSet SchemaSet;
+
+            public static XName FileObject;
+            public static XName Hash;
+
+            public XmlHelperExtended()
+            {
+                SchemaSet = schemaSet;
+
+                FileObject = XName.Get(rootElementName, xmlNamespace);
+                Hash = XName.Get("Hash", xmlNamespace);
+            }
+
+        }
+
+
+
         public static IHashingService HashingService;
 
+
+        static FileObject()
+        {
+            //Initialize a instace of XmlHelper (this will set it's static members)
+            XmlHelperExtended xmlHelper = new XmlHelperExtended();
+        }
 
         public String Hash { get; set; }
 
@@ -76,20 +107,27 @@ namespace Wolpertinger.FileShareCommon
 
         #region ISerializable Members
 
-        private class XmlElementNamesExtended : XmlElementNames
+        public override bool Validate(XElement xml)
         {
-            public static XName FileObject = XName.Get("FileObject", XmlNamespace);
-            public static XName Hash = XName.Get("Hash", XmlNamespace);
+            if (xml == null)
+            {
+                return false;
+            }
+
+
+            bool valid = true;
+            new XDocument(xml).Validate(XmlHelperExtended.SchemaSet, (s, e) => { valid = false; });
+            return valid;
         }
 
         public override XElement Serialize()
         {           
             XElement xml = base.Serialize();
 
-            xml.Name = XmlElementNamesExtended.FileObject;
-            xml.Add(new XElement(XmlElementNamesExtended.Hash));
-            xml.Element(XmlElementNamesExtended.Hash).Add(new XAttribute("hashtype", "sha1"));
-            xml.Element(XmlElementNamesExtended.Hash).Value = (this.Hash == null) ? "" : this.Hash;
+            xml.Name = XmlHelperExtended.FileObject;
+            xml.Add(new XElement(XmlHelperExtended.Hash));
+            xml.Element(XmlHelperExtended.Hash).Add(new XAttribute("hashtype", "sha1"));
+            xml.Element(XmlHelperExtended.Hash).Value = (this.Hash == null) ? "" : this.Hash;
 
             return xml;
         }
@@ -98,9 +136,9 @@ namespace Wolpertinger.FileShareCommon
         {
             base.Deserialize(xmlData);
 
-            this.Hash = xmlData.Element(XmlElementNamesExtended.Hash).Value;
+            this.Hash = xmlData.Element(XmlHelperExtended.Hash).Value;
 
-            if (xmlData.Element(XmlElementNamesExtended.Hash).Attribute("hashtype").Value != "sha1")
+            if (xmlData.Element(XmlHelperExtended.Hash).Attribute("hashtype").Value != "sha1")
                 throw new Exception("FileObject: Unsupported Hash-Type encountered");
         }
 

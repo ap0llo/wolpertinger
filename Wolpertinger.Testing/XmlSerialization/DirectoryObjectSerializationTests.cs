@@ -18,14 +18,9 @@ namespace Wolpertinger.Testing.XmlSerialization
             dir.Path = "/";
 
             var xml = dir.Serialize();
-
-
-            var strResult = xml.ToString();
-
-            validate(strResult, "DirectoryObject", "directoryObject");
-
-
+            
             var roundTrip = new DirectoryObject();
+            Assert.IsTrue(roundTrip.Validate(xml));
             roundTrip.Deserialize(xml);
 
             assertAreEqual(dir, roundTrip);

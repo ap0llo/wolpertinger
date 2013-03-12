@@ -58,6 +58,12 @@ namespace Wolpertinger.Core
 
 
         #region ISerializable Members
+        
+        public override bool Validate(XElement xml)
+        {
+            //TODO
+            throw new NotImplementedException();
+        }
 
         public override XElement Serialize()
         {

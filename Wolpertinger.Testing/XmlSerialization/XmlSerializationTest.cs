@@ -86,20 +86,7 @@ namespace Wolpertinger.Testing.XmlSerialization
         }
 
 
-        protected void validate(string xml, string elementName, string type)
-        {
-            var schemaElement = new XmlSchemaElement()
-            {
-                Name = elementName,
-                SchemaTypeName = new XmlQualifiedName(type, "http://nerdcave.eu/wolpertinger")
-            };
-            schema.Items.Add(schemaElement);
-            schemas.Add(schema);
-            XDocument.Parse(xml).Validate(schemas, null);
-
-            schema.Items.Remove(schemaElement);
-        }
-
+       
     }
 
 

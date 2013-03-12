@@ -8,23 +8,31 @@ All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 
     Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-    Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
-    Neither the name of the Wolpertinger project nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+    Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer 
+    in the documentation and/or other materials provided with the distribution.
+    Neither the name of the Wolpertinger project nor the names of its contributors may be used to endorse or promote products derived
+    from this software without specific prior written permission.
 
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
+ THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS 
+ BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT 
+ LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
+using Nerdcave.Common.Xml;
+using Slf;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml;
-using System.Xml.Serialization;
 using System.Xml.Linq;
-using Slf;
-using Nerdcave.Common.Xml;
-using System.Diagnostics;
+using System.Xml.Schema;
+using System.Xml.Serialization;
 
 namespace Wolpertinger.Core
 {
@@ -34,7 +42,56 @@ namespace Wolpertinger.Core
     public class ClientInfo : ISerializable
     {
 
+        private class XmlHelper : XmlHelperBase 
+        {
+            protected override string xmlNamespace { get { return "http://nerdcave.eu/wolpertinger"; } }
+            protected override string schemaFile {get { return  "complex.xsd";}}
+            protected override string schemaTypeName {get { return  "clientInfo";}}
+            protected override string rootElementName { get { return "ClientInfo"; } }
+
+            private const string _jId = "JId";
+            private const string _trustLevel = "TrustLevel";
+            private const string _protocolVersion = "ProtocolVersion";
+            private const string _profiles = "Profiles";
+            private const string _profile = "Profile";
+
+
+            public static XmlSchemaSet SchemaSet;
+
+            public static XName ClientInfo;
+
+            public static XName JId;
+            public static XName TrustLevel;
+            public static XName ProtocolVersion;
+            public static XName Profiles;
+            public static XName Profile;
+
+
+            public XmlHelper()
+            {
+                SchemaSet = schemaSet;
+
+                ClientInfo = XName.Get(rootElementName, xmlNamespace);
+                JId = XName.Get(_jId, xmlNamespace);
+                TrustLevel = XName.Get(_trustLevel, xmlNamespace);
+                ProtocolVersion = XName.Get(_protocolVersion, xmlNamespace);
+                Profiles = XName.Get(_profiles, xmlNamespace);
+                Profile = XName.Get(_profile, xmlNamespace);
+            }
+
+        }
+        
+
         static ILogger logger = LoggerService.GetLogger("ClientInfo");
+        static XmlSchemaSet schemas = new XmlSchemaSet();
+
+
+        static ClientInfo()
+        {
+            //Initialize a instace of XmlHelper (this will set it's static members)
+            XmlHelper xmlHelper = new XmlHelper();
+        }
+
 
         /// <summary>
         /// The Jabber-Id of the client the ClientInfo describes
@@ -84,6 +141,34 @@ namespace Wolpertinger.Core
         #region ISerializable Members
 
 
+        
+
+
+        /// <summary>
+        /// Validates a piece of XML and determines wheter it can be deserialized as ClientInfo
+        /// </summary>
+        /// <param name="xml">The XML to be validated</param>
+        /// <returns>Returns true when the specified xml is valid and can be deserialzed into a ClientInfo object. Otherwise returns false</returns>
+        public bool Validate(XElement xml)
+        {
+            if(xml == null)
+            {
+                return false;
+            }
+
+            var document = new XDocument(xml);
+
+            try
+            {
+                document.Validate(XmlHelper.SchemaSet, null);
+            }
+            catch (XmlSchemaValidationException)
+            {
+                return false;
+            }
+
+            return true;
+        }
 
 
         /// <summary>
@@ -92,12 +177,12 @@ namespace Wolpertinger.Core
         /// <returns>Returns a XML representation of the object</returns>
         public XElement Serialize()
         {
-            XElement result = new XElement(XmlElementNames.ClientInfo);
+            XElement result = new XElement(XmlHelper.ClientInfo);
             
-            result.Add(new XElement(XmlElementNames.JId, this.JId));            
-            result.Add(new XElement(XmlElementNames.TrustLevel, this.TrustLevel.ToString()));
-            result.Add(new XElement(XmlElementNames.ProtocolVersion, this.ProtocolVersion));
-            result.Add(new XElement(XmlElementNames.Profiles, this.Profiles.Select(x => new XElement(XmlElementNames.Profile, x))));
+            result.Add(new XElement(XmlHelper.JId, this.JId));            
+            result.Add(new XElement(XmlHelper.TrustLevel, this.TrustLevel.ToString()));
+            result.Add(new XElement(XmlHelper.ProtocolVersion, this.ProtocolVersion));
+            result.Add(new XElement(XmlHelper.Profiles, this.Profiles.Select(x => new XElement(XmlHelper.Profile, x))));
             
             return result;
         }
@@ -117,14 +202,22 @@ namespace Wolpertinger.Core
 
             try
             {
-                this.JId = xmlData.Element(XmlElementNames.JId).Value;
-                this.TrustLevel = int.Parse(xmlData.Element(XmlElementNames.TrustLevel).Value);
-                this.ProtocolVersion = int.Parse(xmlData.Element(XmlElementNames.ProtocolVersion).Value);
+                this.JId = xmlData.Element(XmlHelper.JId).Value;
+                this.TrustLevel = int.Parse(xmlData.Element(XmlHelper.TrustLevel).Value);
+                this.ProtocolVersion = int.Parse(xmlData.Element(XmlHelper.ProtocolVersion).Value);
 
-                var profiles = from elem in xmlData.Element(XmlElementNames.Profiles).Elements(XmlElementNames.Profile)
-                               select (Profile)(Enum.Parse(typeof(Profile), elem.Value, true));
+                var profiles = xmlData.Element(XmlHelper.Profiles).Elements(XmlHelper.Profile);
+                if(profiles.Any())
+                {
+                    this.Profiles = profiles.Select(x => (Profile)(Enum.Parse(typeof(Profile), x.Value, true))).ToList<Profile>();
+                }
+                else
+                {
+                    this.Profiles = new List<Profile>();
+                }
 
-                this.Profiles = profiles.ToList<Profile>();
+                               //select ;
+
             }
             catch (NullReferenceException ex)
             {
@@ -134,18 +227,6 @@ namespace Wolpertinger.Core
         }
 
 
-        private static class XmlElementNames
-        {
-            public static string XmlNamespace = "http://nerdcave.eu/wolpertinger";
-
-            public static XName ClientInfo = XName.Get("ClientInfo", XmlNamespace);
-
-            public static XName JId = XName.Get("JId", XmlNamespace);
-            public static XName TrustLevel = XName.Get("TrustLevel", XmlNamespace);
-            public static XName ProtocolVersion = XName.Get("ProtocolVersion", XmlNamespace);
-            public static XName Profiles = XName.Get("Profiles", XmlNamespace);
-            public static XName Profile = XName.Get("Profile", XmlNamespace);
-        }
 
         #endregion
     }

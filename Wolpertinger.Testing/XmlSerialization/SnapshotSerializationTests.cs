@@ -13,18 +13,18 @@ namespace Wolpertinger.Testing.XmlSerialization
     {
 
         [TestMethod]
-        public void TestSnapshotInfoSerialization()
+        public void TestSnapshotInfoSerialization_Valid()
         {
             var snapshotInfo = new SnapshotInfo();
             snapshotInfo.Time = DateTime.Now.ToUniversalTime();
 
-            var strResult = snapshotInfo.Serialize().ToString();
-
-            validate(strResult, "SnapshotInfo", "snapshotInfo");
-
-
+            var xml = snapshotInfo.Serialize();
+           
             var roundTrip = new SnapshotInfo();
-            roundTrip.Deserialize(XElement.Parse(strResult));
+
+            Assert.IsTrue(roundTrip.Validate(xml));
+
+            roundTrip.Deserialize(xml);
 
 
             Assert.IsNotNull(snapshotInfo);

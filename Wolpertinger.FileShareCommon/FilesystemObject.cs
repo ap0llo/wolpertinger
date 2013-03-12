@@ -15,14 +15,15 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 */
 
+using Nerdcave.Common.Extensions;
+using Nerdcave.Common.Xml;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Xml.Linq;
-using Nerdcave.Common.Xml;
-using Nerdcave.Common.Extensions;
-using System.Globalization;
+using System.Xml.Schema;
 
 namespace Wolpertinger.FileShareCommon
 {
@@ -31,10 +32,44 @@ namespace Wolpertinger.FileShareCommon
     /// </summary>
     public class FilesystemObject : ISerializable
     {
+        protected class XmlHelper : XmlHelperBase
+        {
+
+            protected override string xmlNamespace { get { return "http://nerdcave.eu/wolpertinger"; } }
+            protected override string schemaFile { get { return "complex.xsd"; } }
+            protected override string rootElementName { get { return "Permission"; } }
+            protected override string schemaTypeName { get { return "permission"; } }
+
+
+            public static XName FilesystemObject;
+            public static XName Name;
+            public static XName Path;
+            public static XName LastEdited;
+            public static XName Created;
+
+            public XmlHelper()
+            {                
+                FilesystemObject = XName.Get("FilesystemObject", xmlNamespace);
+                Name = XName.Get("Name", xmlNamespace);
+                Path = XName.Get("Path", xmlNamespace);
+                LastEdited = XName.Get("LastEdited", xmlNamespace);
+                Created = XName.Get("Created", xmlNamespace);
+            }
+
+        }
+
 
         private string _localPath;
         private DateTime _lastEdited;
         private DateTime _created;
+
+
+        static FilesystemObject()
+        {
+            //Initialize a instace of XmlHelper (this will set it's static members)
+            XmlHelper xmlHelper = new XmlHelper();
+        }
+
 
         public DirectoryObject Parent { get; set; }
 
@@ -79,35 +114,31 @@ namespace Wolpertinger.FileShareCommon
 
         #region ISerializable Members
 
-        protected class XmlElementNames
-        {
-            protected const string XmlNamespace = "http://nerdcave.eu/wolpertinger";
-            public static XName FilesystemObject = XName.Get("FilesystemObject", XmlNamespace);
-            public static XName Name = XName.Get("Name", XmlNamespace);
-            public static XName Path = XName.Get("Path", XmlNamespace);
-            public static XName LastEdited = XName.Get("LastEdited", XmlNamespace);
-            public static XName Created = XName.Get("Created", XmlNamespace);
+        
 
+        public virtual bool Validate(XElement xml)
+        {           
+            throw new NotImplementedException();
         }
-    
+
         public virtual XElement Serialize()
         {
-            XElement xml = new XElement(XmlElementNames.FilesystemObject);
+            XElement xml = new XElement(XmlHelper.FilesystemObject);
 
-            xml.Add(new XElement(XmlElementNames.Name, this.Name));
-            xml.Add(new XElement(XmlElementNames.Path, this.Path));
-            xml.Add(new XElement(XmlElementNames.Created, XmlSerializer.Serialize(this.Created.ToUniversalTime()).Value));
-            xml.Add(new XElement(XmlElementNames.LastEdited, XmlSerializer.Serialize(this.LastEdited.ToUniversalTime()).Value));
+            xml.Add(new XElement(XmlHelper.Name, this.Name));
+            xml.Add(new XElement(XmlHelper.Path, this.Path));
+            xml.Add(new XElement(XmlHelper.Created, XmlSerializer.Serialize(this.Created.ToUniversalTime()).Value));
+            xml.Add(new XElement(XmlHelper.LastEdited, XmlSerializer.Serialize(this.LastEdited.ToUniversalTime()).Value));
 
             return xml;
         }
 
         public virtual void Deserialize(XElement xmlData)
         {
-            this.Name = xmlData.Element(XmlElementNames.Name).Value;
-            this.Path = xmlData.Element(XmlElementNames.Path).Value;
-            this.LastEdited = XmlSerializer.DeserializeAs<DateTime>(xmlData.Element(XmlElementNames.LastEdited)).ToUniversalTime();
-            this.Created = XmlSerializer.DeserializeAs<DateTime>(xmlData.Element(XmlElementNames.Created)).ToUniversalTime();
+            this.Name = xmlData.Element(XmlHelper.Name).Value;
+            this.Path = xmlData.Element(XmlHelper.Path).Value;
+            this.LastEdited = XmlSerializer.DeserializeAs<DateTime>(xmlData.Element(XmlHelper.LastEdited)).ToUniversalTime();
+            this.Created = XmlSerializer.DeserializeAs<DateTime>(xmlData.Element(XmlHelper.Created)).ToUniversalTime();
         }
 
         #endregion

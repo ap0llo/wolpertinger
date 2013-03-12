@@ -51,6 +51,11 @@ namespace Wolpertinger.Core
         #region ISerializable Members
 
         //No implementation here, methods need to be overridden in sub-classes
+        
+        public virtual bool Validate(XElement xml)
+        {            
+            throw new NotImplementedException();
+        }
 
         public virtual XElement Serialize()
         {

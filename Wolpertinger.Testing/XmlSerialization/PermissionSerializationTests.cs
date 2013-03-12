@@ -11,18 +11,17 @@ namespace Wolpertinger.Testing.XmlSerialization
     public class PermissionSerializationTests : XmlSerializationTest
     {
         [TestMethod]
-        public void TestPermissionSerializsation()
+        public void TestPermissionSerialisation_Valid()
         {
             var permission = new Permission() { Path = "/foo/bar", PermittedClients = new List<string>() { "client1@example.com", "client2@foo.org" } };
 
             var xml = permission.Serialize();
 
-            var strResult = xml.ToString();
-
-
-            validate(strResult, "Permission", "permission");
-
+            
             var roundTrip = new Permission();
+
+            Assert.IsTrue(roundTrip.Validate(xml));
+            
             roundTrip.Deserialize(xml);
 
 

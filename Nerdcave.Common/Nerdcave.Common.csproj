@@ -61,6 +61,7 @@
     <Compile Include="ReflectionHelper.cs" />
     <Compile Include="Xml\ISerializable.cs" />
     <Compile Include="Xml\KeyValueStore.cs" />
+    <Compile Include="Xml\XmlHelperBase.cs" />
     <Compile Include="Xml\XmlSerializer.cs" />
   </ItemGroup>
   <ItemGroup>

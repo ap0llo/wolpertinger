@@ -12,31 +12,17 @@ namespace Wolpertinger.Testing.XmlSerialization
     public class ClientInfoSerializationTests : XmlSerializationTest
     {
         [TestMethod]
-        public void TestClientInfoSerialization1()
+        public void TestClientInfoSerialization_Valid()
         {
             var clientInfo = new ClientInfo() { JId = "test@example.com", ProtocolVersion = 0, Profiles = new List<Profile>() { Profile.FileServer }, TrustLevel = 2 };
 
-            testClientInfoSerialization(clientInfo);
-        }
-
-        [TestMethod, ExpectedException(typeof(XmlSchemaValidationException), AllowDerivedTypes = false)]
-        public void TestClientInfoSerialization2()
-        {
-            var clientInfo = new ClientInfo();
-
-            testClientInfoSerialization(clientInfo);
-        }
-
-        private void testClientInfoSerialization(ClientInfo clientInfo)
-        {
             var xml = clientInfo.Serialize();
 
-            var strResult = xml.ToString();
-
             var roundTrip = new ClientInfo();
-            roundTrip.Deserialize(xml);
 
-            validate(strResult, "ClientInfo", "clientInfo");
+            Assert.IsTrue(roundTrip.Validate(xml));
+
+            roundTrip.Deserialize(xml);
 
             Assert.IsNotNull(clientInfo);
             Assert.IsNotNull(roundTrip);
@@ -52,5 +38,18 @@ namespace Wolpertinger.Testing.XmlSerialization
                 Assert.AreEqual<Profile>(clientInfo.Profiles[i], roundTrip.Profiles[i]);
             }
         }
+
+        [TestMethod]
+        public void TestClientInfoSerialization_Invalid()
+        {
+            var clientInfo = new ClientInfo();
+
+            var xml = clientInfo.Serialize();
+
+            var roundTrip = new ClientInfo();
+
+            Assert.IsFalse(roundTrip.Validate(clientInfo.Serialize()));
+        }
+
     }
 }

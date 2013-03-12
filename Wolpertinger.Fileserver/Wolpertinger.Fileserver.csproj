@@ -91,6 +91,18 @@
     <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
+  <!--Copy Xml Schema files to Output directory-->
+  <ItemGroup>
+    <None Include="..\Resources\complex.xsd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\Resources\primitive.xsd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\Resources\protocol.xsd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>

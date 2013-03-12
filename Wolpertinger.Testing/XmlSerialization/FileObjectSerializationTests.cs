@@ -24,9 +24,8 @@ namespace Wolpertinger.Testing.XmlSerialization
 
             var strResult = xml.ToString();
 
-            validate(strResult, "FileObject", "fileObject");
-
             var roundtrip = new FileObject();
+            Assert.IsTrue(roundtrip.Validate(xml));
             roundtrip.Deserialize(xml);
 
             assertAreEqual(file, roundtrip);

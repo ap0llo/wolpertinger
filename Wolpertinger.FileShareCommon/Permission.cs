@@ -22,6 +22,7 @@ using System.Text;
 using System.Xml.Linq;
 using Nerdcave.Common.Extensions;
 using Nerdcave.Common.Xml;
+using System.Xml.Schema;
 
 namespace Wolpertinger.FileShareCommon
 {
@@ -30,12 +31,42 @@ namespace Wolpertinger.FileShareCommon
     /// </summary>
     public class Permission : ISerializable
     {
+        private class XmlHelper : XmlHelperBase
+        {
+            protected override string xmlNamespace { get { return "http://nerdcave.eu/wolpertinger"; } }
+            protected override string schemaFile { get { return "complex.xsd"; } }
+            protected override string rootElementName { get { return "Permission"; } }
+            protected override string schemaTypeName { get { return "permission"; } }
+
+            public static XmlSchemaSet SchemaSet;
+
+            public static XName Permission;
+            public static XName Path;
+            public static XName PermittedClients;
+            public static XName Client;
+
+            public XmlHelper()
+            {
+                SchemaSet = schemaSet;
+
+                Permission = XName.Get("Permission", xmlNamespace);
+                Path = XName.Get("Path", xmlNamespace);
+                PermittedClients = XName.Get("PermittedClients", xmlNamespace);
+                Client = XName.Get("Client", xmlNamespace);
+            }
+        }
+
 
         public string Path { get; set; }
 
         public List<string> PermittedClients { get; set; }
 
 
+        static Permission()
+        {
+            //Initialize a instace of XmlHelper (this will set it's static members)
+            XmlHelper xmlHelper = new XmlHelper();
+        }
         
         public Permission()
         {
@@ -48,30 +79,37 @@ namespace Wolpertinger.FileShareCommon
         #region ISerializable Members
 
 
-        private class XmlElementNames
+        
+
+
+        public virtual bool Validate(XElement xml)
         {
-            public static string XmlNamespace = "http://nerdcave.eu/wolpertinger";
-            public static XName Permission = XName.Get("Permission", XmlNamespace);
-            public static XName Path = XName.Get("Path", XmlNamespace);
-            public static XName PermittedClients = XName.Get("PermittedClients", XmlNamespace);
-            public static XName Client = XName.Get("Client", XmlNamespace);
+            if (xml == null)
+            {
+                return false; 
+            }
+
+            bool valid = true;
+            new XDocument(xml).Validate(XmlHelper.SchemaSet, (s, e) => { valid = false; });
+
+            return valid;
         }
 
         public XElement Serialize()
         {
-            XElement result = new XElement(XmlElementNames.Permission);
+            XElement result = new XElement(XmlHelper.Permission);
 
-            result.Add(new XElement(XmlElementNames.Path, this.Path));
-            result.Add(new XElement(XmlElementNames.PermittedClients, this.PermittedClients.Select(x => new XElement(XmlElementNames.Client, x))));
+            result.Add(new XElement(XmlHelper.Path, this.Path));
+            result.Add(new XElement(XmlHelper.PermittedClients, this.PermittedClients.Select(x => new XElement(XmlHelper.Client, x))));
             
             return result;
         }
 
         public void Deserialize(XElement xmlData)
         {
-            Path = xmlData.Element(XmlElementNames.Path).Value;
+            Path = xmlData.Element(XmlHelper.Path).Value;
 
-            var clients = from client in xmlData.Element(XmlElementNames.PermittedClients).Elements(XmlElementNames.Client)
+            var clients = from client in xmlData.Element(XmlHelper.PermittedClients).Elements(XmlHelper.Client)
                         select client.Value;
 
             PermittedClients = clients.ToList<string>();
