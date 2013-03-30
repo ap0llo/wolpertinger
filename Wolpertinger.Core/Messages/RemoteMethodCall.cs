@@ -72,7 +72,7 @@ namespace Wolpertinger.Core
             xml.Add(new XElement("CallId", this.CallId.ToString()));
             xml.Add(new XElement("MethodName", this.MethodName));
             
-            xml.Add(new XElement("Parameters"), Parameters.Select(x=> XmlSerializer.Serialize(x)));
+            xml.Add(new XElement("Parameters", Parameters.Select(x=> XmlSerializer.Serialize(x))));
 
             return xml;
         }

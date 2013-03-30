@@ -70,6 +70,7 @@
     <Compile Include="XmlSerialization\SnapshotSerializationTests.cs" />
     <Compile Include="XmlSerialization\XmlSerializationTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="XmlSerialization\XmlSerializerTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Nerdcave.Common\Nerdcave.Common.csproj">
@@ -123,12 +124,15 @@
   <ItemGroup>
     <None Include="..\Resources\complex.xsd">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>complex.xsd</Link>
     </None>
     <None Include="..\Resources\primitive.xsd">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>primitive.xsd</Link>
     </None>
     <None Include="..\Resources\protocol.xsd">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>protocol.xsd</Link>
     </None>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />

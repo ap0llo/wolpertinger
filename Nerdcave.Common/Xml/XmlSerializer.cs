@@ -33,13 +33,13 @@ namespace Nerdcave.Common.Xml
 	{
 		//list that mappes type-names to primitive (treating string as primitive type) types
 
-        private const string xmlNamespace = "http://nerdcave.eu/wolpertinger";
+		private const string xmlNamespace = "http://nerdcave.eu/wolpertinger";
 
 		private static Dictionary<string, Type> knownTypes = new Dictionary<string, Type>() 
 			{
 				{"boolean", typeof(Boolean)},
 				{"dateTime", typeof(DateTime)},
-                {"string", typeof(string)},
+				{"string", typeof(string)},
 				{"double", typeof(double)},
 				{"int32", typeof(int)},				
 				{"int64", typeof(long)},
@@ -53,7 +53,7 @@ namespace Nerdcave.Common.Xml
 				{"boolean", parseBoolean},
 				{"dateTime", parseDateTime},
 				{"string", parseString},
-                {"double", parseDouble},
+				{"double", parseDouble},
 				{"int32", parseInt32},				
 				{"int64", parseInt64},
 				{"uint64", parseUInt64},
@@ -65,7 +65,7 @@ namespace Nerdcave.Common.Xml
 			{
 				{"boolean", serializeBoolean},
 				{"dateTime", serializeDateTime},
-                {"string", serializeString},
+				{"string", serializeString},
 				{"double", serializeDouble},
 				{"int32", serializeInt32},				
 				{"int64", serializeInt64},
@@ -119,24 +119,26 @@ namespace Nerdcave.Common.Xml
 
 			object content;
 			string name;
+			Type objectType = (o is IEnumerable && !(o is String)) ? typeof(IEnumerable): o.GetType();
+			
 
-			if(o is ISerializable && registeredTypes.ContainsValue(o.GetType()))
+			if (o is ISerializable && registeredTypes.ContainsValue(objectType))
 			{
-				name = registeredTypes.Keys.First(x => registeredTypes[x] == o.GetType());
-				
+				name = registeredTypes.Keys.First(x => registeredTypes[x] == objectType);
+
 				//serialize value
 				content = (o as ISerializable).Serialize();
 			}
-			else if (knownTypes.ContainsValue(o.GetType()))
+			else if (knownTypes.ContainsValue(objectType))
 			{
-				name = knownTypes.Keys.First(x => knownTypes[x] == o.GetType());
+				name = knownTypes.Keys.First(x => knownTypes[x] == objectType);
 
 				//serialize value 
 				content = knownTypesSerializers[name].Invoke(o, ns);
 			}
 			else
 			{
-				throw new TypeNotSupportedException("Type {0} is not a known type and does not implement ISerializable");
+				throw new TypeNotSupportedException("Type {0} is not a known type and does not implement ISerializable", objectType);
 			}
 
 
@@ -207,22 +209,22 @@ namespace Nerdcave.Common.Xml
 
 			if (knownTypes.ContainsValue(typeof(T)))
 			{
-                var nameQuery = from item in knownTypes
-                                where item.Value == typeof(T)
-                                select item.Key;
+				var nameQuery = from item in knownTypes
+								where item.Value == typeof(T)
+								select item.Key;
 				
-                var name = nameQuery.First();
+				var name = nameQuery.First();
 
 				object value = knownTypesParsers[name].Invoke(xml);
 
-    			return (T)value;
+				return (T)value;
 
 			}
 			else if (registeredTypes.ContainsValue(typeof(T)))
 			{
-                var nameQuery = from item in registeredTypes
-                                where item.Value == typeof(T)
-                                select item.Key;
+				var nameQuery = from item in registeredTypes
+								where item.Value == typeof(T)
+								select item.Key;
 
 				var name = nameQuery.First();
 
@@ -241,10 +243,10 @@ namespace Nerdcave.Common.Xml
 		{
 			bool outValue;
 
-            if (bool.TryParse(xml.Value, out outValue))
-                return outValue;
-            else
-                throw new ArgumentException();
+			if (bool.TryParse(xml.Value, out outValue))
+				return outValue;
+			else
+				throw new ArgumentException();
 		}
 
 		private static object parseDateTime(XElement xml)
@@ -253,7 +255,7 @@ namespace Nerdcave.Common.Xml
 			if (DateTime.TryParse(xml.Value, out outValue)) //, CultureInfo.CreateSpecificCulture("en-gb")
 				return outValue;
 			else
-                throw new ArgumentException();
+				throw new ArgumentException();
 		}
 
 		private static object parseDouble(XElement xml)
@@ -263,7 +265,7 @@ namespace Nerdcave.Common.Xml
 			if (double.TryParse(xml.Value, out outValue))
 				return outValue;
 			else
-                throw new ArgumentException();
+				throw new ArgumentException();
 		}
 
 		private static object parseInt32(XElement xml)
@@ -273,7 +275,7 @@ namespace Nerdcave.Common.Xml
 			if (int.TryParse(xml.Value, out outValue))
 				return outValue;
 			else
-                throw new ArgumentException();
+				throw new ArgumentException();
 		}
 
 		private static object parseInt64(XElement xml)
@@ -283,7 +285,7 @@ namespace Nerdcave.Common.Xml
 			if (long.TryParse(xml.Value, out outValue))
 				return outValue;
 			else
-                throw new ArgumentException();
+				throw new ArgumentException();
 		}
 
 		private static object parseUInt64(XElement xml)
@@ -293,7 +295,7 @@ namespace Nerdcave.Common.Xml
 			if (ulong.TryParse(xml.Value, out outValue))
 				return outValue;
 			else
-                throw new ArgumentException();
+				throw new ArgumentException();
 		}
 
 		private static object parseString(XElement xml)
@@ -311,12 +313,15 @@ namespace Nerdcave.Common.Xml
 			if (Guid.TryParse(xml.Value, out outValue))
 				return outValue;
 			else
-                throw new ArgumentException();
+				throw new ArgumentException();
 		}
 
 		private static object parseList(XElement xml)
 		{
-			return xml.Elements(XName.Get("object", xmlNamespace)).Select(x => Deserialize(x)).ToList<object>();
+			var elements = xml.Elements().Where(x => x.Name.LocalName =="object");
+			var list = elements.Select(x => Deserialize(x)).ToList<object>();
+
+			return list;
 		}
 
 

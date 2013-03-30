@@ -1,7 +1,10 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Nerdcave.Common.Xml;
+using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Wolpertinger.FileShareCommon;
 
 namespace Wolpertinger.Testing
@@ -68,6 +71,27 @@ namespace Wolpertinger.Testing
             Assert.IsNotNull(roundTrip);
             Assert.AreEqual<Guid>(testObject.Id, roundTrip.Id);
             Assert.AreEqual<DateTime>(testObject.Time, roundTrip.Time.ToLocalTime());
+        }
+
+        [TestMethod]
+        public void TestSaveAndGet_IEnumerable()
+        {
+            IEnumerable<int> testList = new List<int>() { 1, 2, 3, 4 };
+
+            testFile.SaveItem(key, testList);
+
+            var roundtrip = testFile.GetItem<IEnumerable>(key).Cast<int>();
+
+            Assert.IsNotNull(testList);
+            Assert.IsNotNull(roundtrip);
+
+            Assert.AreEqual<int>(testList.Count(), roundtrip.Count());
+
+            int count = testList.Count();
+            for (int i = 0; i < count; i++)
+            { 
+                Assert.AreEqual<int>(testList.Skip(i).First(), roundtrip.Skip(i).First());
+            }
         }
 
         [TestMethod]
