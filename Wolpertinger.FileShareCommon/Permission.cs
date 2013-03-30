@@ -15,44 +15,45 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 */
 
+using Nerdcave.Common.Extensions;
+using Nerdcave.Common.Xml;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml.Linq;
-using Nerdcave.Common.Extensions;
-using Nerdcave.Common.Xml;
 using System.Xml.Schema;
+using Wolpertinger.Core;
 
 namespace Wolpertinger.FileShareCommon
 {
     /// <summary>
     /// Describes a permission to access a item in a shared folder.
     /// </summary>
-    public class Permission : ISerializable
+    public class Permission : Serializable
     {
-        private class XmlHelper : XmlHelperBase
+        private static class XmlNames
         {
-            protected override string xmlNamespace { get { return "http://nerdcave.eu/wolpertinger"; } }
-            protected override string schemaFile { get { return "complex.xsd"; } }
-            protected override string rootElementName { get { return "Permission"; } }
-            protected override string schemaTypeName { get { return "permission"; } }
-
-            public static XmlSchemaSet SchemaSet;
+            private static bool initilaized = false;
 
             public static XName Permission;
             public static XName Path;
             public static XName PermittedClients;
             public static XName Client;
 
-            public XmlHelper()
+            public static void Init(string xmlNamespace)
             {
-                SchemaSet = schemaSet;
+                if (initilaized)
+                {
+                    return;
+                }
 
                 Permission = XName.Get("Permission", xmlNamespace);
                 Path = XName.Get("Path", xmlNamespace);
                 PermittedClients = XName.Get("PermittedClients", xmlNamespace);
                 Client = XName.Get("Client", xmlNamespace);
+
+                initilaized = true;
             }
         }
 
@@ -62,14 +63,11 @@ namespace Wolpertinger.FileShareCommon
         public List<string> PermittedClients { get; set; }
 
 
-        static Permission()
-        {
-            //Initialize a instace of XmlHelper (this will set it's static members)
-            XmlHelper xmlHelper = new XmlHelper();
-        }
         
         public Permission()
         {
+            XmlNames.Init(xmlNamespace);
+
             Path = "";
             PermittedClients = new List<string>();
         }
@@ -79,37 +77,24 @@ namespace Wolpertinger.FileShareCommon
         #region ISerializable Members
 
 
-        
+        protected override string rootElementName { get { return "Permission"; } }
+        protected override string schemaTypeName { get { return "permission"; } }
 
-
-        public virtual bool Validate(XElement xml)
+        public override XElement Serialize()
         {
-            if (xml == null)
-            {
-                return false; 
-            }
+            XElement result = new XElement(XmlNames.Permission);
 
-            bool valid = true;
-            new XDocument(xml).Validate(XmlHelper.SchemaSet, (s, e) => { valid = false; });
-
-            return valid;
-        }
-
-        public XElement Serialize()
-        {
-            XElement result = new XElement(XmlHelper.Permission);
-
-            result.Add(new XElement(XmlHelper.Path, this.Path));
-            result.Add(new XElement(XmlHelper.PermittedClients, this.PermittedClients.Select(x => new XElement(XmlHelper.Client, x))));
+            result.Add(new XElement(XmlNames.Path, this.Path));
+            result.Add(new XElement(XmlNames.PermittedClients, this.PermittedClients.Select(x => new XElement(XmlNames.Client, x))));
             
             return result;
         }
 
-        public void Deserialize(XElement xmlData)
+        public override void Deserialize(XElement xmlData)
         {
-            Path = xmlData.Element(XmlHelper.Path).Value;
+            Path = xmlData.Element(XmlNames.Path).Value;
 
-            var clients = from client in xmlData.Element(XmlHelper.PermittedClients).Elements(XmlHelper.Client)
+            var clients = from client in xmlData.Element(XmlNames.PermittedClients).Elements(XmlNames.Client)
                         select client.Value;
 
             PermittedClients = clients.ToList<string>();

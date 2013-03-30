@@ -24,22 +24,18 @@ using System.Linq;
 using System.Text;
 using System.Xml.Linq;
 using System.Xml.Schema;
+using Wolpertinger.Core;
 
 namespace Wolpertinger.FileShareCommon
 {
     /// <summary>
     /// Base class for FileObject and DirectoryObject
     /// </summary>
-    public class FilesystemObject : ISerializable
+    public class FilesystemObject : Serializable
     {
-        protected class XmlHelper : XmlHelperBase
+        protected class XmlNames
         {
-
-            protected override string xmlNamespace { get { return "http://nerdcave.eu/wolpertinger"; } }
-            protected override string schemaFile { get { return "complex.xsd"; } }
-            protected override string rootElementName { get { return "Permission"; } }
-            protected override string schemaTypeName { get { return "permission"; } }
-
+            private static bool initialized = false;
 
             public static XName FilesystemObject;
             public static XName Name;
@@ -47,13 +43,20 @@ namespace Wolpertinger.FileShareCommon
             public static XName LastEdited;
             public static XName Created;
 
-            public XmlHelper()
-            {                
+            public static void Init(string xmlNamespace)
+            {
+                if (initialized)
+                {
+                    return;
+                }
+
                 FilesystemObject = XName.Get("FilesystemObject", xmlNamespace);
                 Name = XName.Get("Name", xmlNamespace);
                 Path = XName.Get("Path", xmlNamespace);
                 LastEdited = XName.Get("LastEdited", xmlNamespace);
                 Created = XName.Get("Created", xmlNamespace);
+
+                initialized = true;
             }
 
         }
@@ -63,13 +66,7 @@ namespace Wolpertinger.FileShareCommon
         private DateTime _lastEdited;
         private DateTime _created;
 
-
-        static FilesystemObject()
-        {
-            //Initialize a instace of XmlHelper (this will set it's static members)
-            XmlHelper xmlHelper = new XmlHelper();
-        }
-
+       
 
         public DirectoryObject Parent { get; set; }
 
@@ -111,34 +108,43 @@ namespace Wolpertinger.FileShareCommon
 
 
         
+        public FilesystemObject()
+        {
+            XmlNames.Init(xmlNamespace);
+        }
+
 
         #region ISerializable Members
 
-        
-
-        public virtual bool Validate(XElement xml)
-        {           
-            throw new NotImplementedException();
+        protected override string rootElementName
+        {
+            get { throw new NotSupportedException("FilesystemObject should not be used on directly"); }
         }
 
-        public virtual XElement Serialize()
+        protected override string schemaTypeName
         {
-            XElement xml = new XElement(XmlHelper.FilesystemObject);
+            get { throw new NotSupportedException("FilesystemObject should not be used on directly"); }
+        }
 
-            xml.Add(new XElement(XmlHelper.Name, this.Name));
-            xml.Add(new XElement(XmlHelper.Path, this.Path));
-            xml.Add(new XElement(XmlHelper.Created, XmlSerializer.Serialize(this.Created.ToUniversalTime()).Value));
-            xml.Add(new XElement(XmlHelper.LastEdited, XmlSerializer.Serialize(this.LastEdited.ToUniversalTime()).Value));
+
+        public override XElement Serialize()
+        {
+            XElement xml = new XElement(XmlNames.FilesystemObject);
+
+            xml.Add(new XElement(XmlNames.Name, this.Name));
+            xml.Add(new XElement(XmlNames.Path, this.Path));
+            xml.Add(new XElement(XmlNames.Created, XmlSerializer.Serialize(this.Created.ToUniversalTime()).Value));
+            xml.Add(new XElement(XmlNames.LastEdited, XmlSerializer.Serialize(this.LastEdited.ToUniversalTime()).Value));
 
             return xml;
         }
 
-        public virtual void Deserialize(XElement xmlData)
+        public override void Deserialize(XElement xmlData)
         {
-            this.Name = xmlData.Element(XmlHelper.Name).Value;
-            this.Path = xmlData.Element(XmlHelper.Path).Value;
-            this.LastEdited = XmlSerializer.DeserializeAs<DateTime>(xmlData.Element(XmlHelper.LastEdited)).ToUniversalTime();
-            this.Created = XmlSerializer.DeserializeAs<DateTime>(xmlData.Element(XmlHelper.Created)).ToUniversalTime();
+            this.Name = xmlData.Element(XmlNames.Name).Value;
+            this.Path = xmlData.Element(XmlNames.Path).Value;
+            this.LastEdited = XmlSerializer.DeserializeAs<DateTime>(xmlData.Element(XmlNames.LastEdited)).ToUniversalTime();
+            this.Created = XmlSerializer.DeserializeAs<DateTime>(xmlData.Element(XmlNames.Created)).ToUniversalTime();
         }
 
         #endregion

@@ -69,6 +69,10 @@
       <Project>{58effe36-cf9f-42c7-b2cf-d721b06683bf}</Project>
       <Name>Wolpertinger.CoreComponents</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Wolpertinger.Core\Wolpertinger.Core.csproj">
+      <Project>{42bf5ac0-a438-49fb-8049-9549da556898}</Project>
+      <Name>Wolpertinger.Core</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

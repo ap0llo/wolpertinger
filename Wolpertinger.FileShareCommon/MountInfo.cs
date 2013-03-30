@@ -23,37 +23,36 @@ using System.Linq;
 using System.Text;
 using System.Xml.Linq;
 using System.Xml.Schema;
+using Wolpertinger.Core;
 
 namespace Wolpertinger.FileShareCommon
 {
     /// <summary>
     /// 
     /// </summary>
-    public class MountInfo : ISerializable
+    public class MountInfo : Serializable
     {
-        private class XmlHelper : XmlHelperBase
+        private static class XmlNames
         {
-
-            protected override string xmlNamespace { get { return "http://nerdcave.eu/wolpertinger"; } }
-            protected override string schemaFile { get { return "complex.xsd"; } }
-            protected override string schemaTypeName { get { return "mountInfo"; } }
-            protected override string rootElementName { get { return "MountInfo"; } }
-
-
-            public static XmlSchemaSet SchemaSet;
+            private static bool initialized = false;       
+            
 
             public static XName MountInfo;
             public static XName MountPoint;
             public static XName LocalPath;
 
 
-            public XmlHelper()
+            public static void Init(string xmlNamespace)
             {
-                SchemaSet = schemaSet;
+                if (initialized)
+                {
+                    return;
+                }
 
-                MountInfo = XName.Get(rootElementName, xmlNamespace);
+                MountInfo = XName.Get("MountInfo", xmlNamespace);
                 MountPoint = XName.Get("MountPoint", xmlNamespace);
                 LocalPath = XName.Get("LocalPath", xmlNamespace);
+                initialized = true;
             }
 
         }
@@ -63,15 +62,12 @@ namespace Wolpertinger.FileShareCommon
 
         public string LocalPath { get; set; }
 
-
-        static MountInfo()
-        {
-            //Initialize a instace of XmlHelper (this will set it's static members)
-            XmlHelper xmlHelper = new XmlHelper();
-        }
+        
 
         public MountInfo()
         {
+            XmlNames.Init(xmlNamespace);
+
             this.MountPoint = "";
             this.LocalPath = "";
         }
@@ -80,35 +76,25 @@ namespace Wolpertinger.FileShareCommon
 
         #region ISerializable Members
 
+        protected override string schemaTypeName { get { return "mountInfo"; } }
+        protected override string rootElementName { get { return "MountInfo"; } }
 
+        
 
-
-        public virtual bool Validate(XElement xml)
+        public override XElement Serialize()
         {
-            if (xml == null)
-            {
-                return false;
-            }
+            XElement xml = new XElement(XmlNames.MountInfo);
 
-            bool valid = true;
-            new XDocument(xml).Validate(XmlHelper.SchemaSet, (s, e) => { valid = false; });
-            return valid;
-        }
-
-        public XElement Serialize()
-        {
-            XElement xml = new XElement(XmlHelper.MountInfo);
-
-            xml.Add(new XElement(XmlHelper.MountPoint, this.MountPoint));
-            xml.Add(new XElement(XmlHelper.LocalPath, this.LocalPath));
+            xml.Add(new XElement(XmlNames.MountPoint, this.MountPoint));
+            xml.Add(new XElement(XmlNames.LocalPath, this.LocalPath));
 
             return xml;
         }
 
-        public void Deserialize(XElement xmlData)
+        public override void Deserialize(XElement xmlData)
         {            
-            this.MountPoint = xmlData.Element(XmlHelper.MountPoint).Value;
-            this.LocalPath = xmlData.Element(XmlHelper.LocalPath).Value;
+            this.MountPoint = xmlData.Element(XmlNames.MountPoint).Value;
+            this.LocalPath = xmlData.Element(XmlNames.LocalPath).Value;
         }
 
         #endregion

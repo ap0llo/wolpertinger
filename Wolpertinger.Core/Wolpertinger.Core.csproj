@@ -87,6 +87,7 @@
     <Compile Include="Messages\RemoteMethodCall.cs" />
     <Compile Include="Attributes\TrustLevelAttribute.cs" />
     <Compile Include="Loggers\XmppLogger.cs" />
+    <Compile Include="Serializable.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="CoreArchitecture.cd" />

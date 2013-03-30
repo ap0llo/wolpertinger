@@ -37,25 +37,25 @@ namespace Wolpertinger.FileShareCommon
     public class FileObject : FilesystemObject
     {
 
-        private class XmlHelperExtended : XmlHelper
+        private class XmlNamesExtended : XmlNames
         {
-            protected override string rootElementName { get { return "FileObject"; } }
-            protected override string schemaTypeName { get { return "fileObject"; } }
-
-
-            public static XmlSchemaSet SchemaSet;
+            private static bool initialized = false;        
 
             public static XName FileObject;
             public static XName Hash;
 
-            public XmlHelperExtended()
+            public static void Init(string xmlNamespace)
             {
-                SchemaSet = schemaSet;
+                if (initialized)
+                {
+                    return;
+                }
 
-                FileObject = XName.Get(rootElementName, xmlNamespace);
+                FileObject = XName.Get("FileObject", xmlNamespace);
                 Hash = XName.Get("Hash", xmlNamespace);
-            }
 
+                initialized = true;
+            }
         }
 
 
@@ -63,13 +63,15 @@ namespace Wolpertinger.FileShareCommon
         public static IHashingService HashingService;
 
 
-        static FileObject()
-        {
-            //Initialize a instace of XmlHelper (this will set it's static members)
-            XmlHelperExtended xmlHelper = new XmlHelperExtended();
-        }
+        
 
         public String Hash { get; set; }
+
+
+        public FileObject()
+        {
+            XmlNamesExtended.Init(xmlNamespace);
+        }
 
 
         public virtual void LoadFromDisk()
@@ -107,27 +109,17 @@ namespace Wolpertinger.FileShareCommon
 
         #region ISerializable Members
 
-        public override bool Validate(XElement xml)
-        {
-            if (xml == null)
-            {
-                return false;
-            }
-
-
-            bool valid = true;
-            new XDocument(xml).Validate(XmlHelperExtended.SchemaSet, (s, e) => { valid = false; });
-            return valid;
-        }
+        protected override string rootElementName { get { return "FileObject"; } }
+        protected override string schemaTypeName { get { return "fileObject"; } }
 
         public override XElement Serialize()
         {           
             XElement xml = base.Serialize();
 
-            xml.Name = XmlHelperExtended.FileObject;
-            xml.Add(new XElement(XmlHelperExtended.Hash));
-            xml.Element(XmlHelperExtended.Hash).Add(new XAttribute("hashtype", "sha1"));
-            xml.Element(XmlHelperExtended.Hash).Value = (this.Hash == null) ? "" : this.Hash;
+            xml.Name = XmlNamesExtended.FileObject;
+            xml.Add(new XElement(XmlNamesExtended.Hash));
+            xml.Element(XmlNamesExtended.Hash).Add(new XAttribute("hashtype", "sha1"));
+            xml.Element(XmlNamesExtended.Hash).Value = (this.Hash == null) ? "" : this.Hash;
 
             return xml;
         }
@@ -136,9 +128,9 @@ namespace Wolpertinger.FileShareCommon
         {
             base.Deserialize(xmlData);
 
-            this.Hash = xmlData.Element(XmlHelperExtended.Hash).Value;
+            this.Hash = xmlData.Element(XmlNamesExtended.Hash).Value;
 
-            if (xmlData.Element(XmlHelperExtended.Hash).Attribute("hashtype").Value != "sha1")
+            if (xmlData.Element(XmlNamesExtended.Hash).Attribute("hashtype").Value != "sha1")
                 throw new Exception("FileObject: Unsupported Hash-Type encountered");
         }
 
