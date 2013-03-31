@@ -63,6 +63,9 @@
     <Compile Include="KeyValueStoreTests.cs" />
     <Compile Include="TestHashingService.cs" />
     <Compile Include="XmlSerialization\ClientInfoSerializationTests.cs" />
+    <Compile Include="XmlSerialization\RemoteMethodResponseSerializationTests.cs" />
+    <Compile Include="XmlSerialization\RemoteMethodCallSerializationTests.cs" />
+    <Compile Include="XmlSerialization\RemoteErrorSerializationTests.cs" />
     <Compile Include="XmlSerialization\DirectoryObjectSerializationTests.cs" />
     <Compile Include="XmlSerialization\FileObjectSerializationTests.cs" />
     <Compile Include="XmlSerialization\MountInfoSerializationTests.cs" />

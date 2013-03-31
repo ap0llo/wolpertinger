@@ -37,49 +37,82 @@ namespace Wolpertinger.Core
         public object ResponseValue { get; set; }
 
 
-
-        #region ISerializable Members
-        
-        public override bool Validate(XElement xml)
+        public RemoteMethodResponse()
         {
-            //TODO
-            throw new NotImplementedException();
+            XmlNames.Init(xmlNamespace);
         }
 
+        #region ISerializable Members
+
+        private static class XmlNames
+        {
+            private static bool initialized = false;
+
+            public static XName RemoteMethodResponse;
+            public static XName ComponentName;
+            public static XName CallId;
+            public static XName ResponseValue;
+
+
+            public static void Init(string xmlNamespace)
+            {
+                if (initialized)
+                {
+                    return;
+                }
+
+                RemoteMethodResponse = XName.Get("RemoteMethodResponse", xmlNamespace);
+                ComponentName = XName.Get("ComponentName", xmlNamespace);
+                CallId = XName.Get("CallId", xmlNamespace);
+                ResponseValue = XName.Get("ResponseValue", xmlNamespace);
+
+                initialized = true;
+            }
+        }
+
+
+        protected override string rootElementName
+        {
+            get { return "RemoteMethodResponse"; }
+        }
+
+        protected override string schemaTypeName
+        {
+            get { return "remoteMethodResponse"; }
+
+        }
+
+        
         public override XElement Serialize()
-        {            
-            XElement xmlData = new XElement("RemoteMethodResponse");
-            xmlData.Add(new XElement("ComponentName", this.ComponentName));
-            xmlData.Add(new XElement("CallId", this.CallId.ToString()));
+        {
+            XElement root = new XElement(XmlNames.RemoteMethodResponse);
+            root.Add(new XElement(XmlNames.ComponentName, this.ComponentName));
+            root.Add(new XElement(XmlNames.CallId, this.CallId.ToString()));
             
             //serialize the response value
-            xmlData.Add(new XElement("ResponseValue"));
+            root.Add(new XElement(XmlNames.ResponseValue));
             if (ResponseValue != null)
             {
-                XElement x = XmlSerializer.Serialize(this.ResponseValue);
-                if (x != null)
+                XElement value = XmlSerializer.Serialize(this.ResponseValue, xmlNamespace);
+                if (value != null)
                 {
-                    xmlData.Element("ResponseValue").Add(x);
+                    root.Element(XmlNames.ResponseValue).Add(value);
                 }
             }
 
-            return xmlData;
+            return root;
         }
 
         public override void Deserialize(XElement xmlData)
         {
-            if (xmlData == null || xmlData.Name.LocalName != "RemoteMethodResponse")
-                throw new XmlException();
-
-            this.ComponentName = xmlData.Element("ComponentName").Value;
+            this.ComponentName = xmlData.Element(XmlNames.ComponentName).Value;
+            this.CallId = XmlSerializer.DeserializeAs<Guid>(xmlData.Element(XmlNames.CallId));
 
             //deserialze the reponse value
-            if(xmlData.Element("ResponseValue").Elements().Any())
+            if (xmlData.Element(XmlNames.ResponseValue).Elements().Any())
             {
-                this.ResponseValue = XmlSerializer.Deserialize(xmlData.Element("ResponseValue").Elements().First());                    
+                this.ResponseValue = XmlSerializer.Deserialize(xmlData.Element(XmlNames.ResponseValue).Elements().First());                    
             }
-
-            this.CallId = XmlSerializer.DeserializeAs<Guid>(xmlData.Element("CallId"));                         
         }
 
         #endregion

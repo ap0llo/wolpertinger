@@ -59,43 +59,84 @@ namespace Wolpertinger.Core
         /// <param name="errorCode">The error that occured</param>
 		public RemoteError(RemoteErrorCode errorCode)
 		{
+            XmlNames.Init(xmlNamespace);
+
 			this.CallId = Guid.Empty;
 			this.ErrorCode = errorCode;
 		}
 
 
 		#region ISerializable Members
-		
+
+        private static class XmlNames
+        {
+            public static bool initialized = false;
+
+            public static XName RemoteError;
+            public static XName ComponentName;
+            public static XName ErrorCode;
+            public static XName CallId;
+
+
+            public static void Init(string xmlNamespace)
+            {
+                if (initialized)
+                {
+                    return;
+                }
+
+                RemoteError = XName.Get("RemoteError", xmlNamespace);
+                ComponentName = XName.Get("ComponentName", xmlNamespace);
+                ErrorCode = XName.Get("ErrorCode", xmlNamespace);
+                CallId = XName.Get("CallId", xmlNamespace);
+
+                initialized = true;
+            }
+        }
+
+        protected override string schemaTypeName
+        {
+            get { return "remoteError"; }
+        }
+
+        protected override string rootElementName
+        {
+            get { return "RemoteError"; }
+        }
+
+
 		public override XElement Serialize()
 		{
-			XElement xml = new XElement("RemoteError");
-			xml.Add(new XElement("TargetName") { Value = this.ComponentName });
-			xml.Add(new XElement("ErrorCode") { Value = ((int)this.ErrorCode).ToString() });
+			XElement root = new XElement(XmlNames.RemoteError);
+			root.Add(new XElement(XmlNames.ComponentName,  this.ComponentName));
+			root.Add(new XElement(XmlNames.ErrorCode, ((int)this.ErrorCode).ToString()));
 
-			if (this.CallId != Guid.Empty) 
-				xml.Add(new XElement("CallId") { Value = this.CallId.ToString() });
+            if (this.CallId != Guid.Empty)
+            {
+				root.Add(new XElement(XmlNames.CallId, this.CallId.ToString()));
+            }
 
-			return xml;
+			return root;
 		}
-
 
 		public override void Deserialize(XElement xmlData)
 		{
-			ComponentName = xmlData.Element("TargetName").Value;
-			try
+			ComponentName = xmlData.Element(XmlNames.ComponentName).Value;
+			
+            try
 			{
-				ErrorCode = (RemoteErrorCode)Int32.Parse(xmlData.Element("ErrorCode").Value);				
+				ErrorCode = (RemoteErrorCode)Int32.Parse(xmlData.Element(XmlNames.ErrorCode).Value);				
 			}
 			catch (FormatException fex)
 			{
 				LoggerService.GetLogger("RemoteError").Error(fex);
 				ErrorCode = 0;
 			}
-			if(xmlData.Elements("CallId").Any())
+			
+            if(xmlData.Elements(XmlNames.CallId).Any())
 			{
-                CallId = XmlSerializer.DeserializeAs<Guid>(xmlData.Element("CallId"));
-			}
-		
+                CallId = XmlSerializer.DeserializeAs<Guid>(xmlData.Element(XmlNames.CallId));
+			}		
 		}
 
 		#endregion

@@ -6,7 +6,8 @@
 	xmlns:xs="http://www.w3.org/2001/XMLSchema" 
 	elementFormDefault="qualified">
 
-	<xs:include schemaLocation="base.xsd" />
+
+	<xs:include schemaLocation="primitive.xsd" />
 
 	<!--Allowed Error Codes-->
 	<xs:simpleType name="errorcode">
@@ -37,10 +38,11 @@
 	</xs:simpleType>
 
 	<!--Message Types -->  
-	<xs:complexType name="RemoteMethodCall">
+	
+	<xs:complexType name="remoteMethodCall">
 		<xs:sequence>
-			<xs:element name="TargetName" type="xs:string" minOccurs="1" maxOccurs="1"/>
-			<xs:element name="CallId" type="id"  minOccurs="1" maxOccurs="1" />
+			<xs:element name="ComponentName" type="xs:string" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="CallId" type="guid"  minOccurs="1" maxOccurs="1" />
 			<xs:element name="MethodName" type="xs:string" minOccurs="1" maxOccurs="1" />
 			<xs:element name="Parameters">
 				<xs:complexType>
@@ -52,10 +54,10 @@
 		</xs:sequence>
 	</xs:complexType>
 
-	<xs:complexType name="RemoteMethodResponse">
+	<xs:complexType name="remoteMethodResponse">
 		<xs:sequence>
-			<xs:element name="TargetName" type="xs:string" minOccurs="1" maxOccurs="1"/>
-			<xs:element name="CallId" type="id"  minOccurs="1" maxOccurs="1" />
+			<xs:element name="ComponentName" type="xs:string" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="CallId" type="guid"  minOccurs="1" maxOccurs="1" />
 			<xs:element name="ResponseValue">
 				<xs:complexType>
 					<xs:sequence>
@@ -66,16 +68,12 @@
 		</xs:sequence>
 	</xs:complexType>    
 
-	<xs:complexType name="RemoteError">
+	<xs:complexType name="remoteError">
 		<xs:sequence>
-			<xs:element name="TargetName" type="xs:string" minOccurs="1" maxOccurs="1" />
+			<xs:element name="ComponentName" type="xs:string" minOccurs="1" maxOccurs="1" />
 			<xs:element name="ErrorCode" type="errorcode" minOccurs="1" maxOccurs="1" />
-			<xs:element name="CallId" type="id" minOccurs="0" maxOccurs="1" />
+			<xs:element name="CallId" type="guid" minOccurs="0" maxOccurs="1" />
 		</xs:sequence>
 	</xs:complexType>
-
-	<xs:element name="RemoteError" type="RemoteError" />
-	<xs:element name="RemoteMethodResponse" type="RemoteMethodResponse" />  
-	<xs:element name="RemoteMethodCall" type="RemoteMethodCall"/>
 
 </xs:schema>

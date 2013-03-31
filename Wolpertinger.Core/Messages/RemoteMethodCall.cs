@@ -49,6 +49,8 @@ namespace Wolpertinger.Core
         [DebuggerStepThrough()]
         public RemoteMethodCall()
         {
+            XmlNames.Init(xmlNamespace);
+
             Parameters = new List<object>();
         }
 
@@ -58,32 +60,65 @@ namespace Wolpertinger.Core
 
 
         #region ISerializable Members
-        
-        public override bool Validate(XElement xml)
+
+        private static class XmlNames
         {
-            //TODO
-            throw new NotImplementedException();
+            private static bool initialized = false;
+
+            public static XName RemoteMethodCall;
+            public static XName ComponentName;
+            public static XName CallId;
+            public static XName MethodName;
+            public static XName Parameters;
+            
+
+            public static void Init(string xmlNamespace)
+            {
+                if (initialized)
+                {
+                    return;
+                }
+
+                RemoteMethodCall = XName.Get("RemoteMethodCall", xmlNamespace);
+                ComponentName = XName.Get("ComponentName", xmlNamespace);
+                CallId = XName.Get("CallId", xmlNamespace);
+                MethodName = XName.Get("MethodName", xmlNamespace);
+                Parameters = XName.Get("Parameters", xmlNamespace);
+
+                initialized = true;
+            }
         }
+
+
+        protected override string rootElementName
+        {
+            get { return "RemoteMethodCall"; }
+        }
+
+        protected override string schemaTypeName
+        {
+            get { return "remoteMethodCall"; }
+        }
+
 
         public override XElement Serialize()
         {
-            XElement xml = new XElement("RemoteMethodCall");
-            xml.Add(new XElement("ComponentName", this.ComponentName));
-            xml.Add(new XElement("CallId", this.CallId.ToString()));
-            xml.Add(new XElement("MethodName", this.MethodName));
-            
-            xml.Add(new XElement("Parameters", Parameters.Select(x=> XmlSerializer.Serialize(x))));
+            XElement root = new XElement(XmlNames.RemoteMethodCall);
 
-            return xml;
+            root.Add(new XElement(XmlNames.ComponentName, this.ComponentName));
+            root.Add(new XElement(XmlNames.CallId, this.CallId.ToString()));
+            root.Add(new XElement(XmlNames.MethodName, this.MethodName));
+            root.Add(new XElement(XmlNames.Parameters, Parameters.Select(x => XmlSerializer.Serialize(x, xmlNamespace))));
+
+            return root;
         }
 
         public override void Deserialize(XElement xmlData)
         {
-            ComponentName = xmlData.Element("ComponentName").Value;
-            MethodName = xmlData.Element("MethodName").Value;
-                      
-            CallId = XmlSerializer.DeserializeAs<Guid>(xmlData.Element("CallId"));            
-            Parameters = xmlData.Element("Parameters").Elements().Select(x => XmlSerializer.Deserialize(x)).ToList<object>();            
+            ComponentName = xmlData.Element(XmlNames.ComponentName).Value;
+            MethodName = xmlData.Element(XmlNames.MethodName).Value;
+            CallId = XmlSerializer.DeserializeAs<Guid>(xmlData.Element(XmlNames.CallId));            
+            Parameters = xmlData.Element(XmlNames.Parameters).Elements().Select(x => XmlSerializer.Deserialize(x)).ToList<object>();            
         }
 
         #endregion
