@@ -52,10 +52,10 @@ namespace Wolpertinger.Fileserver
 		{
 			instance = new HashingService();
 			hashDbFolder = Path.Combine(Program.DatabaseFolder, "Hashes");
-            //if (!Directory.Exists(hashDbFolder))
-            //{
-            //    Directory.CreateDirectory(hashDbFolder);
-            //}
+			//if (!Directory.Exists(hashDbFolder))
+			//{
+			//    Directory.CreateDirectory(hashDbFolder);
+			//}
 		}
 
 

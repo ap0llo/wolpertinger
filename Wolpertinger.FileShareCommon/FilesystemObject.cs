@@ -31,6 +31,7 @@ namespace Wolpertinger.FileShareCommon
     /// <summary>
     /// Base class for FileObject and DirectoryObject
     /// </summary>
+    [Serializable]
     public class FilesystemObject : Serializable
     {
         protected class XmlNames

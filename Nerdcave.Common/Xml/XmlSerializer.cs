@@ -192,7 +192,15 @@ namespace Nerdcave.Common.Xml
 			{
 				Type type = registeredTypes[typeName];
 				ISerializable instance = (ISerializable)Activator.CreateInstance(type);
-				instance.Deserialize(xml.Elements().First());
+
+                var root = xml.Elements().First();
+                
+                if (!instance.Validate(root))
+                {
+                    throw new TypeNotSupportedException("The specified xml did not conform to the type's xml schema");
+                }
+
+				instance.Deserialize(root);
 
 				return instance;
 			}
@@ -410,9 +418,6 @@ namespace Nerdcave.Common.Xml
 				return null;
 			}
 		}
-
-
-
 
 	}
 

@@ -30,6 +30,7 @@ namespace Wolpertinger.FileShareCommon
     /// <summary>
     /// 
     /// </summary>
+    [Serializable]
     public class MountInfo : Serializable
     {
         private static class XmlNames

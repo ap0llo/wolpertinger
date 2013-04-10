@@ -102,6 +102,9 @@ namespace Wolpertinger.Manager.CLI
             commands.Add("fileshare.get-permissions", new CommandInfo() { ParameterCount = 0, CommandMethod = fileshareGetPermissionsCommand });
             commands.Add("fileshare.get-rootdirectory", new CommandInfo() { ParameterCount = 0, CommandMethod = fileshareGetRootDirectoryCommand });
             commands.Add("fileshare.set-rootdirectory", new CommandInfo() { ParameterCount = 1, CommandMethod = fileshareSetRootDirectoryCommand });
+
+            commands.Add("fileshare.create-snapshot", new CommandInfo() { ParameterCount = 0, CommandMethod = fileshareCreateSnapshotCommand });
+            commands.Add("fileshare.get-snapshots", new CommandInfo() { ParameterCount = 0, CommandMethod = fileshareGetSnapshotsCommand });
         }
 
 
@@ -438,6 +441,49 @@ namespace Wolpertinger.Manager.CLI
         protected void fileshareSetRootDirectoryCommand(IEnumerable<string> cmds)
         {
             fileShareComponent.SetRootDirectoryPathAsync(cmds.First());
+        }
+
+
+
+        private void fileshareGetSnapshotsCommand(IEnumerable<string> obj)
+        {
+            try
+            {
+                var snapshots = fileShareComponent.GetSnapshotsAsync().Result;
+
+                string formatString = "{0, -36} | {1, -30}";
+
+
+                Program.OutputLine(this, "-----------------------------------------------------------");
+                Program.OutputLine(this, formatString, "Id", "Time");
+                Program.OutputLine(this, "-----------------------------------------------------------");
+                
+                foreach (var item in snapshots)
+                {
+                    Program.OutputLine(this, formatString, item.Id, item.Time);
+                }
+
+            }
+            catch (RemoteErrorException)
+            { }
+            catch (TimeoutException)
+            { }
+        }
+
+        private void fileshareCreateSnapshotCommand(IEnumerable<string> obj)
+        {
+            try
+            {
+                Program.StatusLine(this, "Creating Snapshot");
+                var task = fileShareComponent.CreateSnapshotAsync();
+                task.Wait();
+                Program.StatusLine(this, "Snapshot created");
+                Program.OutputLine(this, "Id: " + task.Result.ToString());
+            }
+            catch (RemoteErrorException)
+            { }
+            catch (TimeoutException)
+            { }
         }
 
 

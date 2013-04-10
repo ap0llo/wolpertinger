@@ -34,6 +34,7 @@ namespace Wolpertinger.FileShareCommon
     /// <summary>
     /// Class encapsulating information about a file
     /// </summary>
+    [Serializable]
     public class FileObject : FilesystemObject
     {
 
@@ -59,7 +60,7 @@ namespace Wolpertinger.FileShareCommon
         }
 
 
-
+        [NonSerialized]
         public static IHashingService HashingService;
 
 

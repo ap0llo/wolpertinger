@@ -8,19 +8,21 @@ using System.Xml.Schema;
 using System.IO;
 using System.Xml;
 
+
 namespace Wolpertinger.Core
 {
     /// <summary>
     /// Abstarct class implementing ISerializable offering useful functionality for classes
     /// (so this functionality doesn't need to be implemented in every class that offers serialization)
     /// </summary>
+    [Serializable]
     public abstract class Serializable : ISerializable
     {
-
+        [NonSerialized]
         protected XmlSchemaSet schemaSet;
 
-
-        protected virtual string xmlNamespace { get { return "http://nerdcave.eu/wolpertinger"; } }
+        
+        protected virtual string xmlNamespace { get { return "http://nerdcave.eu/wolpertinger"; } }       
         protected virtual string schemaFile { get { return "complex.xsd"; } }
         
 
@@ -64,7 +66,7 @@ namespace Wolpertinger.Core
             {
                 document.Validate(schemaSet, null);
             }
-            catch (XmlSchemaValidationException)
+            catch (XmlSchemaValidationException ex)
             {
                 return false;
             }

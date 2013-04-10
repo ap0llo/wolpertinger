@@ -22,7 +22,7 @@ namespace Wolpertinger.FileShareCommon
 
         private static class XmlNames
         {
-            private static bool initialized = false;
+            public static bool initialized = false;
 
             private const string _id = "Id";
             private const string _time = "Time";
@@ -70,12 +70,10 @@ namespace Wolpertinger.FileShareCommon
         /// </summary>
         public DateTime Time { get; set; }
 
-
         #region ISerializable Members
 
         protected override string schemaTypeName { get { return "snapshotInfo"; } }
         protected override string rootElementName { get { return "SnapshotInfo"; } }
-
 
         /// <summary>
         /// Serializes the object into XML
@@ -83,6 +81,8 @@ namespace Wolpertinger.FileShareCommon
         /// <returns>Returns a XML representation of the object</returns>
         public override XElement Serialize()
         {
+            XmlNames.Init(xmlNamespace);
+
             XElement result = new XElement(XmlNames.SnapshotInfo);
             result.Add(new XElement(XmlNames.Id, this.Id));
             result.Add(new XElement(XmlNames.Time, this.Time.ToUniversalTime().ToString("o")));

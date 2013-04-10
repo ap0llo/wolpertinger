@@ -208,9 +208,9 @@ namespace Wolpertinger.Manager.CLI
         {
             return Task.Factory.StartNew<IEnumerable<SnapshotInfo>>(delegate
             {
-                return (IEnumerable<SnapshotInfo>)ClientConnection.CallRemoteFunction(
+                return (ClientConnection.CallRemoteFunction(
                     ComponentNamesExtended.FileShare,
-                    FileShareMethods.GetSnapshots);
+                    FileShareMethods.GetSnapshots) as IEnumerable<object>).Cast<SnapshotInfo>();
             });
         }
 

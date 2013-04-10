@@ -33,6 +33,7 @@ namespace Wolpertinger.FileShareCommon
     /// <summary>
     /// Class encapsulating information about a directory and it's files
     /// </summary>
+    [Serializable]
     public class DirectoryObject : FilesystemObject
     {
         private class XmlNamesExtended : XmlNames
@@ -54,7 +55,7 @@ namespace Wolpertinger.FileShareCommon
 
         private string _path;
 
-
+        [NonSerialized]
         ILogger logger = LoggerService.GetLogger("DirectoryObject");
 
         protected Dictionary<string, FileObject> files = new Dictionary<string, FileObject>();

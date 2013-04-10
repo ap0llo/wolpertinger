@@ -49,8 +49,8 @@ namespace Wolpertinger.Fileserver
 		protected static KeyValueStore storage = new KeyValueStore(Path.Combine(DefaultConnectionManager.SettingsFolder, "FileShare.xml"));
 
 		protected static readonly string SnapshotDbFolder;
-        
-        protected const string SnapshotsIndexDbKey = "Snapshots";
+		
+		protected const string SnapshotsIndexDbKey = "Snapshots";
 
 		protected static string rootPath;
 		protected static FileSystemWatcher fsWatcher;
@@ -218,48 +218,7 @@ namespace Wolpertinger.Fileserver
 				}
 
 
-				var localPath = getLocalPath(virtualPath);
-				if (localPath.IsNullOrEmpty())
-				{
-					throw new DirectoryNotFoundException();
-				}
-
-				var dir = new DirectoryObject();
-				dir.LocalPath = localPath;                
-				dir.LoadFromDisk(depth);
-
-
-				//load files and directories from other mounts that match the specified path
-				var subMounts = mounts.Where(x => x.MountPoint.ToLower().StartsWith(virtualPath.ToLower()));
-				foreach (var item in subMounts)
-				{
-					var itemMountPoint = item.MountPoint.Remove(0, virtualPath.Length);
-
-					if (itemMountPoint.IsNullOrEmpty())
-						continue;
-
-					if (itemMountPoint.StartsWith("/"))
-						itemMountPoint = itemMountPoint.RemoveFirstChar();
-
-					if (itemMountPoint.Split('/').Length > depth)
-					{
-						continue;
-					}
-
-					var subDir = new DirectoryObject();
-					subDir.LocalPath = item.LocalPath;
-
-					int scanDepth = (depth < 0) ? -1 : Math.Max(0, (depth - itemMountPoint.Split('/').Length));
-
-					subDir.LoadFromDisk(scanDepth);
-					var parent = dir.GetDirectory(Path.GetDirectoryName(itemMountPoint));
-
-					if (parent.Directories.Any(x => x.Name.ToLower() == subDir.Name.ToLower()))
-						parent.RemoveDirectory(subDir.Name);
-
-					parent.AddDirectory(subDir);
-
-				}
+				var dir = loadVirtualPath(virtualPath, depth);
 
 				//remove directories from the result the caller is not permitted to see
 				removeUnpermittedDirs(dir);
@@ -476,90 +435,89 @@ namespace Wolpertinger.Fileserver
 		[MethodCallHandler(FileShareMethods.GetSnapshots)]
 		public CallResult GetSnapshots()
 		{
-            //Get the index of snapshot form the database
-            IEnumerable<Guid> snapshotIndex;
-            try
-            {
-                snapshotIndex = DB<List<Guid>>.Get(SnapshotsIndexDbKey, SnapshotDbFolder);
-            }
-            catch (DirectoryNotFoundException)
-            {
-                //index not found => use an empty one instead
-                snapshotIndex = new List<Guid>();
-            }
+			//Get the index of snapshot form the database
+			IEnumerable<Guid> snapshotIndex;
+			try
+			{
+				snapshotIndex = DB<List<Guid>>.Get(SnapshotsIndexDbKey, SnapshotDbFolder);
+			}
+			catch (DirectoryNotFoundException)
+			{
+				//index not found => use an empty one instead
+				snapshotIndex = new List<Guid>();
+			}
 
-            //Get all snapshots in the list from the database
-            IEnumerable<SnapshotInfo> snapshots;
-            if (snapshotIndex.Any())
-            {
-                try
-                {
-                    snapshots = snapshotIndex.Select(x => x.ToString())
-                                             .Select(x => DB<Snapshot>.Get(x, SnapshotDbFolder))
-                                             .Select(x => x.Info);
-                }
-                catch (DirectoryNotFoundException)
-                {
-                    logger.Warn("Invalid Snapshot id in database");
-                    snapshots = new List<SnapshotInfo>();                    
-                }
-            }
-            else
-            {
-                snapshots = new List<SnapshotInfo>();
-            }
+			//Get all snapshots in the list from the database
+			IEnumerable<SnapshotInfo> snapshots;
+			if (snapshotIndex.Any())
+			{
+				try
+				{
+					snapshots = snapshotIndex.Select(x => x.ToString())
+											 .Select(x => DB<Snapshot>.Get(x, SnapshotDbFolder))
+											 .Select(x => x.Info);
+				}
+				catch (DirectoryNotFoundException)
+				{
+					logger.Warn("Invalid Snapshot id in database");
+					snapshots = new List<SnapshotInfo>();                    
+				}
+			}
+			else
+			{
+				snapshots = new List<SnapshotInfo>();
+			}
 
-            return new ResponseResult(snapshots);
+			return new ResponseResult(snapshots);
 		}
 
 		[TrustLevel(3)]
 		[MethodCallHandler(FileShareMethods.CreateSnapshot)]
 		public CallResult CreateSnapshot()
 		{
-            var snapshot = new Snapshot();
-            snapshot.Permissions = permissions.Values;
+			var snapshot = new Snapshot();
+			snapshot.Permissions = permissions.Values;
 
-            if (mountErrorOccurred)
-            {
-                return new ErrorResult(RemoteErrorCode.MountError);
-            }
+			if (mountErrorOccurred)
+			{
+				return new ErrorResult(RemoteErrorCode.MountError);
+			}
 
-            snapshot.FilesystemState = new DirectoryObject();
-            snapshot.FilesystemState.LocalPath = getLocalPath("/");
 
-            try
-            {
-                snapshot.FilesystemState.LoadFromDisk();
-            }
-            catch (DirectoryNotFoundException)
-            {
-                return new ErrorResult(RemoteErrorCode.FileserverError);
-            }
+			try
+			{
+				snapshot.FilesystemState = loadVirtualPath("/");
+			}
+			catch (DirectoryNotFoundException)
+			{
+				return new ErrorResult(RemoteErrorCode.FileserverError);
+			}
 
-            snapshot.Info.Time = DateTime.Now.ToUniversalTime();
+			
+			snapshot.Info.Time = DateTime.Now.ToUniversalTime();
 
-            //Get list of all snapshots from the database
-            List<Guid> snapshotIndex;
-            try 
-	        {	        
-		        snapshotIndex = BinaryRage.DB<List<Guid>>.Get(SnapshotsIndexDbKey, SnapshotDbFolder);
-	        }
-	        catch (DirectoryNotFoundException)
-	        {
-                //Snapshot-Index was not found in database => create index
-		        snapshotIndex = new List<Guid>();
-	        }
+			//Get list of all snapshots from the database
+			List<Guid> snapshotIndex;
+			try 
+			{	        
+				snapshotIndex = BinaryRage.DB<List<Guid>>.Get(SnapshotsIndexDbKey, SnapshotDbFolder);
+			}
+			catch (DirectoryNotFoundException)
+			{
+				//Snapshot-Index was not found in database => create index
+				snapshotIndex = new List<Guid>();
+			}
 
-            //save new snapshot in the database
-            var key = snapshot.Info.Id;
-            BinaryRage.DB<Snapshot>.Insert(key.ToString(), snapshot, SnapshotDbFolder);
+			//save new snapshot in the database
+			var key = snapshot.Info.Id;
+			BinaryRage.DB<Snapshot>.Insert(key.ToString(), snapshot, SnapshotDbFolder);
 
-            //add the key to the snapshot index and save the updated index
-            snapshotIndex.Add(key);
-            BinaryRage.DB<List<Guid>>.Insert(SnapshotsIndexDbKey, snapshotIndex, SnapshotDbFolder);
-            
+			//add the key to the snapshot index and save the updated index
+			snapshotIndex.Add(key);
+			BinaryRage.DB<List<Guid>>.Insert(SnapshotsIndexDbKey, snapshotIndex, SnapshotDbFolder);
+			
 
-            return new ResponseResult(snapshot.Info.Id.ToString());
+			return new ResponseResult(snapshot.Info.Id.ToString());
 		}
 
 
@@ -599,6 +557,53 @@ namespace Wolpertinger.Fileserver
 
 			
 
+		}
+
+
+		private DirectoryObject loadVirtualPath(string virtualPath, int depth = -1)
+		{
+			var localPath = getLocalPath(virtualPath);
+			if (localPath.IsNullOrEmpty())
+			{
+				throw new DirectoryNotFoundException();
+			}
+
+			var dir = new DirectoryObject();
+			dir.LocalPath = localPath;
+			dir.LoadFromDisk(depth);
+
+			//load files and directories from other mounts that match the specified path
+			var subMounts = mounts.Where(x => x.MountPoint.ToLower().StartsWith(virtualPath.ToLower()));
+			foreach (var item in subMounts)
+			{
+				var itemMountPoint = item.MountPoint.Remove(0, virtualPath.Length);
+
+				if (itemMountPoint.IsNullOrEmpty())
+					continue;
+
+				if (itemMountPoint.StartsWith("/"))
+					itemMountPoint = itemMountPoint.RemoveFirstChar();
+
+				if (itemMountPoint.Split('/').Length > depth && depth >= 0)
+				{
+					continue;
+				}
+
+				var subDir = new DirectoryObject();
+				subDir.LocalPath = item.LocalPath;
+
+				int scanDepth = (depth < 0) ? -1 : Math.Max(0, (depth - itemMountPoint.Split('/').Length));
+
+				subDir.LoadFromDisk(scanDepth);
+				var parent = dir.GetDirectory(Path.GetDirectoryName(itemMountPoint));
+
+				if (parent.Directories.Any(x => x.Name.ToLower() == subDir.Name.ToLower()))
+					parent.RemoveDirectory(subDir.Name);
+
+				parent.AddDirectory(subDir);
+			}
+
+			return dir;
 		}
 
 		private void removeUnpermittedDirs(DirectoryObject dir)

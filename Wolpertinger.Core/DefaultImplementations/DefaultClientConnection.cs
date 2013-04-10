@@ -428,31 +428,37 @@ namespace Wolpertinger.Core
         private void processMessage(ParsingResult message)
         {
             //parse the message
+            XElement xmlMessage;
             RpcMessage msg = null;
             var body = message.Payload.ToStringUTF8();            
             try
             {
                 //try to parse it as XML
-                XElement xmlMessage = XElement.Parse(body);
+                xmlMessage = XElement.Parse(body);
                                      
                 switch (xmlMessage.Name.LocalName.ToLower())
                 {
                     case "remotemethodcall":
-                        var callMessage = new RemoteMethodCall();
-                        callMessage.Deserialize(xmlMessage);
-                        msg = callMessage;
+                        msg = new RemoteMethodCall();
                         break;
                     case "remotemethodresponse":
-                        var responseMessage = new RemoteMethodResponse();
-                        responseMessage.Deserialize(xmlMessage);
-                        msg = responseMessage;
+                        msg = new RemoteMethodResponse();
                         break;
                     case "remoteerror":
-                        var errorMessage = new RemoteError(RemoteErrorCode.UnspecifiedError);
-                        errorMessage.Deserialize(xmlMessage);
-                        msg = errorMessage;
+                        msg = new RemoteError();
                         break;
                 }
+
+                if (!msg.Validate(xmlMessage))
+                {
+                    logger.Error("Message from {0} could not be validated", this.Target);
+                    var error = new RemoteError(RemoteErrorCode.InvalidXmlError);
+                    sendMessage(error);
+                    return;
+                }
+
+                msg.Deserialize(xmlMessage);
+
             }
             //Catch XmlException and wrap it into a format exception (makes catching errors in the caller easier)
             catch (XmlException)
@@ -462,6 +468,8 @@ namespace Wolpertinger.Core
                 sendMessage(error);
                 return;
             }
+
+            
 
             
             //encryption is mandatory if TrustLevel is 2 or higher
