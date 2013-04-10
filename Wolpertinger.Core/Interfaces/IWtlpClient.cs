@@ -66,6 +66,13 @@ namespace Wolpertinger.Core
         /// <param name="message">The message to be processed</param>
         void HandleMessage(string message);
 
+        /// <summary>
+        /// Unsubscribes from all events of the underlying IMessagingClient the WtlpClient is subscribed to
+        /// </summary>
+        void Detach();
+        
+
+
     }
 
     /// <summary>

@@ -65,6 +65,9 @@ namespace Wolpertinger.Core
         /// </summary>
         bool Connected { get; }
 
+        /// <summary>
+        /// Gets the name of the service the IMessagingClient implements
+        /// </summary>
         string ServiceName
         {
             get;

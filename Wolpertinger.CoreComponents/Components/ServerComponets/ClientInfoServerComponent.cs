@@ -27,7 +27,7 @@ namespace Wolpertinger.Core
     /// Server implementation of the ClientInfoProvider component.
     /// See Wolpertinger API Documentation for details on the component.
     /// </summary>
-    [Component(ComponentNamesExtended.ClientInfoProvider, ComponentType.Server)]
+    [Component(ComponentNamesExtended.ClientInfoProvider)]
     public class ClientInfoServerComponent : IComponent
     {
         /// <summary>

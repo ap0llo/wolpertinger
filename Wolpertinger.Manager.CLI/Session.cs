@@ -24,6 +24,7 @@ using Slf;
 using System.Security;
 using Nerdcave.Common;
 using Nerdcave.Common.Extensions;
+using Wolpertinger.FileShareCommon;
 
 namespace Wolpertinger.Manager.CLI
 {
@@ -59,10 +60,15 @@ namespace Wolpertinger.Manager.CLI
                 connection.ConnectionTimedOut += connection_ConnectionTimedOut;
                 connection.RemoteErrorOccurred += connection_RemoteErrorOccurred;
             }
-            authComponent = (AuthenticationComponent)connection.GetClientComponent(ComponentNamesExtended.Authentication);
-            clientInfoComponent = (ClientInfoClientComponent)connection.GetClientComponent(ComponentNamesExtended.ClientInfoProvider);
-            loggingConfigurator = (XmppLoggingConfiguratorComponent)connection.GetClientComponent(ComponentNamesExtended.XmppLoggingConfigurator);
-            fileShareComponent = (FileShareClientComponent)connection.GetClientComponent(ComponentNamesExtended.FileShare);
+            //authComponent = (AuthenticationComponent)connection.GetClientComponent(ComponentNamesExtended.Authentication);
+            //clientInfoComponent = (ClientInfoClientComponent)connection.GetClientComponent(ComponentNamesExtended.ClientInfoProvider);
+            //loggingConfigurator = (XmppLoggingConfiguratorComponent)connection.GetClientComponent(ComponentNamesExtended.XmppLoggingConfigurator);
+            //fileShareComponent = (FileShareClientComponent)connection.GetClientComponent(ComponentNamesExtended.FileShare);
+
+            authComponent = new AuthenticationComponent() { ClientConnection = connection };
+            clientInfoComponent = new ClientInfoClientComponent() { ClientConnection = connection };
+            loggingConfigurator = new XmppLoggingConfiguratorComponent() { ClientConnection = connection };
+            fileShareComponent = new FileShareClientComponent() { ClientConnection = connection };
 
 
             //CommandInfo info = new CommandInfo();
@@ -96,6 +102,9 @@ namespace Wolpertinger.Manager.CLI
             commands.Add("fileshare.get-permissions", new CommandInfo() { ParameterCount = 0, CommandMethod = fileshareGetPermissionsCommand });
             commands.Add("fileshare.get-rootdirectory", new CommandInfo() { ParameterCount = 0, CommandMethod = fileshareGetRootDirectoryCommand });
             commands.Add("fileshare.set-rootdirectory", new CommandInfo() { ParameterCount = 1, CommandMethod = fileshareSetRootDirectoryCommand });
+
+            commands.Add("fileshare.create-snapshot", new CommandInfo() { ParameterCount = 0, CommandMethod = fileshareCreateSnapshotCommand });
+            commands.Add("fileshare.get-snapshots", new CommandInfo() { ParameterCount = 0, CommandMethod = fileshareGetSnapshotsCommand });
         }
 
 
@@ -120,21 +129,21 @@ namespace Wolpertinger.Manager.CLI
 
             try
             {
-                if (authComponent.EstablishConnection())
+                if (authComponent.EstablishConnectionAsync().Result)
                 {
                     Program.StatusLine(this, "Exchanging keys");
 
-                    authComponent.KeyExchange();
+                    authComponent.KeyExchangeAsync().Wait();
 
                     Program.StatusLine(this, "Key exchange completed");
                     Program.StatusLine(this, "Initiating Cluster Authentication");
 
-                    string token = authComponent.ClusterAuthGetToken();
+                    string token = authComponent.ClusterAuthGetTokenAsync().Result;
 
-                    if (authComponent.ClusterAuthVerify(token))
+                    if (authComponent.ClusterAuthVerifyAsync(token).Result)
                     {
                         Program.StatusLine(this, "Verified my Cluster Membership");
-                        if (authComponent.ClusterAuthRequestVerification())
+                        if (authComponent.ClusterAuthRequestVerificationAsync().Result)
                         {
                             Program.StatusLine(this, "Verified Cluster Membership of target client");
                             
@@ -157,8 +166,6 @@ namespace Wolpertinger.Manager.CLI
             catch (TimeoutException)
             {              
             }
-
-
         }
 
         internal void disconnectCommand(IEnumerable<string> cmds)
@@ -179,9 +186,9 @@ namespace Wolpertinger.Manager.CLI
                      
             SecureString securePassword = ConsoleHelper.GetPassword().ToSecureString();
 
-            string token = authComponent.UserAuthGetToken();
+            string token = authComponent.UserAuthGetTokenAsync().Result;
 
-            Program.StatusLine(this, authComponent.UserAuthVerify(cmds.First(), token, securePassword)
+            Program.StatusLine(this, authComponent.UserAuthVerifyAsync(cmds.First(), token, securePassword).Result
                                         ? "User Authentication successful"
                                         : "User Authentication failed");                
         }
@@ -190,7 +197,7 @@ namespace Wolpertinger.Manager.CLI
         {
             try
             {
-                Program.OutputLine(this, clientInfoComponent.GetClientInfo().ToString());
+                Program.OutputLine(this, clientInfoComponent.GetClientInfoAsync().Result.ToString());
             }
             catch (TimeoutException)
             { }
@@ -206,13 +213,12 @@ namespace Wolpertinger.Manager.CLI
         {
             try
             {
-                bool enabled = loggingConfigurator.GetEnable();
+                bool enabled = loggingConfigurator.GetEnableAsync().Result;
                 Program.OutputLine(this, enabled.ToString());
             }
             catch (TimeoutException)
             {
             }
-
         }
 
         protected void loggerSetEnabledCommand(IEnumerable<string> cmds)
@@ -228,7 +234,7 @@ namespace Wolpertinger.Manager.CLI
         {
             try
             {
-                Program.OutputLine(this, loggingConfigurator.GetLoglevel().ToString());
+                Program.OutputLine(this, loggingConfigurator.GetLoglevelAsync().Result.ToString());
             }
             catch (TimeoutException)
             {   }
@@ -248,7 +254,7 @@ namespace Wolpertinger.Manager.CLI
         {
             try
             {
-                Program.OutputLine(this, loggingConfigurator.GetRecipient().ToString());
+                Program.OutputLine(this, loggingConfigurator.GetRecipientAsync().Result.ToString());
             }
             catch (TimeoutException)
             {   }
@@ -263,7 +269,7 @@ namespace Wolpertinger.Manager.CLI
         {
             try
             {
-                Program.OutputLine(this, loggingConfigurator.GetEnableDebugLogging().ToString());
+                Program.OutputLine(this, loggingConfigurator.GetEnableDebugLoggingAsync().Result.ToString());
             }
             catch (TimeoutException)
             {   }
@@ -312,7 +318,7 @@ namespace Wolpertinger.Manager.CLI
         {
             try
             {
-                DirectoryObject dir = fileShareComponent.GetDirectoryInfo(cmds.First(), 1);
+                DirectoryObject dir = fileShareComponent.GetDirectoryInfoAsync(cmds.First(), 1).Result;
                 printDirectoryObject(dir);
             }
             catch(RemoteErrorException)
@@ -326,7 +332,7 @@ namespace Wolpertinger.Manager.CLI
         {
             try
             {
-                FileObject file = fileShareComponent.GetFileInfo(cmds.First());
+                FileObject file = fileShareComponent.GetFileInfoAsync(cmds.First()).Result;
                 printFileObject(file);
             }
             catch (RemoteErrorException)
@@ -353,7 +359,7 @@ namespace Wolpertinger.Manager.CLI
         {
             try
             {
-                List<MountInfo> mounts = fileShareComponent.GetMounts();
+                List<MountInfo> mounts = fileShareComponent.GetMountsAsync().Result;
 
                 if (mounts == null)
                 {
@@ -387,7 +393,7 @@ namespace Wolpertinger.Manager.CLI
         {
             try
             {
-                bool permitted = fileShareComponent.GetPermission(cmds.First());
+                bool permitted = fileShareComponent.GetPermissionAsync(cmds.First()).Result;
 
                 Program.OutputLine(this, "{0}", permitted);
             }
@@ -401,7 +407,7 @@ namespace Wolpertinger.Manager.CLI
         {
             try
             {
-                IEnumerable<Permission> permissions = fileShareComponent.GetAddedPermissions();
+                IEnumerable<Permission> permissions = fileShareComponent.GetAddedPermissionsAsync().Result;
 
                 foreach (Permission p in permissions)
                 {
@@ -423,7 +429,7 @@ namespace Wolpertinger.Manager.CLI
         {
             try
             {
-                string root = fileShareComponent.GetRootDirectoryPath();
+                string root = fileShareComponent.GetRootDirectoryPathAsync().Result;
                 Program.OutputLine(this, root);
             }
             catch (RemoteErrorException)
@@ -435,6 +441,49 @@ namespace Wolpertinger.Manager.CLI
         protected void fileshareSetRootDirectoryCommand(IEnumerable<string> cmds)
         {
             fileShareComponent.SetRootDirectoryPathAsync(cmds.First());
+        }
+
+
+
+        private void fileshareGetSnapshotsCommand(IEnumerable<string> obj)
+        {
+            try
+            {
+                var snapshots = fileShareComponent.GetSnapshotsAsync().Result;
+
+                string formatString = "{0, -36} | {1, -30}";
+
+
+                Program.OutputLine(this, "-----------------------------------------------------------");
+                Program.OutputLine(this, formatString, "Id", "Time");
+                Program.OutputLine(this, "-----------------------------------------------------------");
+                
+                foreach (var item in snapshots)
+                {
+                    Program.OutputLine(this, formatString, item.Id, item.Time);
+                }
+
+            }
+            catch (RemoteErrorException)
+            { }
+            catch (TimeoutException)
+            { }
+        }
+
+        private void fileshareCreateSnapshotCommand(IEnumerable<string> obj)
+        {
+            try
+            {
+                Program.StatusLine(this, "Creating Snapshot");
+                var task = fileShareComponent.CreateSnapshotAsync();
+                task.Wait();
+                Program.StatusLine(this, "Snapshot created");
+                Program.OutputLine(this, "Id: " + task.Result.ToString());
+            }
+            catch (RemoteErrorException)
+            { }
+            catch (TimeoutException)
+            { }
         }
 
 
@@ -456,7 +505,7 @@ namespace Wolpertinger.Manager.CLI
         {
             if (!e.Handled)
             {
-                Program.ErrorLine(this, "RemoteError: {0} in {1}", e.Value.ErrorCode.ToString(), e.Value.TargetName);
+                Program.ErrorLine(this, "RemoteError: {0} in {1}", e.Value.ErrorCode.ToString(), e.Value.ComponentName);
                 e.Handled = true;
             }
         }
@@ -526,9 +575,7 @@ namespace Wolpertinger.Manager.CLI
                 //Program.OutputLine(this, "Path:         {0}", file.Path);
                 Program.OutputLine(this, "LastEdited:   {0}", file.LastEdited);
                 Program.OutputLine(this, "Created:      {0}", file.Created);
-                Program.OutputLine(this, "LastAccessed: {0}", file.LastAccessed);
                 Program.OutputLine(this, "Hash:         {0}", file.Hash);
-
             }
         }
 

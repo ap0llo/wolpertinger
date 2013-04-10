@@ -32,9 +32,7 @@ namespace Wolpertinger.Core
     {
         //Dictionay to store types of server-components
         private Dictionary<string, Type> serverComponents = new Dictionary<string, Type>();
-        //Dictionry to store types of client-components
-        private Dictionary<string, Type> clientComponents = new Dictionary<string, Type>();
-
+        
 
         /// <summary>
         /// Initializes a new instance of <see cref="DefaultComponentFactory" />
@@ -67,48 +65,6 @@ namespace Wolpertinger.Core
                 return null;
         }
 
-        /// <summary>
-        /// Gets a new instance of the IClientComponent that matches the specified component name.
-        /// </summary>
-        /// <param name="name">The name of the component</param>
-        /// <returns>
-        /// Returns a new IClientComponent if a matching implementation could be found, otherwise returns null
-        /// </returns>
-        public IComponent GetClientComponent(string name)
-        {
-            name = name.ToLower();
-            //try to find a component matching the given name and create a new instance of it
-            if (clientComponents.ContainsKey(name))
-                return (IComponent)Activator.CreateInstance(clientComponents[name]);
-            else
-                return null;            
-        }
-
-
-        /// <summary>
-        /// Checks whether the specified component is a combined client- and server-component
-        /// </summary>
-        /// <param name="component">The component to check</param>
-        /// <returns></returns>
-        public bool IsClientServerComponent(IComponent component)
-        {
-            return (clientComponents.ContainsValue(component.GetType()) && serverComponents.ContainsValue(component.GetType()));
-        }
-
-
-        /// <summary>
-        /// Returns a new IClientConnection based on the specified target adress
-        /// </summary>
-        /// <param name="target">The connection's target adress</param>
-        /// <returns>
-        /// Returns a instance of IClientConnection or null for the case no approprate implementation could be located
-        /// </returns>
-        public IClientConnection GetClientConnection(string target)
-        {
-            //Initialize a new ClientConnection and set its Target proptery
-            return new DefaultClientConnection() { Target = target };
-        }
-
 
         #endregion IComponentFactory Members
 
@@ -130,7 +86,7 @@ namespace Wolpertinger.Core
                 Type[] types = a.GetTypes();
                 foreach (Type t in types)
                 {
-                    if (t.GetInterfaces().Contains(typeof(IComponent)) && !t.IsAbstract)
+                    if (!t.IsAbstract)
                     {
                         try
                         {
@@ -143,16 +99,8 @@ namespace Wolpertinger.Core
                             {
                                 ComponentAttribute attribute = (ComponentAttribute)attributes.First();
                                 
-                                //add to list of client-components, if component is Client or ClientServer and no component of this name has been added already
-                                if ((attribute.Type == ComponentType.Client || attribute.Type == ComponentType.ClientServer)
-                                        && !clientComponents.ContainsKey(attribute.Name.ToLower()))
-                                {
-                                    clientComponents.Add(attribute.Name.ToLower(), t);
-                                }
-
                                 //add to list of server-components, if component is Server of ClientServer and no component of this name has been added already
-                                if ((attribute.Type == ComponentType.Server || attribute.Type == ComponentType.ClientServer)
-                                        && !serverComponents.ContainsKey(attribute.Name.ToLower()))
+                                if (!serverComponents.ContainsKey(attribute.Name.ToLower()))
                                 {
                                     serverComponents.Add(attribute.Name.ToLower(), t);
 

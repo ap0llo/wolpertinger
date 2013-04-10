@@ -19,288 +19,211 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using Nerdcave.Common;
 using Slf;
 using Wolpertinger.Core;
+using Wolpertinger.FileShareCommon;
 
 namespace Wolpertinger.Manager.CLI
 {
     /// <summary>
-    /// A client implementation of the FileShare component.
+    /// A client implementation for the FileShare component.
     /// See Wolpertinger Documentation for details on the component.
     /// </summary>
-    [Component(ComponentNamesExtended.FileShare, ComponentType.Client)]
-    public class FileShareClientComponent : ClientComponent
+    public class FileShareClientComponent : IComponent
     {
 
         protected static ILogger logger = LoggerService.GetLogger("FileShare");
 
 
-        #region Events
+        /// <summary>
+        /// The IClientConnection used to communicate with the target-client
+        /// </summary>
+        public IClientConnection ClientConnection { get; set; }
 
-        public event EventHandler<ObjectEventArgs<DirectoryObject>> GetDirectoryInfoCompleted;
-        public event EventHandler<ObjectEventArgs<FileObject>> GetFileInfoCompleted;
-        public event EventHandler<ObjectEventArgs<List<MountInfo>>> GetMountsCompleted;
-        public event EventHandler<ObjectEventArgs<bool>> GetPermissionCompleted;
-        public event EventHandler<ObjectEventArgs<List<Permission>>> GetAddedPermissionsCompleted;
-        public event EventHandler<ObjectEventArgs<string>> GetRootDirectoryPathCompleted;        
-
-        #endregion Events
 
 
         /// <summary>
         /// Asynchronously calls the "AddSharedDirectory" RemoteMethod on the target client
         /// </summary>
-        public void AddSharedDirectoryAsync(string internalPath, string virtualPath)
+        public Task AddSharedDirectoryAsync(string internalPath, string virtualPath)
         {
-            callRemoteMethodAsync(FileShareMethods.AddSharedDirectory, false, internalPath, virtualPath);
+            return Task.Factory.StartNew(delegate
+            {
+                ClientConnection.CallRemoteAction(ComponentNamesExtended.FileShare,
+                    FileShareMethods.AddSharedDirectory, internalPath, virtualPath);
+            });
         }
 
         /// <summary>
         /// Asynchronously calls the "RemoveSharedDirectory" RemoteMethod on the target client
         /// </summary>
-        public void RemoveSharedDirectoryAsync(string virtualPath)
+        public Task RemoveSharedDirectoryAsync(string virtualPath)
         {
-            callRemoteMethodAsync(FileShareMethods.RemoveSharedDirectory, false, virtualPath);
+            return Task.Factory.StartNew(delegate
+            {
+                ClientConnection.CallRemoteAction(ComponentNamesExtended.FileShare,
+                    FileShareMethods.RemoveSharedDirectory, virtualPath);
+            });
         }
 
         /// <summary>
         /// Asynchronously calls the "GetDirectoryInfo" RemoteMethod on the target client and 
         /// raises the GetDirectoryInfoCompleted event when the response is receive
         /// </summary>
-        public void GetDirectoryInfoAsync(string virtualPath, int depth)
+        public Task<DirectoryObject> GetDirectoryInfoAsync(string virtualPath, int depth)
         {
-            callRemoteMethodAsync(FileShareMethods.GetDirectoryInfo, true, virtualPath, depth);
+            return Task.Factory.StartNew<DirectoryObject>(delegate
+            {
+                return (DirectoryObject)ClientConnection.CallRemoteFunction(
+                    ComponentNamesExtended.FileShare,
+                    FileShareMethods.GetDirectoryInfo,
+                    virtualPath,
+                    depth);
+            });
         }
 
-        /// <summary>
-        /// Synchronously calls the "GetDirectoryInfo" RemoteMethod on the target client and
-        /// returns the response value when it is received.
-        /// </summary>
-        public DirectoryObject GetDirectoryInfo(string virtualPath, int depth)
-        {
-            return (DirectoryObject)callRemoteMethod(FileShareMethods.GetDirectoryInfo, virtualPath, depth);
-        }
-
+        
         /// <summary>
         /// Asynchronously calls the "GetFileInfo" remoteMethod on the target client
         /// and raises the "GetFileInfoCompleted" event when a response is reqceived.
         /// </summary>
-        public void GetFileInfoAsync(string virtualPath)
+        public Task<FileObject> GetFileInfoAsync(string virtualPath)
         {
-            callRemoteMethodAsync(FileShareMethods.GetFileInfo, true, virtualPath);
+            return Task.Factory.StartNew<FileObject>(delegate
+            {
+                return (FileObject)ClientConnection.CallRemoteFunction(
+                        ComponentNamesExtended.FileShare,
+                        FileShareMethods.GetFileInfo,
+                        virtualPath
+                    );
+            });
         }
 
-        /// <summary>
-        /// Synchronously call the "GetFileInfo" RemoteMethod on the target client and
-        /// returns the response value once it is received. (Blocking)
-        /// </summary>
-        public FileObject GetFileInfo(string virtualPath)
-        {
-            return (FileObject)callRemoteMethod(FileShareMethods.GetFileInfo,  virtualPath);
-        }
 
         /// <summary>
         /// Asynchronously calls the "GetMounts" RemoteMethod on the target client and
         /// raises the GetMountsCompleted event when a response is received.
         /// </summary>
-        public void GetMountsAsync()
+        public Task<List<MountInfo>> GetMountsAsync()
         {
-            callRemoteMethodAsync(FileShareMethods.GetMounts, true);
+            return Task.Factory.StartNew<List<MountInfo>>(delegate
+            {
+                return ((List<object>)ClientConnection.CallRemoteFunction(
+                            ComponentNamesExtended.FileShare,FileShareMethods.GetMounts))
+                        .Cast<MountInfo>()
+                        .ToList<MountInfo>();
+            });            
         }
-
-        /// <summary>
-        /// Synchronously calls the "GetMounts" RemoteMethod on the target client and
-        /// returns the response value once it is received. (Blocking)
-        /// </summary>
-        public List<MountInfo> GetMounts()
-        {
-            return ((List<object>)callRemoteMethod(FileShareMethods.GetMounts))
-                    .Cast<MountInfo>()
-                    .ToList<MountInfo>();
-        }
+        
 
         /// <summary>
         /// Asynchronously calls the "AddPermission" RemoteMethod on the target client
         /// </summary>
-        public void AddPermissionAsync(Permission p)
+        public Task AddPermissionAsync(Permission p)
         {
-            callRemoteMethodAsync(FileShareMethods.AddPermission, false, p);
+            return Task.Factory.StartNew(delegate
+            {
+                ClientConnection.CallRemoteAction(
+                    ComponentNamesExtended.FileShare,
+                    FileShareMethods.AddPermission,
+                    p);
+            });            
         }
 
         /// <summary>
         /// Asynchronously calls the "GetPermission" RemoteMethod on the target client and 
         /// raises the GetPermissionCompleted event when a response is received.
         /// </summary>
-        public void GetPermissionAsync(string path)
+        public Task<bool> GetPermissionAsync(string path)
         {
-            callRemoteMethodAsync(FileShareMethods.GetPermission, true, path);
+            return Task.Factory.StartNew<bool>(delegate
+            {
+                return (bool)ClientConnection.CallRemoteFunction(
+                                ComponentNamesExtended.FileShare,
+                                FileShareMethods.GetPermission,
+                                path);
+            });            
         }
 
-        /// <summary>
-        /// Synchronously calls the "GetPermission" RemoteMethod on the target client and
-        /// returns the response value once it is received. (Blocking)
-        /// </summary>
-        public bool GetPermission(string path)
-        {
-            return (bool)callRemoteMethod(FileShareMethods.GetPermission, path);
-        }
-        
         /// <summary>
         /// Asynchronously calls the "GetAddedPermission" RemoteMethod on the target client and
         /// raise3s the GetAddedPermissionsCompleted event when a response is received
         /// </summary>
-        public void GetAddedPermissionsAsync()
+        public Task<List<Permission>> GetAddedPermissionsAsync()
         {
-            callRemoteMethodAsync(FileShareMethods.GetAddedPermissions, true);
-        }
-
-        /// <summary>
-        /// Synchronously calls the "GetAddedPermissions" RemoteMethod on the target client and 
-        /// returns the response value once it is received. (Blocking)
-        /// </summary>
-        public List<Permission> GetAddedPermissions()
-        {
-            return ((List<object>)callRemoteMethod(FileShareMethods.GetAddedPermissions))
-                    .Cast<Permission>()
-                    .ToList<Permission>();
+            return Task.Factory.StartNew<List<Permission>>(delegate
+            {
+                return ((List<object>)ClientConnection.CallRemoteFunction(ComponentNamesExtended.FileShare, FileShareMethods.GetAddedPermissions))
+                        .Cast<Permission>()
+                        .ToList<Permission>();
+            });
         }
 
         /// <summary>
         /// Asynchronously calls the "RemovePermission" RemoteMethod on the target client
         /// </summary>
-        public void RemovePermissionAsync(string path)
+        public Task RemovePermissionAsync(string path)
         {
-            callRemoteMethodAsync(FileShareMethods.RemovePermission, false, path);
+            return Task.Factory.StartNew(delegate
+            {
+                ClientConnection.CallRemoteAction(
+                    ComponentNamesExtended.FileShare,
+                    FileShareMethods.RemovePermission,
+                    path);
+            });
         }
 
         /// <summary>
         /// Asynchronously calls the "SetRootDirectoryPath" RemoteMethod on the target client
         /// </summary>
-        public void SetRootDirectoryPathAsync(string internalPath)
+        public Task SetRootDirectoryPathAsync(string internalPath)
         {
-            callRemoteMethodAsync(FileShareMethods.SetRootDirectoryPath, false, internalPath);
+            return Task.Factory.StartNew(delegate
+            {
+                ClientConnection.CallRemoteAction(
+                    ComponentNamesExtended.FileShare,
+                    FileShareMethods.SetRootDirectoryPath,
+                    internalPath);
+            });
         }
 
-        /// <summary>
-        /// Synchronously calls the "GetRootDirectoryPath" RemoteMethod on the target client and
-        /// returns the response value once it is received. (Blocking)
-        /// </summary>
-        public string GetRootDirectoryPath()
-        {
-            return (string)callRemoteMethod(FileShareMethods.GetRootDirectoryPath);
-        }
-        
         /// <summary>
         /// Asynchronously calls the "GetRootDirectoryPath" RemoteMethod on the target client and
         /// raises the GetRootDirectoryPathCompleted event once the response is received.
         /// </summary>
-        public void GetRootDirectoryPathAsync()
+        public Task<string> GetRootDirectoryPathAsync()
         {
-            callRemoteMethodAsync(FileShareMethods.GetRootDirectoryPath, true);
-        }
-
-
-
-        [ResponseHandler(FileShareMethods.GetDirectoryInfo)]
-        protected virtual void responseHandlerGetDirectoryInfo(DirectoryObject dir)
-        {
-            if (dir != null)
+            return Task.Factory.StartNew<string>(delegate
             {
-                onGetDirectoryInfoCompleted(dir);
-            }
+                return (string)ClientConnection.CallRemoteFunction(
+                    ComponentNamesExtended.FileShare,
+                    FileShareMethods.GetRootDirectoryPath);
+            });
         }
 
-        [ResponseHandler(FileShareMethods.GetFileInfo)]
-        protected virtual void responseHandlerGetFileInfo(FileObject file)
+
+        public Task<IEnumerable<SnapshotInfo>> GetSnapshotsAsync()
         {
-            if (file != null)
+            return Task.Factory.StartNew<IEnumerable<SnapshotInfo>>(delegate
             {
-                onGetFileInfoCompleted(file);
-            }
+                return (ClientConnection.CallRemoteFunction(
+                    ComponentNamesExtended.FileShare,
+                    FileShareMethods.GetSnapshots) as IEnumerable<object>).Cast<SnapshotInfo>();
+            });
         }
 
-        [ResponseHandler(FileShareMethods.GetMounts)]
-        protected virtual void responseHandlerGetMounts(List<object> mounts)
+
+        public Task<Guid> CreateSnapshotAsync()
         {
-            if (mounts != null)
-                onGetMountsCompleted(new List<MountInfo>(mounts.Cast<MountInfo>()));
-        }
-
-        [ResponseHandler(FileShareMethods.GetPermission)]
-        protected virtual void responseHandlerGetPermission(bool permitted)
-        {
-            onGetPermissionCompleted(permitted);         
-        }
-
-        [ResponseHandler(FileShareMethods.GetAddedPermissions)]
-        protected virtual void responseHandlerGetAddedPermissions(List<object> permissions)
-        {
-            if (permissions == null)
-                logger.Warn("FileShare.GetAddedPermissions(): Received repsonse was null");
-            else
-                onGetAddedPermissionsCompleted(new List<Permission>(permissions.Cast<Permission>()));
-        }
-
-        [ResponseHandler(FileShareMethods.GetRootDirectoryPath)]
-        protected virtual void responseHandlerGetRootDirectoryPath(string path)
-        {
-            onGetRootDirectoryPathCompleted(path);
-        }
-
-        
-
-
-
-
-        #region Event Raisers
-
-
-        protected virtual void onGetDirectoryInfoCompleted(DirectoryObject dir)
-        {
-            if (this.GetDirectoryInfoCompleted != null)
+            return Task.Factory.StartNew<Guid>(delegate
             {
-                this.GetDirectoryInfoCompleted(this, dir);
-            }
+                return Guid.Parse((string)ClientConnection.CallRemoteFunction(
+                    ComponentNamesExtended.FileShare,
+                    FileShareMethods.CreateSnapshot));
+            });
         }
-
-        protected virtual void onGetFileInfoCompleted(FileObject file)
-        {
-            if (this.GetFileInfoCompleted != null)
-            {
-                this.GetFileInfoCompleted(this, file);
-            }
-        }
-
-        protected virtual void onGetMountsCompleted(List<MountInfo> mounts)
-        {
-            if (this.GetMountsCompleted != null)
-            {
-                this.GetMountsCompleted(this, mounts);
-            }
-        }
-        
-        protected virtual void onGetPermissionCompleted(bool permitted)
-        {
-            if (this.GetPermissionCompleted != null)
-                this.GetPermissionCompleted(this, permitted);
-            
-        }
-
-        protected virtual void onGetAddedPermissionsCompleted(List<Permission> permissions)
-        {
-            if (this.GetAddedPermissionsCompleted != null)
-                this.GetAddedPermissionsCompleted(this, permissions);
-        }
-
-        protected virtual void onGetRootDirectoryPathCompleted(string path)
-        {
-            if (this.GetRootDirectoryPathCompleted != null)
-                this.GetRootDirectoryPathCompleted(this, path);
-        }
-
-
-        #endregion
 
     }
 

@@ -38,7 +38,7 @@ namespace Wolpertinger.Core
         /*XMPP spec says limit on server side must not be smaller than 10K, googling shows 65k is common
         Limiting to 30500 characters should result in message sizes of about 30K (splitting messages adds a little overhead) which seems like a good compromise */
         private const int MESSAGELENGTHLIMIT = 30500;
-        private const int TIMEOUTINTERVAL = 30000000;//30000;      //interval after which a sent message times out (in milliseconds)
+        private const int TIMEOUTINTERVAL = 20000;      //interval after which a sent message times out (in milliseconds)
 
         #endregion
 
@@ -64,8 +64,14 @@ namespace Wolpertinger.Core
 
         #region Events
 
+        /// <summary>
+        /// Event that is raised each time a message has been received and parsed.
+        /// </summary>
         public event EventHandler<ObjectEventArgs<ParsingResult>> MessageReceived;
 
+        /// <summary>
+        /// Event that is raised when the connection timed out
+        /// </summary>
         public event EventHandler TransmissionTimedOut;
 
         #endregion
@@ -303,7 +309,13 @@ namespace Wolpertinger.Core
                             if(!messageResults.ContainsKey(messageId))
                                 messageResults.Add(messageId, Result.Timeout);
                         }
-                        sem.Release(); 
+                        sem.Release();
+
+                        lock (objectLock)
+                        {
+                            waitingThreads.Remove(messageId);
+                        }
+                        timeoutTimer.Stop();
                     };
 
             timeoutTimer.Start();
@@ -323,12 +335,22 @@ namespace Wolpertinger.Core
                 throw new WtlpException(result);
         }
 
+        /// <summary>
+        /// Processes the specified message
+        /// </summary>
+        /// <param name="message">The message to be processed</param>
         public void HandleMessage(string message) 
         {
             parseMessage(message);
         }
 
-
+        /// <summary>
+        /// Unsubscribes from all events of the underlying IMessagingClient the WtlpClient is subscribed to
+        /// </summary>
+        public void Detach()
+        {
+            this.MessagingClient = null;
+        }
 
         /// <summary>
         /// Verfies a message's format is valid.
@@ -627,7 +649,9 @@ namespace Wolpertinger.Core
         }
     }
 
-
+    /// <summary>
+    /// List of possible results that can be sent back to a message's sender
+    /// </summary>
     public enum Result
     {
         Success,
@@ -636,13 +660,5 @@ namespace Wolpertinger.Core
         SplittingError,
         EncryptionError,
         InvalidFormat
-/*        Unknown,
-        Successful,
-        InvalidFormat,
-        UnknownKey,
-        DuplicateKey,
-        InvalidMessageId,
-        EncryptionMethodNotSupported,
-        SplittingError*/
     }
 }

@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using Nerdcave.Common;
 using Nerdcave.Common.Extensions;
 using Slf;
@@ -29,33 +30,17 @@ namespace Wolpertinger.Core
     /// Combined server- and client-implementation of the XmppLoggingConfigurator component
     /// See Wolpertinger API Documentation for details on the component.
     /// </summary>
-    [Component(ComponentNamesExtended.XmppLoggingConfigurator, ComponentType.ClientServer)]
-    public class XmppLoggingConfiguratorComponent : ClientComponent
+    [Component(ComponentNamesExtended.XmppLoggingConfigurator)]
+    public class XmppLoggingConfiguratorComponent : IComponent
     {
+
+
+        public IClientConnection ClientConnection { get; set; }
+
 
         private ILogger logger = LoggerService.GetLogger("XmppLoggingConfigurator");
 
 
-        #region Events
-
-        /// <summary>
-        /// Occurs when a response to a GetEnable request is received
-        /// </summary>
-        public event EventHandler<ObjectEventArgs<bool>> GetEnableCompleted;
-        /// <summary>
-        /// Occurs when a response to a GetRecipient request is received
-        /// </summary>
-        public event EventHandler<ObjectEventArgs<string>> GetRecipientCompleted;
-        /// <summary>
-        /// Occurs when a response to a GetLogLebel request is received
-        /// </summary>
-        public event EventHandler<ObjectEventArgs> GetLogLevelCompleted;
-        /// <summary>
-        /// Occurs when a response to a GetEnableDebugLogging request is received
-        /// </summary>
-        public event EventHandler<ObjectEventArgs<bool>> GetEnableDebugLoggingCompleted;
-
-        #endregion
 
 
     
@@ -65,176 +50,136 @@ namespace Wolpertinger.Core
         /// Asynchronously calls the SetEnable RemoteMethod on the target client
         /// </summary>
         /// <param name="isEnabled">The new enabled-state to be set</param>
-        public void SetEnableAsync(bool isEnabled)
+        public Task SetEnableAsync(bool isEnabled)
         {
-            callRemoteMethodAsync(XmppLoggingConfiguratorMethods.SetEnable, false, isEnabled);
+            return Task.Factory.StartNew(delegate
+            {
+                ClientConnection.CallRemoteAction(
+                    ComponentNamesExtended.XmppLoggingConfigurator,
+                    XmppLoggingConfiguratorMethods.SetEnable, isEnabled);
+            });
         }
 
         /// <summary>
         /// Asynchrounously calls the GetEnable RemoteMethod on the target client and
         /// raises the GetEnableCompleted event when a response is received.
         /// </summary>
-        public void GetEnableAsync()
+        public Task<bool> GetEnableAsync()
         {
-            callRemoteMethodAsync(XmppLoggingConfiguratorMethods.GetEnable, true);
+            return Task.Factory.StartNew<bool>(delegate
+            {
+                return (bool)ClientConnection.CallRemoteFunction(
+                    ComponentNamesExtended.XmppLoggingConfigurator,
+                    XmppLoggingConfiguratorMethods.GetEnable);
+            });
         }
 
-        /// <summary>
-        /// Synchronously calls the GetEnable RemoteMethod on the target client and
-        /// waits until a response is received
-        /// </summary>
-        /// <returns>Returns the response value once it is received (Blocking)</returns>
-        public bool GetEnable()
-        {
-            return (bool)callRemoteMethod(XmppLoggingConfiguratorMethods.GetEnable);
-        }
 
         /// <summary>
         /// Asynchronously calls the SetRecipient RemoteMehod on the target client
         /// </summary>
         /// <param name="recipient">The new value to set</param>
-        public void SetRecipientAsync(string recipient)
+        public Task SetRecipientAsync(string recipient)
         {
-            callRemoteMethodAsync(XmppLoggingConfiguratorMethods.SetRecipient, false, recipient);
+            return Task.Factory.StartNew(delegate
+            {
+                ClientConnection.CallRemoteAction(
+                    ComponentNamesExtended.XmppLoggingConfigurator,
+                    XmppLoggingConfiguratorMethods.SetRecipient,
+                    recipient);
+            });
         }
 
         /// <summary>
         /// Asynchronously calls the GetRecipient RemoteMethod on the target client and
         /// raises the GetRecipientCompleted event when a response is received
         /// </summary>
-        public void GetRecipientAsync()
+        public Task<string> GetRecipientAsync()
         {
-            callRemoteMethodAsync(XmppLoggingConfiguratorMethods.GetRecipient, true);
+            return Task.Factory.StartNew<string>( delegate
+            {
+                return (string) ClientConnection.CallRemoteFunction(
+                    ComponentNamesExtended.XmppLoggingConfigurator,
+                    XmppLoggingConfiguratorMethods.GetRecipient);            
+            });
         }
 
-        /// <summary>
-        /// Synchronously calls the GetRecipient RemoteMethod on the target client and
-        /// returns the response value when a response is received.
-        /// </summary>
-        /// <returns>Returns the reponse value once it is received (Blocking)</returns>
-        public string GetRecipient()
-        {
-            return (string)callRemoteMethod(XmppLoggingConfiguratorMethods.GetRecipient);
-        }
 
         /// <summary>
         /// Asynchronously calls the SetLogLevel RemoteMethod on the target client.
         /// </summary>
         /// <param name="level">The new log-level to set</param>
-        public void SetLogLevelAsync(LogLevel level)
+        public Task SetLogLevelAsync(LogLevel level)
         {
-            callRemoteMethodAsync(XmppLoggingConfiguratorMethods.SetLogLevel, false, level.ToString());
+            return Task.Factory.StartNew(delegate
+            {
+                ClientConnection.CallRemoteAction(
+                    ComponentNamesExtended.XmppLoggingConfigurator,
+                    XmppLoggingConfiguratorMethods.SetLogLevel,
+                    level.ToString());
+            });
         }
 
         /// <summary>
         /// Asynchronously calls the GetLogLevel RemoteMethod on the target client and 
         /// raises the GetLogLevelCompleted event when a response is received
         /// </summary>
-        public void GetLogLevelAsync()
+        public Task<LogLevel> GetLoglevelAsync()
         {
-            callRemoteMethodAsync(XmppLoggingConfiguratorMethods.GetLogLevel, true);
-        }
-
-        /// <summary>
-        /// Synchronously calls the GetLogLevel RemoteMethod on the target client and 
-        /// returns the response value when it is received.
-        /// </summary>
-        /// <returns>Returns the target client's loglevel setting once it is received (Blocking)</returns>
-        public LogLevel GetLoglevel()
-        {
-            string level = (string)callRemoteMethod(XmppLoggingConfiguratorMethods.GetLogLevel);
-            LogLevel logLevel;
-            return Enum.TryParse<LogLevel>(level, out logLevel) ? logLevel : LogLevel.None;
+            return Task.Factory.StartNew<LogLevel>( delegate
+            {
+                string level = (string)ClientConnection.CallRemoteFunction(
+                    ComponentNamesExtended.XmppLoggingConfigurator,
+                    XmppLoggingConfiguratorMethods.GetLogLevel);
+                LogLevel logLevel;
+                return Enum.TryParse<LogLevel>(level, out logLevel) ? logLevel : LogLevel.None;
+            });            
         }
 
         /// <summary>
         /// Asynchronously calls the SetEnableDebugLogging RemoteMethod on the target client
         /// </summary>
         /// <param name="value">The new value to set</param>
-        public void SetEnableDebugLoggingAsync(bool value)
+        public Task SetEnableDebugLoggingAsync(bool value)
         {
-            callRemoteMethodAsync(XmppLoggingConfiguratorMethods.SetEnableDebugLogging, false, value);
+            return Task.Factory.StartNew( delegate 
+            {
+                ClientConnection.CallRemoteAction(
+                    ComponentNamesExtended.XmppLoggingConfigurator,
+                    XmppLoggingConfiguratorMethods.SetEnableDebugLogging,
+                    value);
+            });
         }
 
         /// <summary>
         /// Asynchronously calls the GetEnableDebugLogging RemoteMethod on the target client and
         /// raises the GetEnableDebugLoggingCompleted event when a response is received.
         /// </summary>
-        public void GetEnableDebugLoggingAsync()
+        public Task<bool> GetEnableDebugLoggingAsync()
         {
-            callRemoteMethodAsync(XmppLoggingConfiguratorMethods.GetEnableDebugLogging, true);
-        }
+            return Task.Factory.StartNew<bool>( delegate 
+            {
+                return (bool) ClientConnection.CallRemoteFunction(
+                    ComponentNamesExtended.XmppLoggingConfigurator,
+                    XmppLoggingConfiguratorMethods.GetEnableDebugLogging);
+            });
 
-        /// <summary>
-        /// Synchronously calls the GetEnableDebugLogging RemoteMethod on the target client and 
-        /// returns the response value when it is received.
-        /// </summary>
-        /// <returns>Returns the response value once it is received (Blocking)</returns>
-        public bool GetEnableDebugLogging()
-        {
-            return (bool)callRemoteMethod(XmppLoggingConfiguratorMethods.GetEnableDebugLogging);
         }
 
         /// <summary>
         /// Asynchronously calls the TestLogging RemoteMethod on the target client
         /// </summary>
         /// <param name="level">The log-level of the test log-message</param>
-        public void TestLoggingAsync(LogLevel level)
+        public Task TestLoggingAsync(LogLevel level)
         {
-            callRemoteMethodAsync(XmppLoggingConfiguratorMethods.TestLogging, false, level.ToString());
+            return Task.Factory.StartNew( delegate
+            {
+                ClientConnection.CallRemoteAction(
+                    ComponentNamesExtended.XmppLoggingConfigurator,
+                    XmppLoggingConfiguratorMethods.TestLogging,
+                    level.ToString());
+            });
         }        
-
-
-        /// <summary>
-        /// Response handler for the GetEnable RemoteMethod
-        /// </summary>
-        /// <param name="value">The value returned by the target client</param>
-        [ResponseHandler(XmppLoggingConfiguratorMethods.GetEnable)]
-        protected void responseHandlerGetEnable(bool value)
-        {
-            if (this.GetEnableCompleted != null)
-            {
-                this.GetEnableCompleted(this, value);
-            }
-        }
-
-        /// <summary>
-        /// Response handler for the GetRecipient RemoteMethod 
-        /// </summary>
-        /// <param name="value">The recipient returned by the target client</param>
-        [ResponseHandler(XmppLoggingConfiguratorMethods.GetRecipient)]
-        protected void responseHandlerGetRecipient(string value)
-        {
-            if (!value.IsNullOrEmpty() && this.GetRecipientCompleted != null)
-            {
-                this.GetRecipientCompleted(this, value);
-            }
-        }
-
-        /// <summary>
-        /// Response handler for the GetLogLevel RemoteMethod
-        /// </summary>
-        /// <param name="value">The log-level returned by the target client</param>
-        [ResponseHandler(XmppLoggingConfiguratorMethods.GetLogLevel)]
-        protected void responseHandlerGetLogLevel(string value)
-        {
-            LogLevel level;
-            if (!value.IsNullOrEmpty() && Enum.TryParse(value, out level) && this.GetLogLevelCompleted != null)
-                this.GetLogLevelCompleted(this, new ObjectEventArgs(level));
-            else 
-                logger.Error("GetLogLevel(): Received invalid response");
-        }
-
-        /// <summary>
-        /// Response handler for the GetEnableDebugLogging RemoteMethod
-        /// </summary>
-        /// <param name="value">The value returned by the target client</param>
-        [ResponseHandler(XmppLoggingConfiguratorMethods.GetEnableDebugLogging)]
-        protected void responseHandlerGetEnableDebugLogging(bool value)
-        {
-            if (this.GetEnableDebugLoggingCompleted != null)
-                this.GetEnableDebugLoggingCompleted(this, value);
-        }
 
 
         #endregion Client Implementation

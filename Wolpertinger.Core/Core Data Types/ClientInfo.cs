@@ -8,30 +8,44 @@ All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 
     Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-    Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
-    Neither the name of the Wolpertinger project nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+    Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer 
+    in the documentation and/or other materials provided with the distribution.
+    Neither the name of the Wolpertinger project nor the names of its contributors may be used to endorse or promote products derived
+    from this software without specific prior written permission.
 
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
+ THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS 
+ BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT 
+ LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
+using Nerdcave.Common.Xml;
+using Slf;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
-using System.Xml.Serialization;
+using System.Xml;
 using System.Xml.Linq;
-using Slf;
-using Nerdcave.Common.Xml;
+using System.Xml.Schema;
+using System.Xml.Serialization;
 
 namespace Wolpertinger.Core
 {
     /// <summary>
     /// Class is used to exchange information about wolpertinger clients
     /// </summary>
-    [XmlTypeName("Wolpertinger.ClientInfo")]
-    public class ClientInfo : ISerializable
+    public class ClientInfo : Serializable
     {
+
+        static ILogger logger = LoggerService.GetLogger("ClientInfo");
+        static XmlSchemaSet schemas = new XmlSchemaSet();
+
+
         /// <summary>
         /// The Jabber-Id of the client the ClientInfo describes
         /// </summary>
@@ -50,13 +64,19 @@ namespace Wolpertinger.Core
         /// <summary>
         /// The most-recent supported version of the Wolpteringer protocol supported by the client
         /// </summary>
-        public byte ProtocolVersion { get; set; }
+        public int ProtocolVersion { get; set; }
 
-
+        /// <summary>
+        /// Initializes a new instace of ClientInfo
+        /// </summary>
+        [DebuggerStepThrough]
         public ClientInfo()
         {
             this.TrustLevel = -1;
             this.Profiles = new List<Profile>();
+
+            //Initialize XmlNames helper class 
+            XmlNames.Init(xmlNamespace);   
         }
 
 
@@ -76,61 +96,112 @@ namespace Wolpertinger.Core
 
         #region ISerializable Members
 
-        static ILogger logger = LoggerService.GetLogger("ClientInfo");
-
-
-        public XElement Serialize()
+        private class XmlNames
         {
-            XElement result = new XElement("ClientInfo");
-            result.Add(new XElement("JId") { Value = this.JId });
-            
-            result.Add(new XElement("TrustLevel") { Value = this.TrustLevel.ToString() });
-            result.Add(new XElement("Profiles"));
 
-            foreach (Profile item in Profiles)
+            private static bool initialized = false;
+
+            private const string _clientInfo = "ClientInfo";
+            private const string _jId = "JId";
+            private const string _trustLevel = "TrustLevel";
+            private const string _protocolVersion = "ProtocolVersion";
+            private const string _profiles = "Profiles";
+            private const string _profile = "Profile";
+
+
+            public static XName ClientInfo;
+
+            public static XName JId;
+            public static XName TrustLevel;
+            public static XName ProtocolVersion;
+            public static XName Profiles;
+            public static XName Profile;
+
+
+            public static void Init(string xmlNamespace)
             {
-                result.Element("Profiles").Add(XmlSerializationHelper.SerializeToXmlObjectElement(item.ToString()));
-            }
+                if (initialized)
+                {
+                    return;
+                }
 
-            return result;
+                ClientInfo = XName.Get(_clientInfo, xmlNamespace);
+                JId = XName.Get(_jId, xmlNamespace);
+                TrustLevel = XName.Get(_trustLevel, xmlNamespace);
+                ProtocolVersion = XName.Get(_protocolVersion, xmlNamespace);
+                Profiles = XName.Get(_profiles, xmlNamespace);
+                Profile = XName.Get(_profile, xmlNamespace);
+
+                initialized = true;
+            }
 
         }
 
-        public object Deserialize(XElement xmlData)
+        protected override string schemaTypeName { get { return "clientInfo"; } }
+        protected override string rootElementName { get { return "ClientInfo"; } }
+        
+
+        /// <summary>
+        /// Serializes the object into XML
+        /// </summary>
+        /// <returns>Returns a XML representation of the object</returns>
+        public override XElement Serialize()
+        {
+            XElement result = new XElement(XmlNames.ClientInfo);
+
+            result.Add(new XElement(XmlNames.JId, this.JId));
+            result.Add(new XElement(XmlNames.TrustLevel, this.TrustLevel.ToString()));
+            result.Add(new XElement(XmlNames.ProtocolVersion, this.ProtocolVersion));
+            result.Add(new XElement(XmlNames.Profiles, this.Profiles.Select(x => new XElement(XmlNames.Profile, x))));
+            
+            return result;
+        }
+
+        /// <summary>
+        /// Deserializes the given XML and sets the callee's Properties accordingly
+        /// </summary>
+        /// <param name="xmlData">The data to be deserialized</param>
+        public override void Deserialize(XElement xmlData)
         {
 
-            if (xmlData == null) { return null; }
-            if (xmlData.Name != "ClientInfo") { return null; }
+            if (xmlData == null)
+                throw new XmlException("'xmlData' is null");
 
+            if (xmlData.Name.LocalName != "ClientInfo")
+                throw new XmlException("Invalid root element");
 
             try
             {
-                ClientInfo info = new ClientInfo();
-                info.JId = xmlData.Element("JId").Value;
+                this.JId = xmlData.Element(XmlNames.JId).Value;
+                this.TrustLevel = int.Parse(xmlData.Element(XmlNames.TrustLevel).Value);
+                this.ProtocolVersion = int.Parse(xmlData.Element(XmlNames.ProtocolVersion).Value);
 
-                info.Profiles = new List<Profile>();
-
-                foreach(XElement item in xmlData.Element("Profiles").Elements())
+                var profiles = xmlData.Element(XmlNames.Profiles).Elements(XmlNames.Profile);
+                if(profiles.Any())
                 {
-                    info.Profiles.Add((Profile)(Enum.Parse(typeof(Profile), ((string)XmlSerializationHelper.DeserializeFromXMLObjectElement(item)))));
+                    this.Profiles = profiles.Select(x => (Profile)(Enum.Parse(typeof(Profile), x.Value, true))).ToList<Profile>();
                 }
-
-                info.TrustLevel = int.Parse(xmlData.Element("TrustLevel").Value);
-                return info;
+                else
+                {
+                    this.Profiles = new List<Profile>();
+                }
             }
             catch (NullReferenceException ex)
             {
                 logger.Error(ex);
-                return null;
+                throw new XmlException("Could not parse xml", ex);
             }
-
         }
+
+
 
         #endregion
     }
 
 
-
+    /// <summary>
+    /// List of possible Profiles a client can support
+    /// </summary>
     public enum Profile
     {
         ManagementClient,

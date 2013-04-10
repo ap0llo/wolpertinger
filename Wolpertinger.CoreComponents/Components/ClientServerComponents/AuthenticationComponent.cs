@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using System.Security.Cryptography;
 using Nerdcave.Common.Extensions;
 using System.Security;
@@ -29,9 +30,11 @@ namespace Wolpertinger.Core
     /// Combined client- and server-implementation of the Authentication component.
     /// See Wolpertinger API Documentation for details on the component.
     /// </summary>
-    [Component(ComponentNamesExtended.Authentication, ComponentType.ClientServer)]
-    public class AuthenticationComponent : ClientComponent
+    [Component(ComponentNamesExtended.Authentication)]
+    public class AuthenticationComponent : IComponent
     {
+
+        public IClientConnection ClientConnection { get; set; }
 
         #region Fields
 
@@ -48,55 +51,59 @@ namespace Wolpertinger.Core
 
         #region Client Implementation
 
-        /// <summary>
-        /// Calls the EstablishConnection RemoteMethod (Blocking)
-        /// </summary>
-        public bool EstablishConnection()
+
+        public Task<bool> EstablishConnectionAsync()
         {
-            bool accepted =  (bool)callRemoteMethod(AuthenticationMethods.EstablishConnection);
-            this.ClientConnection.Connected = accepted;
+            return Task.Factory.StartNew<bool>(delegate
+            {
+                bool accepted = (bool)ClientConnection.CallRemoteFunction(ComponentNamesExtended.Authentication, AuthenticationMethods.EstablishConnection);
+                this.ClientConnection.Connected = accepted;
 
-            this.ClientConnection.MyTrustLevel = 1;
-            this.ClientConnection.TrustLevel = 1;
+                this.ClientConnection.MyTrustLevel = 1;
+                this.ClientConnection.TrustLevel = 1;
 
-            return accepted;
+                return accepted;
+            });
         }
 
-        /// <summary>
-        /// Calls the KeyExchange RemoteMethod (Blocking)
-        /// </summary>
-        public void KeyExchange()
+        public Task KeyExchangeAsync()
         {
-            keyProvider = getNewKeyProvider();
+            return Task.Factory.StartNew(delegate
+            {
+                keyProvider = getNewKeyProvider();
 
-            this.ClientConnection.WtlpClient.EncryptionIV = new AesCryptoServiceProvider().IV;
+                this.ClientConnection.WtlpClient.EncryptionIV = new AesCryptoServiceProvider().IV;
 
-            string response = (string)callRemoteMethod( AuthenticationMethods.KeyExchange, 
-                                                        keyProvider.PublicKey.ToByteArray().ToStringBase64(),
-                                                        this.ClientConnection.WtlpClient.EncryptionIV.ToStringBase64());
+                var response = (string)ClientConnection.CallRemoteFunction(
+                        ComponentNamesExtended.Authentication,
+                        AuthenticationMethods.KeyExchange,
+                        keyProvider.PublicKey.ToByteArray().ToStringBase64(),
+                        this.ClientConnection.WtlpClient.EncryptionIV.ToStringBase64()
+                    );
 
-            ECDiffieHellmanPublicKey otherKey = ECDiffieHellmanCngPublicKey.FromByteArray(response.GetBytesBase64(), CngKeyBlobFormat.EccPublicBlob);
+                
+                ECDiffieHellmanPublicKey otherKey = ECDiffieHellmanCngPublicKey.FromByteArray(response.GetBytesBase64(), CngKeyBlobFormat.EccPublicBlob);
 
-            this.ClientConnection.WtlpClient.EncryptionKey = keyProvider.DeriveKeyMaterial(otherKey);
-            
-            this.ClientConnection.TrustLevel = 2;
-            this.ClientConnection.MyTrustLevel = 2;
+                this.ClientConnection.WtlpClient.EncryptionKey = keyProvider.DeriveKeyMaterial(otherKey);
 
-            this.ClientConnection.WtlpClient.EncryptMessages = true;
+                this.ClientConnection.TrustLevel = 2;
+                this.ClientConnection.MyTrustLevel = 2;
 
-            keyProvider = null;            
+                this.ClientConnection.WtlpClient.EncryptMessages = true;
+
+                keyProvider = null;            
+            });
         }
 
-        /// <summary>
-        /// Gets a new cluster authentication token from the target client by calling the ClusterAuthGetToken RemoteMethod (Blocking)
-        /// </summary>
-        /// <returns>Returns the token returned by the target</returns>
-        public string ClusterAuthGetToken()
+        public Task<string> ClusterAuthGetTokenAsync()
         {
-            string response = (string)callRemoteMethod(AuthenticationMethods.ClusterAuthGetToken);
-            return response;
-
+            return Task.Factory.StartNew<string>(delegate
+            {
+                clusterAuthToken = (string)ClientConnection.CallRemoteFunction(ComponentNamesExtended.Authentication, AuthenticationMethods.ClusterAuthGetToken);
+                return clusterAuthToken;
+            });
         }
+        
 
         /// <summary>
         /// Generates a cluster authentication key and sends it to the target client to be verified. 
@@ -104,11 +111,18 @@ namespace Wolpertinger.Core
         /// </summary>
         /// <param name="authToken">The token to use for verification (has to have been request from the target)</param>
         /// <returns>Returns whether or not the target client has accepted the cluster membership</returns>
-        public bool ClusterAuthVerify(string authToken)
+        public Task<bool> ClusterAuthVerifyAsync(string authToken)
         {
-            clusterVerified_me = (bool)callRemoteMethod(AuthenticationMethods.ClusterAuthVerify, calculateClusterAuthKey(authToken, this.ClientConnection.ConnectionManager.ClusterKey));
-            
-            return clusterVerified_me;
+            return Task.Factory.StartNew<bool>(delegate
+            {
+                clusterVerified_me = (bool)ClientConnection.CallRemoteFunction(
+                    ComponentNamesExtended.Authentication, 
+                    AuthenticationMethods.ClusterAuthVerify, 
+                    calculateClusterAuthKey(authToken, this.ClientConnection.ConnectionManager.ClusterKey)
+                );
+
+                return clusterVerified_me;
+            });
         }
 
 
@@ -117,19 +131,25 @@ namespace Wolpertinger.Core
         /// Calls the ClusterAuthRequestVerification RemoteMethod (Blocking)
         /// </summary>
         /// <returns>Returns whether the target's cluster membership could be verified</returns>
-        public bool ClusterAuthRequestVerification()
+        public Task<bool> ClusterAuthRequestVerificationAsync()
         {
-            string token = getNewAuthToken();
-            clusterAuthToken = token;
-
-            bool verified = (bool)callRemoteMethod(AuthenticationMethods.ClusterAuthRequestVerification, token);
-
-            if (verified)
+            return Task.Factory.StartNew<bool>(delegate
             {
-                this.ClientConnection.TrustLevel = 3;
-            }
+                string token = getNewAuthToken();
 
-            return verified;
+                (ClientConnection.GetServerComponent(ComponentNamesExtended.Authentication) as AuthenticationComponent).clusterAuthToken = token;
+
+                bool verified = (bool)ClientConnection.CallRemoteFunction(ComponentNamesExtended.Authentication, AuthenticationMethods.ClusterAuthRequestVerification, token);
+
+                if (verified)
+                {
+                    this.ClientConnection.TrustLevel = 3;
+                }
+
+                return verified;
+            });
+
+            
         }
 
         /// <summary>
@@ -137,9 +157,12 @@ namespace Wolpertinger.Core
         /// Calls the UserAuthGetToken RemoteMethod (Blocking)
         /// </summary>
         /// <returns>Returns the token recieved from the target</returns>
-        public string UserAuthGetToken()
+        public Task<string> UserAuthGetTokenAsync()
         {
-            return (string)callRemoteMethod(AuthenticationMethods.UserAuthGetToken);
+            return Task.Factory.StartNew<string>(delegate 
+            { 
+                return (string)ClientConnection.CallRemoteFunction(ComponentNamesExtended.Authentication, AuthenticationMethods.UserAuthGetToken);
+            });
         }
 
         /// <summary>
@@ -148,11 +171,14 @@ namespace Wolpertinger.Core
         /// </summary>
         /// <param name="authToken">The authentication token received by the target</param>
         /// <returns>Returns whether this client was verified or not</returns>
-        public bool UserAuthVerify(string username, string authToken, SecureString password)
+        public Task<bool> UserAuthVerifyAsync(string username, string authToken, SecureString password)
         {
-            string authKey = calculateUserAuthKey(authToken, password);
+            return Task.Factory.StartNew<bool>(delegate 
+            {
+                string authKey = calculateUserAuthKey(authToken, password);
 
-            return (bool)callRemoteMethod(AuthenticationMethods.UserAuthVerify, username, authKey);
+                return (bool)ClientConnection.CallRemoteFunction(ComponentNamesExtended.Authentication, AuthenticationMethods.UserAuthVerify, username, authKey);
+            });
         }
 
         ///// <summary>
@@ -230,7 +256,6 @@ namespace Wolpertinger.Core
             keyProvider = null;
 
             return result;
-
         }
 
         /// <summary>
@@ -288,7 +313,9 @@ namespace Wolpertinger.Core
                 return new ErrorResult(RemoteErrorCode.InvalidParametersError);
 
             //Generate a ClusterAuthKey based on the token and send it back
-            bool verified = ClusterAuthVerify(token);
+            var task = ClusterAuthVerifyAsync(token);
+            task.Wait();
+            bool verified = task.Result;
 
             return new ResponseResult(verified);
         }

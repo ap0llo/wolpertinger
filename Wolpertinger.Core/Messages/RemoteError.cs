@@ -7,9 +7,9 @@ All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 
-    Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-    Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
-    Neither the name of the Wolpertinger project nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+	Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+	Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+	Neither the name of the Wolpertinger project nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
@@ -26,127 +26,150 @@ using Nerdcave.Common.Xml;
 
 namespace Wolpertinger.Core
 {
-    [XmlTypeName("Wolpertinger.RemoteError")]
+    /// <summary>
+    /// A error-message exchanged between clients
+    /// </summary>
 	public class RemoteError : RpcMessage
 	{
 
-        private RemoteErrorCode errorCode;
+		private RemoteErrorCode errorCode;
 
-        /// <summary>
-        /// The error-code of the error that occurred
-        /// </summary>
-        public RemoteErrorCode ErrorCode 
+		/// <summary>
+		/// The error-code of the error that occurred
+		/// </summary>
+		public RemoteErrorCode ErrorCode 
 		{
 			get { return errorCode; }
 			set
 			{
-                errorCode = value;
+				errorCode = value;
 			}
 		}
 
-		/// <summary>
-		/// The Id of the remote method call that caused the error
-		/// </summary>
-		public Guid CallId { get; set; }
 
+        /// <summary>
+        /// Initializes a new instance of RemoteError
+        /// </summary>
+		public RemoteError() : this(RemoteErrorCode.UnspecifiedError) 
+		{ }
 
-        public RemoteError() : this(RemoteErrorCode.UnspecifiedError) 
-        { }
+        /// <summary>
+        /// Initializes a new instance of RemoteError
+        /// </summary>
+        /// <param name="errorCode">The error that occured</param>
+		public RemoteError(RemoteErrorCode errorCode)
+		{
+            XmlNames.Init(xmlNamespace);
 
-        public RemoteError(RemoteErrorCode errorCode)
-        {
-            this.CallId = Guid.Empty;
-            this.ErrorCode = errorCode;
-        }
+			this.CallId = Guid.Empty;
+			this.ErrorCode = errorCode;
+		}
 
 
 		#region ISerializable Members
-        
+
+        private static class XmlNames
+        {
+            public static bool initialized = false;
+
+            public static XName RemoteError;
+            public static XName ComponentName;
+            public static XName ErrorCode;
+            public static XName CallId;
+
+
+            public static void Init(string xmlNamespace)
+            {
+                if (initialized)
+                {
+                    return;
+                }
+
+                RemoteError = XName.Get("RemoteError", xmlNamespace);
+                ComponentName = XName.Get("ComponentName", xmlNamespace);
+                ErrorCode = XName.Get("ErrorCode", xmlNamespace);
+                CallId = XName.Get("CallId", xmlNamespace);
+
+                initialized = true;
+            }
+        }
+
+        protected override string schemaTypeName
+        {
+            get { return "remoteError"; }
+        }
+
+        protected override string rootElementName
+        {
+            get { return "RemoteError"; }
+        }
+
+
 		public override XElement Serialize()
 		{
-			XElement xml = new XElement("RemoteError");
-			xml.Add(new XElement("TargetName") { Value = this.TargetName });
-			xml.Add(new XElement("ErrorCode") { Value = ((int)this.ErrorCode).ToString() });
+			XElement root = new XElement(XmlNames.RemoteError);
+			root.Add(new XElement(XmlNames.ComponentName,  this.ComponentName));
+			root.Add(new XElement(XmlNames.ErrorCode, ((int)this.ErrorCode).ToString()));
 
-			if (this.CallId != Guid.Empty) 
-				xml.Add(new XElement("CallId") { Value = this.CallId.ToString() });
+            if (this.CallId != Guid.Empty)
+            {
+				root.Add(new XElement(XmlNames.CallId, this.CallId.ToString()));
+            }
 
-			return xml;
+			return root;
 		}
 
-
-		public override object Deserialize(XElement xmlData)
+		public override void Deserialize(XElement xmlData)
 		{
-			if (xmlData == null) 
-				return null;
-
-			if (xmlData.Name.LocalName.IsNullOrEmpty() || xmlData.Name.LocalName != "RemoteError")
-				return null;
-
-			try
+			ComponentName = xmlData.Element(XmlNames.ComponentName).Value;
+			
+            try
 			{
-				RemoteError err = new RemoteError(RemoteErrorCode.UnspecifiedError);
-
-				err.TargetName = xmlData.Element("TargetName").Value;
-				try
-				{
-					err.ErrorCode = (RemoteErrorCode)Int32.Parse(xmlData.Element("ErrorCode").Value);
-				
-				}
-				catch (FormatException fex)
-				{
-					LoggerService.GetLogger("RemoteError").Error(fex);
-					err.ErrorCode = 0;
-				}
-				if(xmlData.Elements("CallId").Any())
-				{
-					Guid id;
-					if(!Guid.TryParse(xmlData.Element("CallId").Value, out id)) 
-						err.CallId= Guid.Empty;
-					else
-						err.CallId = id;
-				}
-
-				return err;
-
+				ErrorCode = (RemoteErrorCode)Int32.Parse(xmlData.Element(XmlNames.ErrorCode).Value);				
 			}
-			catch (NullReferenceException e)
+			catch (FormatException fex)
 			{
-				LoggerService.GetLogger("RemoteError").Error(e);
-				return null;
+				LoggerService.GetLogger("RemoteError").Error(fex);
+				ErrorCode = 0;
 			}
-
-		
+			
+            if(xmlData.Elements(XmlNames.CallId).Any())
+			{
+                CallId = XmlSerializer.DeserializeAs<Guid>(xmlData.Element(XmlNames.CallId));
+			}		
 		}
 
 		#endregion
 	}
 
 
-    public enum RemoteErrorCode
-    {
-        //General Errors
-        UnspecifiedError = 100,
-        //Security Errors
-        SecurityError = 200,
-        NotAuthorizedError = 201,
-        EncryptionError = 202,
-        InvalidSignature = 203,
-        //Request Errors
-        RequestError = 300,
-        InvalidXmlError = 301,
-        UnknownMessage = 302,
-        MethodNotFoundError = 303,
-        ComponentNotFoundError = 304,
-        InvalidParametersError = 305,
-        UnsupportedDatatypeError = 306,
-        //Response Errors
-        ResponseError = 400,
-        InvalidResponseError =401,
-        //Fileserver Errors
-        FileserverError = 500,
-        MountError = 501,
-        ItemNotFoundError = 502
-    }
+    /// <summary>
+    /// List of possible errors that can be sent as RemoteError
+    /// </summary>
+	public enum RemoteErrorCode
+	{
+		//General Errors
+		UnspecifiedError = 100,
+		//Security Errors
+		SecurityError = 200,
+		NotAuthorizedError = 201,
+		EncryptionError = 202,
+		InvalidSignature = 203,
+		//Request Errors
+		RequestError = 300,
+		InvalidXmlError = 301,
+		UnknownMessage = 302,
+		MethodNotFoundError = 303,
+		ComponentNotFoundError = 304,
+		InvalidParametersError = 305,
+		UnsupportedDatatypeError = 306,
+		//Response Errors
+		ResponseError = 400,
+		InvalidResponseError =401,
+		//Fileserver Errors
+		FileserverError = 500,
+		MountError = 501,
+		ItemNotFoundError = 502
+	}
 
 }

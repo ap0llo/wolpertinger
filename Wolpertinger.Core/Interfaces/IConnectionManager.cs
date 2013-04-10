@@ -24,6 +24,9 @@ using Nerdcave.Common;
 
 namespace Wolpertinger.Core
 {
+    /// <summary>
+    /// Interface for the ConnectionManager
+    /// </summary>
     public interface IConnectionManager
     {
 

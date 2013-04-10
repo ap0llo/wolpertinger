@@ -29,6 +29,9 @@ using System.Threading.Tasks;
 
 namespace Wolpertinger.Core
 {
+    /// <summary>
+    /// IMessagingClient that implements messaging over XMPP
+    /// </summary>
     public class XmppMessagingClient : IMessagingClient
     {
         private ILogger logger = LoggerService.GetLogger("XmppMessagingClient");
@@ -38,15 +41,24 @@ namespace Wolpertinger.Core
 
         #region IMessagingClient Members
 
+        /// <summary>
+        /// Is raised every time a message is received
+        /// </summary>
         public event EventHandler<ObjectEventArgs<Message>> MessageReceived;
-        
+
+        /// <summary>
+        /// Is raised when the value of the 'Connected' property has changed
+        /// </summary>
         public event EventHandler ConnectedChanged;
 
+        /// <summary>
+        /// Is raised when a peer is no longer available
+        /// </summary>
         public event EventHandler<ObjectEventArgs<string>> PeerDisconnected;
 
 
         /// <summary>
-        /// Gets the name of the service.
+        /// Gets the name of the service the IMessagingClient implements
         /// </summary>
         public string ServiceName
         {
@@ -57,6 +69,9 @@ namespace Wolpertinger.Core
 
         }
 
+        /// <summary>
+        /// Indicates whether the client is connected to the backend service and can recive and send messages
+        /// </summary>
         public bool Connected 
         {
             get
@@ -68,14 +83,26 @@ namespace Wolpertinger.Core
             }
         }
 
+        /// <summary>
+        /// The address of the server to connect to
+        /// </summary>
         public string Server { get; set; }
 
+        /// <summary>
+        /// The username for connecting to the server
+        /// </summary>
         public string Username { get; set; }
-        
+
+        /// <summary>
+        /// The password for connecting to the server
+        /// </summary>
+
         public string Password  { get; set; }
 
 
-
+        /// <summary>
+        /// Connects to the Xmpp server
+        /// </summary>
         public void Connect()
         {
             //Initialize XmppClientConnection
@@ -99,7 +126,9 @@ namespace Wolpertinger.Core
 
         }
 
-        
+        /// <summary>
+        /// Closes the connections to the Xmpp server
+        /// </summary>
         public void Disconnect()
         {
             logger.Info("Closing connection to Xmpp Server");
@@ -118,6 +147,10 @@ namespace Wolpertinger.Core
             }
         }
 
+        /// <summary>
+        /// Sends a message
+        /// </summary>
+        /// <param name="message">The Message to be sent</param>
         public void SendMessage(Message message)
         {
             //Message can only be sent, if client is connected
@@ -135,6 +168,11 @@ namespace Wolpertinger.Core
 
         }
 
+        /// <summary>
+        /// Sends a message
+        /// </summary>
+        /// <param name="recipient">The message's recipient</param>
+        /// <param name="message">The message's content</param>
         public void SendMessage(string recipient, string message)
         {
             var msg = new Message() { Sender = null, Recipient = recipient, MessageBody = message };
@@ -159,11 +197,13 @@ namespace Wolpertinger.Core
 
         private void xmpp_OnPresence(object sender, Presence pres)
         {
-            string from = String.Format("{0}@{1}", pres.From.User, pres.From.Server);
+            if (pres.Type == PresenceType.unavailable)
+            {
+                string from = String.Format("{0}@{1}", pres.From.User, pres.From.Server);
 
-            logger.Info("{0} disconnected", from);
-            
-            onPeerDisconnected(from);
+                logger.Info("{0} disconnected", from);
+                    onPeerDisconnected(from);
+            }
         }
 
         private void xmpp_OnMessage(object sender, agsXMPP.protocol.client.Message msg)

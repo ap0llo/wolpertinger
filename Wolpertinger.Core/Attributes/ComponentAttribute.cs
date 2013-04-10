@@ -32,32 +32,14 @@ namespace Wolpertinger.Core
         /// </summary>
         public string Name { get; set; }
 
-        /// <summary>
-        /// The type of the component (Client/Server/ClientServer)
-        /// </summary>
-        public ComponentType Type { get; set; }
 
         /// <summary>
         /// Initializes a new instance of ComponentAttribute with the specified name and type
         /// </summary>
         /// <param name="name">The component's name</param>
-        /// <param name="type">The type of the component</param>
-        public ComponentAttribute(string name, ComponentType type)
+        public ComponentAttribute(string name)
         {
             this.Name = name;
-            this.Type = type;
         }
     }
-
-    /// <summary>
-    /// The allowed types of components
-    /// </summary>
-    public enum ComponentType : byte
-    {
-        Client,
-        Server,
-        ClientServer
-    }
-
-
 }

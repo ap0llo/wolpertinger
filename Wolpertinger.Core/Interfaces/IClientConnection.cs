@@ -24,6 +24,9 @@ using Nerdcave.Common;
 
 namespace Wolpertinger.Core
 {
+    /// <summary>
+    /// Interface for client-connections
+    /// </summary>
     public interface IClientConnection
     {
         /// <summary>
@@ -87,11 +90,11 @@ namespace Wolpertinger.Core
         
 
 
-        /// <summary>
-        /// Send a message to the target client
-        /// </summary>
-        /// <param name="msg">The message to process and send</param>
-        void SendMessage(RpcMessage msg);
+        ///// <summary>
+        ///// Send a message to the target client
+        ///// </summary>
+        ///// <param name="msg">The message to process and send</param>
+        //void SendMessage(RpcMessage msg);
         
 
         /// <summary>
@@ -111,12 +114,14 @@ namespace Wolpertinger.Core
         /// <param name="sendNotice">Indicates whether the target client should be notified about the connection reset</param>
         void ResetConnection(bool sendNotice = false);
 
-        /// <summary>
-        /// Gets the connection's client component that matches the given name
-        /// </summary>
-        /// <param name="name">The component-name to look for</param>
-        /// <returns>Returns the matching client component or null if component could not be found</returns>
-        IComponent GetClientComponent(string name);
+
+
+        ///// <summary>
+        ///// Gets the connection's client component that matches the given name
+        ///// </summary>
+        ///// <param name="name">The component-name to look for</param>
+        ///// <returns>Returns the matching client component or null if component could not be found</returns>
+        //IComponent GetClientComponent(string name);
 
         /// <summary>
         /// Gets the connection's server component that matches the given name
@@ -125,22 +130,24 @@ namespace Wolpertinger.Core
         /// <returns>Returns the matching server component or null if component could not be found</returns>
         IComponent GetServerComponent(string name);
 
-        /// <summary>
-        /// Gets a new EventWaitHandle that will be signaled once a response matching the given Id is received or the connection times out.
-        /// </summary>
-        /// <param name="callId">The CallId of the response to wait for</param>
-        /// <returns>Returns a new EventWaitHandle</returns>
-        EventWaitHandle GetWaitHandle(Guid callId);
 
         /// <summary>
-        /// Calls the remote specfied remote method and waits until a reponse is received.
+        /// Calls the specified remote method
         /// </summary>
-        /// <param name="call">The remote method to call</param>
-        /// <returns>
-        /// Returns the value returned by the remote method call or a RemoteErrorException if the method call returned an error.
-        /// If the request timed out, throws a TimeoutException
-        /// </returns>
-        object GetReponseValueBlocking(RemoteMethodCall call);
+        /// <param name="component">The remote-method's component name</param>
+        /// <param name="name">The name of the method to call</param>
+        /// <param name="args">The parameters to pass to the method</param>
+        void CallRemoteAction(string component, string name, params object[] args);
+
+        /// <summary>
+        /// Calls the specified remote method and returns it's return value
+        /// </summary>
+        /// <param name="component">The remote-method's component name</param>
+        /// <param name="name">The name of the method to call</param>
+        /// <param name="args">The parameters to pass to the method</param>
+        /// <returns>Returns the value returned by the remote method</returns>
+        object CallRemoteFunction(string component, string name, params object[] args);
+
 
     }
 }

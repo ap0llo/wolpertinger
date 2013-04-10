@@ -22,6 +22,9 @@ using System.Text;
 
 namespace Wolpertinger.Core
 {
+    /// <summary>
+    /// Interface for factory used by ConnectionManager to instantiate new client-connections
+    /// </summary>
     public interface IConnectionFactory
     {
         /// <summary>

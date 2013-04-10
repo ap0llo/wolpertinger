@@ -28,6 +28,8 @@ using Slf;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Security;
+using Nerdcave.Common.Xml;
+using Wolpertinger.FileShareCommon;
 
 namespace Wolpertinger.Manager.CLI
 {
@@ -54,6 +56,17 @@ namespace Wolpertinger.Manager.CLI
 			ConsoleHelper.WriteLine(ConsoleColor.Cyan, " Wolpertinger Manager {0}", Assembly.GetExecutingAssembly().GetName().Version.ToString());
 			ConsoleHelper.WriteLine(ConsoleColor.Cyan, " Wolpertinger.Core    {0}", Assembly.GetAssembly(typeof(DefaultConnectionManager)).GetName().Version.ToString());
 			Console.WriteLine();
+
+            //Set up XmlSerializer
+            XmlSerializer.RegisterType(typeof(ClientInfo),"clientInfo");
+            XmlSerializer.RegisterType(typeof(DirectoryObject),"directoryObject");
+            XmlSerializer.RegisterType(typeof(FileObject),"fileObject");
+            XmlSerializer.RegisterType(typeof(Permission),"permission");
+            XmlSerializer.RegisterType(typeof(MountInfo), "mountInfo");
+            XmlSerializer.RegisterType(typeof(SnapshotInfo), "snapshotInfo");
+            XmlSerializer.RegisterType(typeof(RemoteMethodCall),"remoteMethodCall");
+            XmlSerializer.RegisterType(typeof(RemoteMethodResponse),"remoteMethodResponse");
+            XmlSerializer.RegisterType(typeof(RemoteError), "remoteError");
 
 
 			string profileFolderArg = args.Any(x => x.ToLower().StartsWith("profilefolder=")) ? args.First(x => x.ToLower().StartsWith("profilefolder=")): null;

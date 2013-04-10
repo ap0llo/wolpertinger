@@ -24,10 +24,19 @@ using System.Xml.Linq;
 namespace Nerdcave.Common.Xml
 {
     /// <summary>
-    /// Interface that must be implemented by classes to be (de-)seraialized by XmlSerializationHelper
+    /// Interface that must be implemented by classes to be (de-)seraialized by XmlSerializer
     /// </summary>
     public interface ISerializable
     {
+
+        /// <summary>
+        /// Validates a piece of XML and determines wheter it can be deserialized
+        /// </summary>
+        /// <param name="xml">The XML to be validated</param>
+        /// <returns>Returns true when the specified xml is valid and can be deserialzed into a object. Otherwise returns false</returns>
+        bool Validate(XElement xml);
+
+
         /// <summary>
         /// Serializes the object into XML
         /// </summary>
@@ -35,11 +44,9 @@ namespace Nerdcave.Common.Xml
         XElement Serialize();
 
         /// <summary>
-        /// Deserialzes the specified XML into a object on the implementing class
+        /// Deserializes the given XML and sets the callee's Properties accordingly
         /// </summary>
         /// <param name="xmlData">The data to be deserialized</param>
-        /// <returns>Returns a new object of the implementing class </returns>
-        object Deserialize(XElement xmlData);
-
+        void Deserialize(XElement xmlData);
     }
 }

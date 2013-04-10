@@ -8,37 +8,40 @@ All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 
     Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-    Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
-    Neither the name of the Wolpertinger project nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+    Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other 
+    materials provided with the distribution.
+    Neither the name of the Wolpertinger project nor the names of its contributors may be used to endorse or promote products derived from this software without 
+    specific prior written permission.
 
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
+THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS 
+BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE 
+GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, 
+STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
 using Nerdcave.Common;
 using Nerdcave.Common.Extensions;
 using Nerdcave.Common.Xml;
-using Raven.Client;
-using Raven.Client.Embedded;
 using Slf;
 using System;
 using System.IO;
 using System.IO.Pipes;
 using System.Reflection;
 using Wolpertinger.Core;
+using Wolpertinger.FileShareCommon;
 
 namespace Wolpertinger.Fileserver
 {
     class Program
     {
 
-        public static IDocumentStore Database;
-
-
         static ILogger logger;
         static string folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Wolpertinger", "Fileserver");
         static KeyValueStore settingsFile = new KeyValueStore(Path.Combine(folder, "ServiceSettings.xml"));
 
+        public static string DatabaseFolder = Path.Combine(folder, "Database");
 
         static IConnectionManager connectionManager;
 
@@ -53,49 +56,46 @@ namespace Wolpertinger.Fileserver
             ConsoleHelper.WriteLine(ConsoleColor.Red, " Wolpertinger.Core       {0}", Assembly.GetAssembly(typeof(DefaultConnectionManager)).GetName().Version.ToString());
             Console.WriteLine();
 
+            //Set up XmlSerializer
+            XmlSerializer.RegisterType(typeof(ClientInfo), "clientInfo");
+            XmlSerializer.RegisterType(typeof(DirectoryObject), "directoryObject");
+            XmlSerializer.RegisterType(typeof(FileObject), "fileObject");
+            XmlSerializer.RegisterType(typeof(Permission), "permission");
+            XmlSerializer.RegisterType(typeof(MountInfo), "mountInfo");
+            XmlSerializer.RegisterType(typeof(SnapshotInfo), "snapshotInfo");
+            XmlSerializer.RegisterType(typeof(RemoteMethodCall), "remoteMethodCall");
+            XmlSerializer.RegisterType(typeof(RemoteMethodResponse), "remoteMethodResponse");
+            XmlSerializer.RegisterType(typeof(RemoteError), "remoteError");
+
+
             //Set up logger            
             LoggerService.SetLogger(new CompositeLogger(new Wolpertinger.Core.ConsoleLogger(), new XmppLogger()));
             logger = LoggerService.GetLogger("Wolpertinger.Fileserver");
 
-
-            logger.Info("Initializing Database");
-            Database = new EmbeddableDocumentStore() { DataDirectory = Path.Combine(folder, "Database") };
-            Database.Initialize();
-            logger.Info("Databse initialized successfully");
 
             FileObject.HashingService = HashingService.GetHashingService();
 
             AuthenticationComponent foo = new AuthenticationComponent();
 
 
-
-            ////make sure an instance of Wolpertinger.SymlinkHelper is running
-            //if (!Process.GetProcessesByName("Wolpertinger.SymlinkHelper").Any())
-            //{
-            //    try
-            //    {
-            //        Process.Start(new ProcessStartInfo("Wolpertinger.SymlinkHelper.exe") { Verb = "runas" });
-            //    }
-            //    catch (Win32Exception)
-            //    {
-            //        logger.Error("Could not start SymlinkHelper");
-            //    }
-            //}
-
-
-
             if (!Directory.Exists(Path.GetDirectoryName(folder)))
+            {
                 Directory.CreateDirectory(Path.GetDirectoryName(folder));
+            }
 
             //Set up AppData directory
             if (!Directory.Exists(folder))
+            {
                 Directory.CreateDirectory(folder);
+            }
 
-            //Set the directory for cahing hashes of files
-            string hashCachePath = Path.Combine(folder, "Cached Hashes");
-            if (!Directory.Exists(hashCachePath))
-                Directory.CreateDirectory(hashCachePath);            
+            //Set up databasefolder
+            if (!Directory.Exists(DatabaseFolder))
+            {
+                Directory.CreateDirectory(DatabaseFolder);
+            }
 
+   
             //Initalize ConnectionManager
             //TODO manager.AddProfile(Profile.FileServer);
             //manager.AddComponent(typeof(ClientInfoProvider), typeof(XmppLoggingConfigurator), typeof(FileShare));
@@ -118,7 +118,6 @@ namespace Wolpertinger.Fileserver
             //Console.WriteLine("Account: " + connectionManager.XmppUsername + "@" + connectionManager.XmppServer);
 
             Console.ReadLine();
-
         }
 
 
@@ -149,8 +148,6 @@ namespace Wolpertinger.Fileserver
             ConsoleHelper.WriteSpaces(spacescount);
             ConsoleHelper.Write(color, @"                |_|                          |___/           ");
             Console.Write("\n");
-
-
 
         }
 

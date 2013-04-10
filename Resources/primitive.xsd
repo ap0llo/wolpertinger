@@ -1,0 +1,84 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="base"
+    targetNamespace="http://nerdcave.eu/wolpertinger"
+    elementFormDefault="qualified"
+    xmlns="http://nerdcave.eu/wolpertinger"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:simpleType name="type">
+    <xs:restriction base="xs:string">
+      <!--Primitive Types-->
+      <xs:enumeration value="boolean" />
+      <xs:enumeration value="dateTime" />
+      <xs:enumeration value="double" />
+      <xs:enumeration value="int32" />
+      <xs:enumeration value="int64" />
+      <xs:enumeration value="uint64" />
+      <xs:enumeration value="string" />
+      <xs:enumeration value="guid" />
+      
+      <!--Complex Types-->
+      <xs:enumeration value="list" />      
+      <xs:enumeration value="clientInfo" />
+      <xs:enumeration value="directoryObject" />
+      <xs:enumeration value="fileObject" />
+      <xs:enumeration value="permission" />
+      <xs:enumeration value="mountInfo" />
+      <xs:enumeration value="snapshotInfo" />
+      <xs:enumeration value="remoteMethodCall"/>
+      <xs:enumeration value="remoteMethodResponse"/>
+      <xs:enumeration value="remoteError"/>
+    </xs:restriction>
+  </xs:simpleType>
+  
+  
+  <!--Arbitrary object, with required 'type' attribute for parsing-->
+  <xs:complexType name="object" mixed="true">
+    <xs:sequence>
+      <xs:any minOccurs="0" maxOccurs="unbounded" processContents="lax" />
+    </xs:sequence>
+    <xs:attribute name="type" type="type"  use="required" />
+  </xs:complexType>
+
+
+  <!--Custom string object (for use lists etc. where type always needs to be string)-->
+  <xs:complexType name="string">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="type" type="xs:string" fixed="string"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+
+
+  <!--GUID-->
+  <xs:simpleType name="guid">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!--Allowed values for ProtocolVersion-->
+  <xs:simpleType name="protocolVersion">
+    <xs:restriction base="xs:unsignedInt">
+      <xs:enumeration value="0"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!--Allowed values for TrustLevel-->
+  <xs:simpleType name="trustlevel">
+    <xs:restriction base="xs:integer">
+      <xs:minInclusive value="0"/>
+      <xs:maxInclusive value="4" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="hashtype">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="sha1"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+
+</xs:schema>

@@ -25,12 +25,12 @@ using Nerdcave.Common.Xml;
 
 namespace Wolpertinger.Core
 {
-    public class RpcMessage : ISerializable
+    public class RpcMessage : Serializable
     {
         /// <summary>
         /// The name of the component the message is adressed to
         /// </summary>
-        public string TargetName { get; set; }
+        public string ComponentName { get; set; }
 
         /// <summary>
         /// The Id associated with the RemoteMethodCall
@@ -47,23 +47,37 @@ namespace Wolpertinger.Core
             this.CallId = Guid.NewGuid();
         }
 
-
+        
         #region ISerializable Members
 
-        //No implementation here, methods need to be overridden in sub-classes
-
-        public virtual XElement Serialize()
+        protected override string schemaFile
         {
-            throw new NotImplementedException();
+            get { return "protocol.xsd"; }
         }
 
-        public virtual object Deserialize(XElement xmlData)
+
+        protected override string rootElementName
         {
-            throw new NotImplementedException();
+            get { throw new NotSupportedException("RcpMessage should not be used directly. Only use derived classes that implement all members"); }
+        }
+
+        protected override string schemaTypeName
+        {
+            get { throw new NotSupportedException("RcpMessage should not be used directly. Only use derived classes that implement all members"); }
+        }
+       
+        public override XElement Serialize()
+        {
+            throw new NotSupportedException("RcpMessage should not be used directly. Only use derived classes that implement all members"); 
+        }
+
+        public override void Deserialize(XElement xmlData)
+        {
+            throw new NotSupportedException("RcpMessage should not be used directly. Only use derived classes that implement all members"); 
         }
 
         #endregion
-
+        
 
     }
 }

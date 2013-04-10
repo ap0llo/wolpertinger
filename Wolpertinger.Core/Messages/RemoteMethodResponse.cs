@@ -20,14 +20,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml.Linq;
-using System.Xml.Serialization;
 using Slf;
 using Nerdcave.Common.Xml;
+using System.Xml;
 
 namespace Wolpertinger.Core
 {
-    [XmlTypeName("Wolpertinger.RemoteMethodResponse")]
-    public class RemoteMethodResponse : RpcMessage
+    public class RemoteMethodResponse : RpcMessage, ISerializable
     {
         private static ILogger logger = LoggerService.GetLogger("RemoteMethodResponse");
 
@@ -38,67 +37,82 @@ namespace Wolpertinger.Core
         public object ResponseValue { get; set; }
 
 
-
-        #region ISerializable Members
-        
-        public override XElement Serialize()
-        {            
-            XElement xmlData = new XElement("RemoteMethodResponse");
-            xmlData.Add(new XElement("TargetName") { Value = this.TargetName });
-            xmlData.Add(new XElement("CallId") { Value = this.CallId.ToString() });
-            xmlData.Add(new XElement("ResponseValue"));
-
-            //serialize the response value
-            if (ResponseValue != null)
-            {
-                XElement x = XmlSerializationHelper.SerializeToXmlObjectElement(this.ResponseValue);
-                if (x != null)
-                {
-                    xmlData.Element("ResponseValue").Add(x);
-                }
-            }
-
-            return xmlData;
+        public RemoteMethodResponse()
+        {
+            XmlNames.Init(xmlNamespace);
         }
 
-        public override object Deserialize(XElement xmlData)
+        #region ISerializable Members
+
+        private static class XmlNames
         {
-            if (xmlData == null || xmlData.Name.LocalName != "RemoteMethodResponse") 
-                return null;
+            private static bool initialized = false;
 
-            //try to parse the message
-            try
+            public static XName RemoteMethodResponse;
+            public static XName ComponentName;
+            public static XName CallId;
+            public static XName ResponseValue;
+
+
+            public static void Init(string xmlNamespace)
             {
-                RemoteMethodResponse response = new RemoteMethodResponse();
-                response.TargetName = xmlData.Element("TargetName").Value;
-
-                //deserialze the reponse value
-                if(xmlData.Element("ResponseValue").Elements().Any())
+                if (initialized)
                 {
-                    response.ResponseValue = XmlSerializationHelper.DeserializeFromXMLObjectElement(xmlData.Element("ResponseValue").Elements().First());                    
+                    return;
                 }
 
-                //chek the message for a CallId
-                Guid id;
-                if (!Guid.TryParse(xmlData.Element("CallId").Value, out id))
-                {
-                    logger.Error("No CallId found, illegal RemoteMethodResponse. Returning null");
-                    return null;
-                }
-                else
-                {
-                    response.CallId = id;
-                }
+                RemoteMethodResponse = XName.Get("RemoteMethodResponse", xmlNamespace);
+                ComponentName = XName.Get("ComponentName", xmlNamespace);
+                CallId = XName.Get("CallId", xmlNamespace);
+                ResponseValue = XName.Get("ResponseValue", xmlNamespace);
 
-                return response;
-
+                initialized = true;
             }
-            catch (NullReferenceException ex)
+        }
+
+
+        protected override string rootElementName
+        {
+            get { return "RemoteMethodResponse"; }
+        }
+
+        protected override string schemaTypeName
+        {
+            get { return "remoteMethodResponse"; }
+
+        }
+
+        
+        public override XElement Serialize()
+        {
+            XElement root = new XElement(XmlNames.RemoteMethodResponse);
+            root.Add(new XElement(XmlNames.ComponentName, this.ComponentName));
+            root.Add(new XElement(XmlNames.CallId, this.CallId.ToString()));
+            
+            //serialize the response value
+            root.Add(new XElement(XmlNames.ResponseValue));
+            if (ResponseValue != null)
             {
-                logger.Error(ex);
-                return null;
+                XElement value = XmlSerializer.Serialize(this.ResponseValue, xmlNamespace);
+                if (value != null)
+                {
+                    root.Element(XmlNames.ResponseValue).Add(value);
+                }
             }
 
+            return root;
+        }
+
+        public override void Deserialize(XElement xmlData)
+        {
+            this.ComponentName = xmlData.Element(XmlNames.ComponentName).Value;
+            this.CallId = XmlSerializer.DeserializeAs<Guid>(xmlData.Element(XmlNames.CallId));
+
+            //deserialze the reponse value
+            if (xmlData.Element(XmlNames.ResponseValue).Elements().Any())
+            {
+                this.ResponseValue = XmlSerializer.Deserialize(xmlData.Element(XmlNames.ResponseValue).Elements().First());                    
+            }
         }
 
         #endregion
