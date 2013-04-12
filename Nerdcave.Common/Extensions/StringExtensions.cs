@@ -94,6 +94,7 @@ namespace Nerdcave.Common.Extensions
 
             string[] result = new string[fragmentsCount];
             int length = (str.Length / fragmentsCount) + 1;           
+            
             int chunckLength;
 
             for (int i = 0; i < result.Length; i++)

@@ -16,6 +16,8 @@ namespace Wolpertinger.Core
         /// </summary>
         event EventHandler<ObjectEventArgs<ParsingResult>> MessageReceived;
 
+        event EventHandler MessageFragmentReceived;
+
         /// <summary>
         /// Event that is raised when the connection timed out
         /// </summary>

@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Text;
+using Slf;
 
 namespace Wolpertinger.Core
 {
@@ -29,6 +30,10 @@ namespace Wolpertinger.Core
     /// </summary>
     public class CoreClientComponent : IComponent
     {
+
+
+        private ILogger logger = LoggerService.GetLogger("CoreClientComponent");
+
 
         /// <summary>
         /// The IClientConnection used to communicate with the target-client
@@ -57,9 +62,18 @@ namespace Wolpertinger.Core
         /// </summary>
         public Task HeartbeatAsync()
         {
-            var task = new Task(delegate { ClientConnection.CallRemoteAction(ComponentNames.Core, CoreMethods.Heartbeat); });
-            task.Start();
-            return task;            
+            return Task.Factory.StartNew(() => 
+                {
+                    try
+                    {
+                        ClientConnection.CallRemoteAction(ComponentNames.Core, CoreMethods.Heartbeat); 
+                    }
+                    catch (TimeoutException)
+                    {
+                        logger.Warn("TimeOutException in HeartbeatAsync() was caught and ignored");   
+                    }
+                });
+                
         }
 
         /// <summary>

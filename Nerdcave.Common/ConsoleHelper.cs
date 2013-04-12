@@ -63,7 +63,6 @@ namespace Nerdcave.Common
             WriteLine(ErrorColor, msg, args);
         }
 
-
         public static void Error(string msg, params object[] args)
         {
             Write(ErrorColor, msg, args);
@@ -75,11 +74,11 @@ namespace Nerdcave.Common
             WriteLine(WarningColor, msg, args);
         }
 
-
         public static void Warn(string msg, params object[] args)
         {
             Write(WarningColor, msg, args);
         }
+
 
         public static void InfoLine(string msg, params object[] args)
         {
@@ -91,11 +90,11 @@ namespace Nerdcave.Common
             Write(InfoColor ?? Console.ForegroundColor, msg, args);
         }
 
+
         public static void SuccessLine(string msg, params object[] args)
         {
             WriteLine(SuccessColor, msg, args);
         }
-
 
         public static void Success(string msg, params object[] args)
         {
@@ -134,13 +133,11 @@ namespace Nerdcave.Common
             Console.Write(msg, args);
         }
 
-
         public static void WriteLine(ConsoleColor color, string msg, params object[] args)
         {
             Write(color, msg, args);
             Console.Out.WriteLine();
         }
-
 
         public static void Write(ConsoleColor color, string msg, params object[] args)
         {
@@ -175,7 +172,6 @@ namespace Nerdcave.Common
 
             WriteLineCentered(color, line);
         }
-
 
         public static void WriteSpaces(int count)
         {
@@ -214,7 +210,6 @@ namespace Nerdcave.Common
 
             return (input == "y" || input == "yes");
         }
-
 
         /// <summary>
         /// Prompts the user to enter a password. The password in the console window will be marked with asterisks. After the usser pressed enter, the entire password-line will be removed from the Console window

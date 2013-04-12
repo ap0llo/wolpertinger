@@ -208,7 +208,7 @@ namespace Wolpertinger.Core
 
         private void xmpp_OnMessage(object sender, agsXMPP.protocol.client.Message msg)
         {
-            new Task(delegate
+            Task.Factory.StartNew(() =>
                 {
                     //ignore empty messages
                     if (msg.Body.IsNullOrEmpty() || msg.Error != null)
@@ -228,8 +228,8 @@ namespace Wolpertinger.Core
                     logger.Info("Received message from {0}", messageSender);
 
                     //Raise MessageReceived event
-                        this.onMessageReceived(messageSender, msg.Body);
-                }).Start();
+                    this.onMessageReceived(messageSender, msg.Body);
+                });
         }
 
 

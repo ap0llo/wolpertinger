@@ -494,8 +494,22 @@ namespace Wolpertinger.Manager.CLI
 
         private void fileshareCompareSnapshotsCommand(IEnumerable<string> cmds)
         {
-            throw new NotImplementedException();
+            Guid left;
+            Guid right;
+
+            if (!Guid.TryParse(cmds.First(), out left) || !Guid.TryParse(cmds.Skip(1).First(), out right))
+            {
+                Program.UnknownCommand(this);
+                return;
+            }
+
+            var task = fileShareComponent.CompareSnapshots(left, right);
+            var diff = task.Result;
+
+            printDirectoryObjectDiff(diff);
+
         }
+
 
         #region Event Handlers
 
@@ -588,8 +602,71 @@ namespace Wolpertinger.Manager.CLI
             }
         }
 
+        private void printDirectoryObjectDiff(DirectoryObjectDiff diff)
+        {
+            if (diff.IsEmpty())
+            {
+                Program.OutputLine(this, "No differenes found");
+                return;
+            }
 
 
+            //print files/directories missing left
+            if (diff.DirectoriesMissingLeft.Any())
+            {
+                Program.OutputLine(this, "-----------------------------------------------------------");
+                Program.OutputLine(this, "Directories missing left");
+                Program.OutputLine(this, "-----------------------------------------------------------");
+                printList(diff.DirectoriesMissingLeft);
+                Program.OutputLine(this, "-----------------------------------------------------------");
+            }
+
+            if (diff.FilesMissingLeft.Any())
+            {
+                Program.OutputLine(this, "-----------------------------------------------------------");
+                Program.OutputLine(this, "Files missing left");
+                Program.OutputLine(this, "-----------------------------------------------------------");
+                printList(diff.FilesMissingLeft);
+                Program.OutputLine(this, "-----------------------------------------------------------");
+            }
+
+            //print files/directories missing right
+            if (diff.DirectoriesMissingRight.Any())
+            {
+                Program.OutputLine(this, "-----------------------------------------------------------");
+                Program.OutputLine(this, "Directories missing right");
+                Program.OutputLine(this, "-----------------------------------------------------------");
+                printList(diff.DirectoriesMissingRight);
+                Program.OutputLine(this, "-----------------------------------------------------------");
+            }
+
+            if (diff.FilesMissingRight.Any())
+            {
+                Program.OutputLine(this, "-----------------------------------------------------------");
+                Program.OutputLine(this, "Files missing right");
+                Program.OutputLine(this, "-----------------------------------------------------------");
+                printList(diff.FilesMissingRight);
+                Program.OutputLine(this, "-----------------------------------------------------------");
+            }
+
+            //print conflicted files
+            if (diff.FileConflicts.Any())
+            {
+                Program.OutputLine(this, "-----------------------------------------------------------");
+                Program.OutputLine(this, "File Conflicts/Changed Files");
+                Program.OutputLine(this, "-----------------------------------------------------------");
+                printList(diff.FileConflicts);
+                Program.OutputLine(this, "-----------------------------------------------------------");
+            }
+        }
+
+        private void printList(IEnumerable<string> list)
+        {
+            foreach (var item in list)
+            {
+                Program.OutputLine(this, item.Replace("{", "{{").Replace("}","}}"));
+            }
+        }
 
 
     }

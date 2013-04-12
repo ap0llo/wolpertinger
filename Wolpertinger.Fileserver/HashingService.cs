@@ -230,7 +230,9 @@ namespace Wolpertinger.Fileserver
 
 						//store HashInfo in cache
 						BinaryRage.DB<HashInfo>.Insert(getKey(file), info, hashDbFolder);
-						
+
+                        hashCompleted(file, hash);
+
 						//Release lock on the file
 						stream.Close(); 
 					}
@@ -288,6 +290,9 @@ namespace Wolpertinger.Fileserver
 			};
 
 			GetHashAsync(filename, priority);
+
+
+            waitHandle.WaitOne();
 
 			return hash;
 
@@ -348,7 +353,6 @@ namespace Wolpertinger.Fileserver
 		/// The hash of the file 
 		/// </summary>
 		public string Hash { get; set; }
-
 	}
 
 

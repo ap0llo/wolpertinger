@@ -48,6 +48,7 @@ namespace Wolpertinger.Core
         public const string GetSnapshots = "GetSnapshots";
         public const string CreateSnapshot = "CreateSnapshot";
         public const string DeleteSnapshot = "DeleteSnapshot";
+        public const string CompareSnapshots = "CompareSnapshots";
 
     }
 

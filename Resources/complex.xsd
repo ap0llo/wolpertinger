@@ -110,12 +110,48 @@
 			<xs:element name="Time" type="xs:dateTime" />
 		</xs:sequence>
 	</xs:complexType>
+
+  
+  <xs:complexType name="directoryObjectDiff">
+    <xs:sequence>
+      <xs:element name="FilesMissingLeft">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="File" type="xs:string" minOccurs="0" maxOccurs="unbounded" />
+          </xs:sequence> 
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="FilesMissingRight">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="File" type="xs:string" minOccurs="0" maxOccurs="unbounded" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="FileConflicts">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="File" type="xs:string" minOccurs="0" maxOccurs="unbounded" />
+          </xs:sequence> 
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="DirectoriesMissingLeft">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Directory" type="xs:string" minOccurs="0" maxOccurs ="unbounded" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="DirectoriesMissingRight">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Directory" type="xs:string" minOccurs="0" maxOccurs ="unbounded" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>      
+    </xs:sequence>
+  </xs:complexType>
 	
-	<!--Allowed root elements-->
-	<!--<xs:element name="ClientInfo" type="clientInfo" />
-	<xs:element name="MountInfo" type="mountInfo"/>
-	<xs:element name="Permission" type="permission" />
-	<xs:element name="DirectoryObject" type="directoryObject" />
-	<xs:element name="FileObject" type="fileObject" />
-	<xs:element name="SnapshotInfo" type="snapshotInfo" />-->
+  
+  
 </xs:schema>

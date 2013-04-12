@@ -66,7 +66,7 @@ namespace Wolpertinger.FileShareCommon
 
         
 
-        public String Hash { get; set; }
+        public string Hash { get; set; }
 
 
         public FileObject()

@@ -203,7 +203,6 @@ namespace Wolpertinger.Manager.CLI
             });
         }
 
-
         public Task<IEnumerable<SnapshotInfo>> GetSnapshotsAsync()
         {
             return Task.Factory.StartNew<IEnumerable<SnapshotInfo>>(delegate
@@ -213,7 +212,6 @@ namespace Wolpertinger.Manager.CLI
                     FileShareMethods.GetSnapshots) as IEnumerable<object>).Cast<SnapshotInfo>();
             });
         }
-
 
         public Task<Guid> CreateSnapshotAsync()
         {
@@ -225,7 +223,6 @@ namespace Wolpertinger.Manager.CLI
             });
         }
 
-
         public Task DelteSnapshotAsync(Guid id)
         {
             return Task.Factory.StartNew(delegate
@@ -236,6 +233,14 @@ namespace Wolpertinger.Manager.CLI
             });
         }
 
+        public Task<DirectoryObjectDiff> CompareSnapshots(Guid left, Guid right)
+        {
+            return Task.Factory.StartNew<DirectoryObjectDiff>(() => 
+                {
+                    return (DirectoryObjectDiff)ClientConnection.CallRemoteFunction(ComponentNamesExtended.FileShare,
+                        FileShareMethods.CompareSnapshots, left, right);
+                }); 
+        }
     }
 
 }

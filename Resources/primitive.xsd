@@ -25,6 +25,7 @@
       <xs:enumeration value="permission" />
       <xs:enumeration value="mountInfo" />
       <xs:enumeration value="snapshotInfo" />
+      <xs:enumeration value="directoryObjectDiff" />
       <xs:enumeration value="remoteMethodCall"/>
       <xs:enumeration value="remoteMethodResponse"/>
       <xs:enumeration value="remoteError"/>

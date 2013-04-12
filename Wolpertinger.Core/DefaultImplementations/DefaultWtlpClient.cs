@@ -59,6 +59,7 @@ namespace Wolpertinger.Core
         private Dictionary<int, Result> messageResults = new Dictionary<int, Result>();
 
         private Dictionary<int, string[]> messageFragments = new Dictionary<int, string[]>();
+        private Dictionary<int, System.Timers.Timer> timeoutTimers = new Dictionary<int, System.Timers.Timer>();
 
         #endregion
 
@@ -68,6 +69,8 @@ namespace Wolpertinger.Core
         /// Event that is raised each time a message has been received and parsed.
         /// </summary>
         public event EventHandler<ObjectEventArgs<ParsingResult>> MessageReceived;
+
+        public event EventHandler MessageFragmentReceived;
 
         /// <summary>
         /// Event that is raised when the connection timed out
@@ -86,9 +89,7 @@ namespace Wolpertinger.Core
         {
             //set messagingClient and recipient
             this.Recipient = recipient;
-            this.MessagingClient = messagingClient;
-            //subscribe to events from the messaging client
-            //this.MessagingClient.MessageReceived += MessagingClient_MessageReceived;
+            this.MessagingClient = messagingClient;            
         }
 
 
@@ -112,12 +113,16 @@ namespace Wolpertinger.Core
                     if (value != _messagingClient)
                     {
                         if (_messagingClient != null)
+                        {
                             _messagingClient.MessageReceived -= MessagingClient_MessageReceived;    
+                        }
                         
                         _messagingClient = value;
-                        
+
                         if (_messagingClient != null)
+                        {
                             _messagingClient.MessageReceived += MessagingClient_MessageReceived;
+                        }
                     }
                 }
             }
@@ -229,7 +234,6 @@ namespace Wolpertinger.Core
         }
 
 
-
         /// <summary>
         /// Sends the specified data to the target client specified in the 'Recipient' property
         /// </summary>
@@ -237,7 +241,6 @@ namespace Wolpertinger.Core
         /// <exception cref="WtlpException"></exception>
         public void Send(byte[] message)
         {
-
             //the message's Id
             int messageId;
             //the message's payload  
@@ -271,17 +274,21 @@ namespace Wolpertinger.Core
 
             //split the message's payload into multplie parts if necessary
             //the number of fragments the message will be split in (if length limit is not exceeded, it's 1, so message will not be split)
-            int fragmentsCount = (payloadStr.Length > MESSAGELENGTHLIMIT) ? ((MESSAGELENGTHLIMIT / payloadStr.Length) + 1) : 1;
+            int fragmentsCount = (payloadStr.Length > MESSAGELENGTHLIMIT) ? ((payloadStr.Length / MESSAGELENGTHLIMIT) + 1) : 1;
 
-            IEnumerable<string> fragments = payloadStr.Split(fragmentsCount)        //split message
-                                                       .Select(x => metadata + x);    //add metadata in front of the message
-
-            //if message was split, add metadata necessary to restore the original message 
-            if (fragmentsCount > 1)
+            string[] fragments = payloadStr.Split(fragmentsCount);       //split message
+            
+            //add metadata in front of the message
+            for (int i = 0; i < fragments.Length; i++)
             {
-                int index = 0;
-                fragments = fragments.Select(x => String.Format("fragment_count:{0};", fragments.Count()) + x)  //Add the fragment-count to every fragment
-                                     .Select(x => String.Format("fragment_index:{0};", index++) + x);           //Assign a index to every fragment
+                fragments[i] = metadata + fragments[i];
+
+                //if message was split, add metadata necessary to restore the original message 
+                if (fragmentsCount > 1)
+                {
+                    fragments[i] =  String.Format("fragment_count:{0};", fragments.Length) + fragments[i];
+                    fragments[i] = String.Format("fragment_index:{0};", i) + fragments[i];                 
+                }
             }
 
             //Semaphore used to wait for until a delivery confirmation is received for the sent message
@@ -296,18 +303,20 @@ namespace Wolpertinger.Core
             //Send all message fragments
             foreach (var item in fragments)
             {
-                this.MessagingClient.SendMessage(this.Recipient, item);
+                this.MessagingClient.SendMessage(this.Recipient, item);                
             }
 
-            //Ste up a timer that relases the semaphor after the timeout interval to prevent the thread from blocking indefinitely
+            //Set up a timer that relases the semaphor after the timeout interval to prevent the thread from blocking indefinitely
             object objectLock = this;
-            System.Timers.Timer timeoutTimer = new System.Timers.Timer(TIMEOUTINTERVAL);
+            System.Timers.Timer timeoutTimer = new System.Timers.Timer(TIMEOUTINTERVAL * fragmentsCount);
             timeoutTimer.Elapsed += (s,e) => 
                     {
                         lock (objectLock)
                         {
-                            if(!messageResults.ContainsKey(messageId))
+                            if (!messageResults.ContainsKey(messageId))
+                            {
                                 messageResults.Add(messageId, Result.Timeout);
+                            }
                         }
                         sem.Release();
 
@@ -330,9 +339,13 @@ namespace Wolpertinger.Core
             Result result = messageResults[messageId];
 
             if (result == Result.Success)
+            {
                 return;
+            }
             else
+            {
                 throw new WtlpException(result);
+            }
         }
 
         /// <summary>
@@ -523,6 +536,7 @@ namespace Wolpertinger.Core
                 }
 
                 messageFragments[messageId][fragmentIndex] = payload_str;
+                onMessageFragmentReceived();
 
                 //check if all fragments have been received
                 if (messageFragments[messageId].Any(x => x == null))
@@ -636,6 +650,13 @@ namespace Wolpertinger.Core
                 this.MessageReceived(this, message);
         }
 
+        private void onMessageFragmentReceived()
+        {
+            if (this.MessageFragmentReceived != null)
+            {
+                this.MessageFragmentReceived(this, EventArgs.Empty);
+            }
+        }
 
         private enum Key
         { 

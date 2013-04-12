@@ -119,16 +119,21 @@ namespace Wolpertinger.Core
                 lock (this)
                 {
                     if (_wtlpClient != null)
+                    {
                         _wtlpClient.MessageReceived -= wtlpClient_MessageReceived;
+                        _wtlpClient.MessageFragmentReceived -= _wtlpClient_MessageFragmentReceived;
+                    }
 
                     _wtlpClient = value;
 
-                    if(_wtlpClient != null)
+                    if (_wtlpClient != null)
+                    {
                         _wtlpClient.MessageReceived += wtlpClient_MessageReceived;
-
+                        _wtlpClient.MessageFragmentReceived += _wtlpClient_MessageFragmentReceived;
+                    }
                 }
             }
-        }
+        }        
 
         /// <summary>
         /// Gets or sets the ComponentFactory used by the ClientConnection to instantiate new components
@@ -204,23 +209,26 @@ namespace Wolpertinger.Core
         /// </returns>
         public IComponent GetServerComponent(string name)
         {
-            //check if a matching component has already been initialized
-            if (!serverComponents.ContainsKey(name.ToLower()))
+            lock (this)
             {
-                //get a new component
-                IComponent component = ComponentFactory.GetServerComponent(name);
+                //check if a matching component has already been initialized
+                if (!serverComponents.ContainsKey(name.ToLower()))
+                {
+                    //get a new component
+                    IComponent component = ComponentFactory.GetServerComponent(name);
                 
-                //check if a component was found
-                if (component == null)
-                    return null;
+                    //check if a component was found
+                    if (component == null)
+                        return null;
 
-                serverComponents.Add(name.ToLower(), component);
+                    serverComponents.Add(name.ToLower(), component);
+                }
+
+                serverComponents[name.ToLower()].ClientConnection = this;
+
+                //return the requested component
+                return serverComponents[name.ToLower()];
             }
-
-            serverComponents[name.ToLower()].ClientConnection = this;
-
-            //return the requested component
-            return serverComponents[name.ToLower()];
         }
 
 
@@ -280,6 +288,11 @@ namespace Wolpertinger.Core
                 processMessage(e.Value);
                 e.Handled = true;
             }
+        }
+
+        private void _wtlpClient_MessageFragmentReceived(object sender, EventArgs e)
+        {
+            Hearbeat();
         }
 
         private void timeoutTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
@@ -359,7 +372,9 @@ namespace Wolpertinger.Core
             {
                 //wait for the response using a EventWaitHandle
                 if (!synchronousCalls_WaitHandles.ContainsKey(call.CallId))
+                {
                     synchronousCalls_WaitHandles.Add(call.CallId, new EventWaitHandle(false, EventResetMode.ManualReset));
+                }
 
                 synchronousCalls_WaitHandles[call.CallId].WaitOne();
 

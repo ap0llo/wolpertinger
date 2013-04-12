@@ -64,6 +64,7 @@ namespace Wolpertinger.Manager.CLI
             XmlSerializer.RegisterType(typeof(Permission),"permission");
             XmlSerializer.RegisterType(typeof(MountInfo), "mountInfo");
             XmlSerializer.RegisterType(typeof(SnapshotInfo), "snapshotInfo");
+            XmlSerializer.RegisterType(typeof(DirectoryObjectDiff), "directoryObjectDiff");
             XmlSerializer.RegisterType(typeof(RemoteMethodCall),"remoteMethodCall");
             XmlSerializer.RegisterType(typeof(RemoteMethodResponse),"remoteMethodResponse");
             XmlSerializer.RegisterType(typeof(RemoteError), "remoteError");

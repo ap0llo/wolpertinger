@@ -519,39 +519,74 @@ namespace Wolpertinger.Fileserver
 			return new ResponseResult(snapshot.Info.Id.ToString());
 		}
 
-        [TrustLevel(4)]
-        [MethodCallHandler(FileShareMethods.DeleteSnapshot)]
-        public CallResult DeleteSnapshot(Guid id)
-        {
-            //Get list of all snapshots from the database
-            List<Guid> snapshotIndex;
-            try
-            {
-                snapshotIndex = BinaryRage.DB<List<Guid>>.Get(SnapshotsIndexDbKey, SnapshotDbFolder);
-            }
-            catch (DirectoryNotFoundException)
-            {
-                //Snapshot-Index was not found in database => create index
-                snapshotIndex = new List<Guid>();
-            }
+		[TrustLevel(4)]
+		[MethodCallHandler(FileShareMethods.DeleteSnapshot)]
+		public CallResult DeleteSnapshot(Guid id)
+		{
+			//Get list of all snapshots from the database
+			List<Guid> snapshotIndex;
+			try
+			{
+				snapshotIndex = BinaryRage.DB<List<Guid>>.Get(SnapshotsIndexDbKey, SnapshotDbFolder);
+			}
+			catch (DirectoryNotFoundException)
+			{
+				//Snapshot-Index was not found in database => create index
+				snapshotIndex = new List<Guid>();
+			}
 
 
-            if (snapshotIndex.Contains(id))
-            {
-                snapshotIndex.Remove(id);
-                BinaryRage.DB<List<Guid>>.Insert(SnapshotsIndexDbKey, snapshotIndex, SnapshotDbFolder);
-                
-                BinaryRage.DB<Snapshot>.Remove(id.ToString(), SnapshotDbFolder);
-                
-                return new VoidResult();
-            }
-            else
-            {
-                return new ErrorResult(RemoteErrorCode.ItemNotFoundError);
-            }
+			if (snapshotIndex.Contains(id))
+			{
+				snapshotIndex.Remove(id);
+				BinaryRage.DB<List<Guid>>.Insert(SnapshotsIndexDbKey, snapshotIndex, SnapshotDbFolder);
+				
+				BinaryRage.DB<Snapshot>.Remove(id.ToString(), SnapshotDbFolder);
+				
+				return new VoidResult();
+			}
+			else
+			{
+				return new ErrorResult(RemoteErrorCode.ItemNotFoundError);
+			}
 
-        }
+		}
 
+		[TrustLevel(3)]
+		[MethodCallHandler(FileShareMethods.CompareSnapshots)]
+		public CallResult CompareSnapshots(Guid leftId, Guid rightId)
+		{
+			//Get list of all snapshots from the database
+			List<Guid> snapshotIndex;
+			try
+			{
+				snapshotIndex = BinaryRage.DB<List<Guid>>.Get(SnapshotsIndexDbKey, SnapshotDbFolder);
+			}
+			catch (DirectoryNotFoundException)
+			{
+				//Snapshot-Index was not found in database => create index
+				snapshotIndex = new List<Guid>();
+			}
+
+
+			if (snapshotIndex.Contains(leftId) && snapshotIndex.Contains(rightId))
+			{
+				var leftFolder = BinaryRage.DB<Snapshot>.Get(leftId.ToString(), SnapshotDbFolder).FilesystemState;
+				var rightFolder = BinaryRage.DB<Snapshot>.Get(rightId.ToString(), SnapshotDbFolder).FilesystemState;
+
+				leftFolder.Path = "/";
+				rightFolder.Path = "/";
+
+
+				var diff = DirectoryObjectDiff.GetDiff(leftFolder, rightFolder);
+				return new ResponseResult(diff);
+			}
+			else
+			{
+				return new ErrorResult(RemoteErrorCode.ItemNotFoundError);
+			}
+
+		}
 
 		protected static void scanDirectory(string path, bool newThread = true)
 		{
