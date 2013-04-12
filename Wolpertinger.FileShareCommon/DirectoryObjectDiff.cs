@@ -10,176 +10,131 @@ using Nerdcave.Common.Xml;
 
 namespace Wolpertinger.FileShareCommon
 {
-    public class DirectoryObjectDiff// TODO : ISerializable
+    public class DirectoryObjectDiff
     {
-        /// <summary>
-        /// Name that identifies the 'left' DirectoryObject that has been compared
-        /// </summary>
-        public string LeftName { get; set; }
-
-        /// <summary>
-        /// Name that identifies the 'right' DirectoryObject that has been compared
-        /// </summary>
-        public string RightName { get; set; }
 
 
-        /// <summary>
-        /// Files (unordered) from the Directory (including all subdirectories) that have been found on the right
-        /// but not on the left (not including confilcts)
-        /// </summary>
-        public IEnumerable<FileObject> FilesMissingFromLeft { get; set; }
-
-        /// <summary>
-        /// Files (unordered) from the Directory (including all subdirectories) that have been found on the left
-        /// but not on the right (not including confilcts)
-        /// </summary>
-        public IEnumerable<FileObject> FilesMissingFromRight { get; set; }
-
-        /// <summary>
-        /// Files that exist in both the left and the right directories that have been compared 
-        /// where at least one property differs
-        /// </summary>
-        public IEnumerable<Tuple<FileObject, FileObject>> FileConfilcts { get; set; }
-
-        /// <summary>
-        /// Directories (without any subdirectorie or files) that are present in the right directory but not in the left (unordered)
-        /// </summary>
-        public IEnumerable<DirectoryObject> DirectoriesMissigFromLeft { get; set; }
-
-        /// <summary>
-        /// Directories (without any subdirectorie or files) that are present in the left directory but not in the right (unordered)
-        /// </summary>
-        public IEnumerable<DirectoryObject> DirectoriesMissingFromRight { get; set; }
-
-
-        #region ISerializable Members
-
-        public XElement Serialize()
+        public DirectoryObjectDiff() 
+            : this(null, null)
         {
-            throw new NotImplementedException();
         }
 
-        public object Deserialize(XElement xmlData)
+
+        public DirectoryObjectDiff(DirectoryObject left, DirectoryObject right)
         {
-            throw new NotImplementedException();
+            this.Left = left;
+            this.Right = right;
+
+
+            FilesMissingLeft = new List<FileObject>();
+            FilesMissingRight = new List<FileObject>();
+            ConflictedFiles = new List<FileObjectDiff>();
+
+            DirectoriesMissingLeft = new List<DirectoryObject>();
+            DirectoriesMissingRight = new List<DirectoryObject>();
+            SubdirectoryDiffs = new List<DirectoryObjectDiff>();
         }
 
-        #endregion
+        public DirectoryObject Left { get; private set; }
 
-        #region Static Members
+        public DirectoryObject Right { get; private set; }
 
 
-        public static DirectoryObjectDiff CompareDirectories(DirectoryObject left, DirectoryObject right, string leftName = "", string rightName = "")
+        public IEnumerable<FileObject> FilesMissingLeft { get; private set; }
+
+        public IEnumerable<FileObject> FilesMissingRight { get; private set; }
+
+        public IEnumerable<FileObjectDiff> ConflictedFiles { get; private set; }
+
+
+        public IEnumerable<DirectoryObject> DirectoriesMissingLeft { get; private set; }
+
+        public IEnumerable<DirectoryObject> DirectoriesMissingRight { get; private set; }
+
+        public IEnumerable<DirectoryObjectDiff> SubdirectoryDiffs { get; set; }
+
+
+
+        public bool IsEmpty()
         {
-            var result = new DirectoryObjectDiff() { LeftName = leftName, RightName = rightName };
+            return !(FilesMissingLeft.Any() || FilesMissingRight.Any() || ConflictedFiles.Any() ||
+                    DirectoriesMissingLeft.Any() || DirectoriesMissingRight.Any() || SubdirectoryDiffs.Any());
+        }
 
 
-            compareDirectoriesHelper(left, right, result);
+        private void getDifferences()
+        {
+ 
+            //compare files
+
+            //files that only exist in left directory
+            var filesLeftOnly = Left.Files.Where(x => !Right.Files.Any(y => y.Name.ToLower() == x.Name.ToLower()));
+
+            //files that only exist in right directory
+            var filesRightOnly = Right.Files.Where(x => !Left.Files.Any(y => y.Name.ToLower() == x.Name.ToLower()));
+
+            FilesMissingLeft = filesRightOnly;
+            FilesMissingRight = filesLeftOnly;
             
+            
+            //files that exist in both directories
+            var filesLeftAndRight = Left.Files.Where(x => Right.Files.Any(y => y.Name.ToLower() == x.Name.ToLower()))
+                             .Union(Right.Files.Where(x => Left.Files.Any(y => y.Name.ToLower() == x.Name.ToLower())))
+                             .Select(x => x.Name);
 
-            return result;
-        }
-
-
-        private static void compareDirectoriesHelper(DirectoryObject left, DirectoryObject right, DirectoryObjectDiff result)
-        {
-
-            //      ##  Items missing in left Directory  ##
-
-            //find directories that exist in right but not in left
-            var dirsMissingLeft = right.Directories.Where(x => !left.Directories.Any(y => y.Name.ToLower() == x.Name.ToLower()))                                                
-                                                   .Select(x => getAllSubdirectories(x))   
-                                                   .Aggregate((l1, l2) => l1.Union<DirectoryObject>(l2));
-
-            //find files that exist in right but not in left
-            var filesMissingLeft = right.Files.Where(x => !left.Files.Any(y => y.Name.ToLower() == x.Name.ToLower()));
-            //add all files from all the directories missing from left
-            filesMissingLeft = filesMissingLeft.Union(dirsMissingLeft.Select(x => x.Files).Aggregate((l1, l2) => l1.Union(l2)));
-
-            //copy directories in the list and remove the files
-            dirsMissingLeft = dirsMissingLeft.Select(x => { var copy = x.Clone(0); copy.ClearFiles(); return copy; });
-
-
-
-            //      ##  Items missing in right Directory    ##  
-
-            //find directories that exist in left but not in right
-            var dirsMissingRight = left.Directories.Where(x => !right.Directories.Any(y => y.Name.ToLower() == x.Name.ToLower()))
-                                                   .Select(x => getAllSubdirectories(x))
-                                                   .Aggregate((l1, l2) => l1.Union<DirectoryObject>(l2));
-                                                  
-
-            //find files that exist in left but not in right
-            var filesMissingRight = left.Files.Where(x => !right.Files.Any(y => y.Name.ToLower() == x.Name.ToLower()));
-            //add all files from all the directories missing from right
-            filesMissingRight = filesMissingRight.Union(dirsMissingRight.Select(x => x.Files).Aggregate((l1, l2) => l1.Union(l2)));
-
-            //make dirsMissingLeft (list of trees) to a simple list of directories (minus files)
-            dirsMissingRight = dirsMissingRight.Select(x => { var copy = x.Clone(0); copy.ClearFiles(); return copy; });
-
-
-
-            //      ##  Conflicts   ##
-
-            //find files that exist in both directories but are not equal
-            var fileConflicts = right.Files.Where(x => left.Files.Any(y => y.Name.ToLower() == x.Name.ToLower()))
-                                           .Select(x => new Tuple<FileObject, FileObject>(left.GetFile(x.Name), x))
-                                           .Where(x => !compareFileObject(x.Item1, x.Item2));
-
-
-            //add the newy-found conflicts to the existing result
-            result.DirectoriesMissigFromLeft = result.DirectoriesMissigFromLeft.Union<DirectoryObject>(dirsMissingLeft).ToList<DirectoryObject>();
-            result.DirectoriesMissingFromRight = result.DirectoriesMissingFromRight.Union<DirectoryObject>(dirsMissingRight).ToList<DirectoryObject>();
-
-            result.FilesMissingFromLeft = result.FilesMissingFromLeft.Union<FileObject>(filesMissingLeft);
-            result.FilesMissingFromRight = result.FilesMissingFromRight.Union<FileObject>(filesMissingRight);
-
-
-            //      ##  Recursion   ##
-
-            foreach (var item in left.Directories.Where(x => right.Directories.Any(y => y.Name.ToLower() == x.Name.ToLower())))
+            List<FileObjectDiff> fileDiffs = new List<FileObjectDiff>();
+            foreach (var name in filesLeftAndRight)
             {
-                compareDirectoriesHelper(item, right.GetDirectory(item.Name), result);
-            }
+                var left = Left.GetFile(name);
+                var right = Right.GetFile(name);
 
-
-        }
-
-
-        private static bool compareFileObject(FileObject file1, FileObject file2)
-        {
-            throw new NotImplementedException();
-        }
-
-
-        private static IEnumerable<DirectoryObject> getAllSubdirectories(DirectoryObject dir)
-        {
-
-            var result = new List<DirectoryObject>();
-        
-            result.Add(dir);
-
-            for (int i = 0; i < result.Count; i++)
-            {
-                foreach (var item in result[i].Directories)
+                var diff = new FileObjectDiff(left, right);
+                
+                if (!diff.IsEmpty())
                 {
-                    result.Add(item);
+                    fileDiffs.Add(diff);
                 }
             }
 
-            return result;
+            ConflictedFiles = fileDiffs;
+
+
+            //compare directories
+            //directories that only exist in the left directory
+            var dirsLeftOnly = Left.Directories.Where(l => Right.Directories.Any(r => r.Name.ToLower() == l.Name.ToLower()));
+
+            //directories that only exist in the right directory
+            var dirsRightOnly = Right.Directories.Where(r => Left.Directories.Any(l => l.Name.ToLower() == r.Name.ToLower()));
+
+
+            DirectoriesMissingLeft = dirsRightOnly;
+            DirectoriesMissingRight = dirsLeftOnly;
+
+            //directories that exist in both left and right directory
+            var dirsLeftAndRight = Left.Directories.Where(l => Right.Directories.Any(r=> r.Name.ToLower() == l.Name.ToLower()))
+                            .Union(Right.Directories.Where(r => Left.Directories.Any(l => l.Name.ToLower() == r.Name.ToLower())))
+                            .Select(x => x.Name);
+
+            List<DirectoryObjectDiff> diffs = new List<DirectoryObjectDiff>();
+
+            foreach (var name in dirsLeftAndRight)
+            {
+                var left = Left.GetDirectory(name);
+                var right = Right.GetDirectory(name);
+
+                var diff = new DirectoryObjectDiff(left, right);
+                diff.getDifferences();
+
+                if (!diff.IsEmpty())
+                {
+                    diffs.Add(diff);
+                }
+            }
+
+            SubdirectoryDiffs = diffs;
+
 
         }
-
-        private static IEnumerable<FileObject> getAllFiles(DirectoryObject dir)
-        {
-            var dirs = getAllSubdirectories(dir);
-
-            return dirs.Select(x => x.Files).Aggregate((l1, l2) => l1.Union(l2));
-        }
-
-        #endregion
-
 
     }
 }

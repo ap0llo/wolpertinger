@@ -483,7 +483,6 @@ namespace Wolpertinger.Fileserver
 				return new ErrorResult(RemoteErrorCode.MountError);
 			}
 
-
 			try
 			{
 				snapshot.FilesystemState = loadVirtualPath("/");
@@ -520,7 +519,38 @@ namespace Wolpertinger.Fileserver
 			return new ResponseResult(snapshot.Info.Id.ToString());
 		}
 
+        [TrustLevel(4)]
+        [MethodCallHandler(FileShareMethods.DeleteSnapshot)]
+        public CallResult DeleteSnapshot(Guid id)
+        {
+            //Get list of all snapshots from the database
+            List<Guid> snapshotIndex;
+            try
+            {
+                snapshotIndex = BinaryRage.DB<List<Guid>>.Get(SnapshotsIndexDbKey, SnapshotDbFolder);
+            }
+            catch (DirectoryNotFoundException)
+            {
+                //Snapshot-Index was not found in database => create index
+                snapshotIndex = new List<Guid>();
+            }
 
+
+            if (snapshotIndex.Contains(id))
+            {
+                snapshotIndex.Remove(id);
+                BinaryRage.DB<List<Guid>>.Insert(SnapshotsIndexDbKey, snapshotIndex, SnapshotDbFolder);
+                
+                BinaryRage.DB<Snapshot>.Remove(id.ToString(), SnapshotDbFolder);
+                
+                return new VoidResult();
+            }
+            else
+            {
+                return new ErrorResult(RemoteErrorCode.ItemNotFoundError);
+            }
+
+        }
 
 
 		protected static void scanDirectory(string path, bool newThread = true)
@@ -558,7 +588,6 @@ namespace Wolpertinger.Fileserver
 			
 
 		}
-
 
 		private DirectoryObject loadVirtualPath(string virtualPath, int depth = -1)
 		{

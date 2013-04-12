@@ -104,7 +104,9 @@ namespace Wolpertinger.Manager.CLI
             commands.Add("fileshare.set-rootdirectory", new CommandInfo() { ParameterCount = 1, CommandMethod = fileshareSetRootDirectoryCommand });
 
             commands.Add("fileshare.create-snapshot", new CommandInfo() { ParameterCount = 0, CommandMethod = fileshareCreateSnapshotCommand });
+            commands.Add("fileshare.delete-snapshot", new CommandInfo() { ParameterCount = 1, CommandMethod = fileshareDeleteSnapshotCommand });
             commands.Add("fileshare.get-snapshots", new CommandInfo() { ParameterCount = 0, CommandMethod = fileshareGetSnapshotsCommand });
+            commands.Add("fileshare.compare-snapshots", new CommandInfo() { ParameterCount = 2, CommandMethod = fileshareCompareSnapshotsCommand });
         }
 
 
@@ -472,21 +474,28 @@ namespace Wolpertinger.Manager.CLI
 
         private void fileshareCreateSnapshotCommand(IEnumerable<string> obj)
         {
-            try
-            {
-                Program.StatusLine(this, "Creating Snapshot");
-                var task = fileShareComponent.CreateSnapshotAsync();
-                task.Wait();
-                Program.StatusLine(this, "Snapshot created");
-                Program.OutputLine(this, "Id: " + task.Result.ToString());
-            }
-            catch (RemoteErrorException)
-            { }
-            catch (TimeoutException)
-            { }
+            Program.StatusLine(this, "Creating Snapshot");
+            var task = fileShareComponent.CreateSnapshotAsync();
+            task.Wait();
+            Program.StatusLine(this, "Snapshot created");
+            Program.OutputLine(this, "Id: " + task.Result.ToString());
         }
 
+        private void fileshareDeleteSnapshotCommand(IEnumerable<string> cmds)
+        {
+            Guid id;
+            if(!Guid.TryParse(cmds.First(), out id))
+            {
+                Program.UnknownCommand(this);
+            }
 
+            fileShareComponent.DelteSnapshotAsync(id);            
+        }
+
+        private void fileshareCompareSnapshotsCommand(IEnumerable<string> cmds)
+        {
+            throw new NotImplementedException();
+        }
 
         #region Event Handlers
 

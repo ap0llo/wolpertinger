@@ -225,6 +225,17 @@ namespace Wolpertinger.Manager.CLI
             });
         }
 
+
+        public Task DelteSnapshotAsync(Guid id)
+        {
+            return Task.Factory.StartNew(delegate
+            {
+                ClientConnection.CallRemoteFunction(ComponentNamesExtended.FileShare,
+                    FileShareMethods.DeleteSnapshot,
+                    id);
+            });
+        }
+
     }
 
 }

@@ -51,6 +51,7 @@
     <Compile Include="DirectoryObject.cs" />
     <Compile Include="DirectoryObjectDiff.cs" />
     <Compile Include="FileObject.cs" />
+    <Compile Include="FileObjectDiff.cs" />
     <Compile Include="FilesystemObject.cs" />
     <Compile Include="IHashingService.cs" />
     <Compile Include="MountException.cs" />

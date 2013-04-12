@@ -47,6 +47,7 @@ namespace Wolpertinger.Core
         public const string GetRootDirectoryPath = "GetRootDirectoryPath";
         public const string GetSnapshots = "GetSnapshots";
         public const string CreateSnapshot = "CreateSnapshot";
+        public const string DeleteSnapshot = "DeleteSnapshot";
 
     }
 
