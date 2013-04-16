@@ -62,6 +62,7 @@
   <ItemGroup>
     <Compile Include="KeyValueStoreTests.cs" />
     <Compile Include="TestHashingService.cs" />
+    <Compile Include="InteropTests.cs" />
     <Compile Include="XmlSerialization\ClientInfoSerializationTests.cs" />
     <Compile Include="XmlSerialization\RemoteMethodResponseSerializationTests.cs" />
     <Compile Include="XmlSerialization\RemoteMethodCallSerializationTests.cs" />
