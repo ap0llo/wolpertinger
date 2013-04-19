@@ -179,27 +179,23 @@ namespace Wolpertinger.Core
         {
             applicationDataFolder = settingsFolder;
 
+            DefaultConnectionFactory.Initialize();
+            IConnectionFactory factory = new DefaultConnectionFactory();
+
             settingsFile = new KeyValueStore(Path.Combine(settingsFolder, "Account.xml"));
 
             if (settingsFile != null)
             {
                 _clusterKey = settingsFile.GetItem<string>("ClusterKey").GetBytesBase64();
 
-
                 //Set up XmppMessagingClient and connect
-                var messagingClient = new XmppMessagingClient()
-                    {
-                        Username = settingsFile.GetItem<string>("XmppUsername"),
-                        Server = settingsFile.GetItem<string>("XmppServer"),
-                        Password = settingsFile.GetItem<string>("XmppPassword")
-                    };
+                var messagingClient = factory.GetMessagingClient("Xmpp", "Wolpertinger_Main");
 
                 messagingClients.Add(messagingClient);
                 messagingClient.MessageReceived += messagingClient_MessageReceived;
                 messagingClient.PeerDisconnected += messagingClient_PeerDisconnected;
                 messagingClient.Connect();
    
-
 
                 var clients = settingsFile.GetItem<IEnumerable<object>>("KnownClients");
                 if (clients == null)
@@ -232,13 +228,15 @@ namespace Wolpertinger.Core
         /// </returns>
         public IClientConnection AddClientConnection(string target)
         {
-            if (clientConnections.Count < AllowedConnectionCount ||AllowedConnectionCount < 0)
+            if (clientConnections.Count < AllowedConnectionCount || AllowedConnectionCount < 0)
             {
+
+                string resource = Guid.NewGuid().ToString();
+
                 //get a new ClientConneciton using the ComponentFactory
-                IClientConnection connection = ConnectionFactory.GetClientConnection();
-                connection.Target = target;
+                IClientConnection connection = ConnectionFactory.GetClientConnection(target, resource);                
                 connection.ConnectionManager = this;
-                connection.WtlpClient = new DefaultWtlpClient(this.messagingClients.First(), target);
+                
                 clientConnections.Add(target.ToLower(), connection);
 
                 //subscribe to the connection's reset event, so it can be removed when it has been reset
@@ -249,9 +247,13 @@ namespace Wolpertinger.Core
 
                 //save new connection as known client
                 if (knownClientsCache.ContainsKey(target))
+                {
                     knownClientsCache[target] = connection.GetClientInfo();
+                }
                 else
+                {
                     knownClientsCache.Add(target, connection.GetClientInfo());
+                }
 
                 saveKnownClients();
 
@@ -409,6 +411,8 @@ namespace Wolpertinger.Core
                 {
                     var connection = AddClientConnection(e.Value.Sender);
                     connection.AcceptConnections = this.AcceptIncomingConnections && !(clientConnections.Count < AllowedConnectionCount);
+
+                    connection.WtlpClient.MessagingClient.Connect();
 
                     connection.WtlpClient.HandleMessage(e.Value.MessageBody);
 

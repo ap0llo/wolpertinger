@@ -30,7 +30,12 @@ namespace Wolpertinger.Core
         /// <summary>
         /// Gets a new instance of a implementation of IClientConnection
         /// </summary>
+        /// <param name="resource">The local client's resource that will be used to connect</param>
         /// <returns>Returns a new instance of implementation of IClientConnection or null if no implementation could be found</returns>
-        IClientConnection GetClientConnection();
+        IClientConnection GetClientConnection(string target, string resource);
+
+
+        IMessagingClient GetMessagingClient(string servicename, string resource);
+
     }
 }

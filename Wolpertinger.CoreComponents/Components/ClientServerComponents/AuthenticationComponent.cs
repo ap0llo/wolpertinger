@@ -56,11 +56,27 @@ namespace Wolpertinger.Core
         {
             return Task.Factory.StartNew<bool>(delegate
             {
-                bool accepted = (bool)ClientConnection.CallRemoteFunction(ComponentNamesExtended.Authentication, AuthenticationMethods.EstablishConnection);
+                var resource = (string)ClientConnection.CallRemoteFunction(ComponentNamesExtended.Authentication, AuthenticationMethods.EstablishConnection);
+
+                Guid resourceId;
+                bool accepted = (Guid.TryParse(resource, out resourceId) && resourceId != Guid.Empty);
+
                 this.ClientConnection.Connected = accepted;
 
                 this.ClientConnection.MyTrustLevel = 1;
                 this.ClientConnection.TrustLevel = 1;
+
+                var jid = this.ClientConnection.Target;
+                if (jid.Contains('/'))
+                {
+                    jid = jid.Remove(jid.IndexOf('/'));
+                }
+
+                jid += ("/" + resource);
+
+
+                this.ClientConnection.Target = jid;
+                this.ClientConnection.WtlpClient.Recipient = jid;
 
                 return accepted;
             });
@@ -218,8 +234,11 @@ namespace Wolpertinger.Core
                 this.ClientConnection.Connected = true;
             }
 
-            //return result;/
-            return new ResponseResult(accepted);
+            //return result
+
+            var resource = accepted ? this.ClientConnection.WtlpClient.MessagingClient.Resource : Guid.Empty.ToString();
+
+            return new ResponseResult(resource);
         }
 
         /// <summary>

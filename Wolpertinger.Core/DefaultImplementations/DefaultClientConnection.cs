@@ -150,6 +150,7 @@ namespace Wolpertinger.Core
             this.ComponentFactory = new DefaultComponentFactory();
             this.AcceptConnections = true;
             this.timeoutTimer.Elapsed += timeoutTimer_Elapsed;
+            
         }
 
 

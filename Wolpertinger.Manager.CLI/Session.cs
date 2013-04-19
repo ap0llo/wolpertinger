@@ -52,7 +52,7 @@ namespace Wolpertinger.Manager.CLI
             this.Target = target;
             this.Name = target;
 
-            this.connection = connectionManager.GetClientConnection(target);
+            this.connection = connectionManager.GetClientConnection(target);            
             if (connection == null)
             {
                 connection = connectionManager.AddClientConnection(target);
@@ -60,6 +60,9 @@ namespace Wolpertinger.Manager.CLI
                 connection.ConnectionTimedOut += connection_ConnectionTimedOut;
                 connection.RemoteErrorOccurred += connection_RemoteErrorOccurred;
             }
+
+            connection.WtlpClient.MessagingClient.Connect();
+
             //authComponent = (AuthenticationComponent)connection.GetClientComponent(ComponentNamesExtended.Authentication);
             //clientInfoComponent = (ClientInfoClientComponent)connection.GetClientComponent(ComponentNamesExtended.ClientInfoProvider);
             //loggingConfigurator = (XmppLoggingConfiguratorComponent)connection.GetClientComponent(ComponentNamesExtended.XmppLoggingConfigurator);
@@ -131,6 +134,8 @@ namespace Wolpertinger.Manager.CLI
 
             try
             {
+                this.connection.WtlpClient.MessagingClient.Resource = "Wolpertinger_Main";
+
                 if (authComponent.EstablishConnectionAsync().Result)
                 {
                     Program.StatusLine(this, "Exchanging keys");

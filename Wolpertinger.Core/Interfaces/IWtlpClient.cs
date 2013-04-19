@@ -32,7 +32,7 @@ namespace Wolpertinger.Core
         /// <summary>
         /// The address of the WltpClient's target 
         /// </summary>
-        string Recipient { get; }
+        string Recipient { get; set; }
 
         /// <summary>
         /// Specifies whether messages will be compressed before being sent

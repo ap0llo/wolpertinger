@@ -25,6 +25,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Wolpertinger.Core
@@ -38,6 +39,7 @@ namespace Wolpertinger.Core
         private XmppClientConnection xmpp;
         private ConcurrentQueue<Message> messageQueue = new ConcurrentQueue<Message>();
 
+        private EventWaitHandle connectWaitHandle = new EventWaitHandle(false, EventResetMode.AutoReset);
 
         #region IMessagingClient Members
 
@@ -93,10 +95,15 @@ namespace Wolpertinger.Core
         /// </summary>
         public string Username { get; set; }
 
+        public string Resource
+        {
+            get { return xmpp.Resource; }
+            set { xmpp.Resource = value; }
+        }
+
         /// <summary>
         /// The password for connecting to the server
         /// </summary>
-
         public string Password  { get; set; }
 
 
@@ -105,8 +112,7 @@ namespace Wolpertinger.Core
         /// </summary>
         public void Connect()
         {
-            //Initialize XmppClientConnection
-            xmpp = new XmppClientConnection();
+            //Initialize XmppClientConnection            
             xmpp.Show = ShowType.chat;
 
             //Set event handlers
@@ -119,10 +125,11 @@ namespace Wolpertinger.Core
             logger.Info("Connecting to Xmpp-Server, JabberId {0}@{1}", Username, Server);
 
             xmpp.Server = Server;
-            xmpp.Resource = "";            
 
             //Connect to the server
             xmpp.Open(Username, Password);
+
+            connectWaitHandle.WaitOne();
 
         }
 
@@ -181,7 +188,10 @@ namespace Wolpertinger.Core
 
         #endregion IMessagingClient Members
 
-
+        public XmppMessagingClient()
+        {
+            xmpp = new XmppClientConnection();
+        }
 
         #region Xmpp Event Handlers
 
@@ -192,7 +202,9 @@ namespace Wolpertinger.Core
 
         private void xmpp_OnLogin(object sender)
         {
+            connectWaitHandle.Set();
             onConnectedChanged();
+
         }
 
         private void xmpp_OnPresence(object sender, Presence pres)
@@ -212,14 +224,17 @@ namespace Wolpertinger.Core
                 {
                     //ignore empty messages
                     if (msg.Body.IsNullOrEmpty() || msg.Error != null)
+                    {
                         return;
+                    }
 
                     //get the message's sender, remove XMPP resource from the message
                     var messageSender = msg.From.ToString();
-                    messageSender = messageSender.Contains("/") ? messageSender.Substring(0, messageSender.IndexOf("/")) : messageSender;
+                    var myaddress = String.Format("{0}@{1}", this.Username, this.Server);
+                    myaddress += this.Resource.IsNullOrEmpty() ? "" : "/" + this.Resource;
 
                     //if messages bounced and sender is this client itself, ignore the message
-                    if (messageSender.ToLower() == String.Format("{0}@{1}", this.Username, this.Server).ToLower())
+                    if (messageSender.ToLower() == myaddress.ToLower())
                     {
                         logger.Warn("Bounced message revceived. Ignoring");
                         return;
