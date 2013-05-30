@@ -95,7 +95,7 @@ namespace Wolpertinger.Core
         /// </summary>
         public string Username { get; set; }
 
-        public string Resource
+        public string MyResource
         {
             get { return xmpp.Resource; }
             set { xmpp.Resource = value; }
@@ -193,6 +193,8 @@ namespace Wolpertinger.Core
             xmpp = new XmppClientConnection();
         }
 
+
+
         #region Xmpp Event Handlers
 
         private void xmpp_OnError(object sender, Exception ex)
@@ -231,7 +233,7 @@ namespace Wolpertinger.Core
                     //get the message's sender, remove XMPP resource from the message
                     var messageSender = msg.From.ToString();
                     var myaddress = String.Format("{0}@{1}", this.Username, this.Server);
-                    myaddress += this.Resource.IsNullOrEmpty() ? "" : "/" + this.Resource;
+                    myaddress += this.MyResource.IsNullOrEmpty() ? "" : "/" + this.MyResource;
 
                     //if messages bounced and sender is this client itself, ignore the message
                     if (messageSender.ToLower() == myaddress.ToLower())
@@ -247,15 +249,14 @@ namespace Wolpertinger.Core
                 });
         }
 
-
         private void xmpp_OnClose(object sender)
         {
             logger.Info("Xmpp Connection closed");
             onConnectedChanged();
         }
 
-
         #endregion Xmpp Event Handlers
+
 
 
         #region Event Raisers

@@ -197,47 +197,79 @@ namespace Wolpertinger.Fileserver
 		/// <param name="depth">Specifies how many hierarchy-levels of the file-system to include in the repsonse</param>
 		[TrustLevel(3)]
 		[MethodCallHandler(FileShareMethods.GetDirectoryInfo)]
-		public CallResult GetDirectoryInfo(string virtualPath, int depth)
+		public CallResult GetDirectoryInfo(string virtualPath, int depth, Guid snapshotId)
 		{
-
-			logger.Info("Getting Directory-Info for {0}, depth {1}", virtualPath, depth);
-
-			//check for preivous mount-errors
-			if (mountErrorOccurred)
-			{
-				logger.Error("Mount error found");
-				return new ErrorResult(RemoteErrorCode.MountError);
-			}
-
-			try
-			{
-				if (!(checkPermission(virtualPath) || anyChildPermitted(virtualPath)))
-				{
-					logger.Error("Access violation found");
-					return new ErrorResult(RemoteErrorCode.NotAuthorizedError);
-				}
+            //check for preivous mount-errors
+            if (mountErrorOccurred)
+            {
+                logger.Error("Mount error found");
+                return new ErrorResult(RemoteErrorCode.MountError);
+            }
 
 
-				var dir = loadVirtualPath(virtualPath, depth);
-
-				//remove directories from the result the caller is not permitted to see
-				removeUnpermittedDirs(dir);
-
-				if (virtualPath == "/")
-					dir.Name = "";
 
 
-				logger.Info("Returning directory information");
+            if (snapshotId == Guid.Empty)
+            {
+                logger.Info("Getting Directory-Info for {0}, depth {1}", virtualPath, depth);
 
-				return new ResponseResult(dir);
+                try
+                {
+                    if (!(checkPermission(virtualPath, permissions) || anyChildPermitted(virtualPath)))
+                    {
+                        logger.Error("Access violation found");
+                        return new ErrorResult(RemoteErrorCode.NotAuthorizedError);
+                    }
 
-			}
-			catch (DirectoryNotFoundException)
-			{
-				logger.Error("Directory or Sub-Directory not found");
-				return new ErrorResult(RemoteErrorCode.ItemNotFoundError);
-			}
 
+                    var dir = loadVirtualPath(virtualPath, depth);
+
+                    //remove directories from the result the caller is not permitted to see
+                    removeUnpermittedDirs(dir, permissions);
+
+                    if (virtualPath == "/")
+                        dir.Name = "";
+
+
+                    logger.Info("Returning directory information");
+
+                    return new ResponseResult(dir);
+
+                }
+                catch (DirectoryNotFoundException)
+                {
+                    logger.Error("Directory or Sub-Directory not found");
+                    return new ErrorResult(RemoteErrorCode.ItemNotFoundError);
+                }
+            }
+            else 
+            {
+                try
+                {
+                    var snapshot = BinaryRage.DB<Snapshot>.Get(snapshotId.ToString(), SnapshotDbFolder);
+                    
+                    var dir = snapshot.FilesystemState.Clone(depth);
+
+                    if (!(checkPermission(virtualPath, snapshot.Permissions.ToDictionary(x => x.Path.ToLower())) || anyChildPermitted(virtualPath)))
+                    {
+                        logger.Error("Access violation found");
+                        return new ErrorResult(RemoteErrorCode.NotAuthorizedError);
+                    }
+
+                    removeUnpermittedDirs(dir, snapshot.Permissions.ToDictionary(x => x.Path.ToLower()));
+
+                    if (virtualPath == "/")
+                    {
+                        dir.Name = "";
+                    }
+
+                    return new ResponseResult(dir);
+                }
+                catch (DirectoryNotFoundException)
+                {
+                    return new ErrorResult(RemoteErrorCode.ItemNotFoundError);
+                }
+            }
 		}
 
 
@@ -266,7 +298,7 @@ namespace Wolpertinger.Fileserver
 
 			try
 			{
-				if (!checkPermission(virtualPath))
+				if (!checkPermission(virtualPath, permissions))
 				{
 					logger.Error("Permission denied");
 					return new ErrorResult(RemoteErrorCode.NotAuthorizedError);
@@ -344,7 +376,7 @@ namespace Wolpertinger.Fileserver
 		public CallResult GetPermission(string path)
 		{
 			logger.Info("Permission for {0} requested", path);
-			return new ResponseResult(checkPermission(path));
+			return new ResponseResult(checkPermission(path, permissions));
 		}
 
 		/// <summary>
@@ -587,6 +619,9 @@ namespace Wolpertinger.Fileserver
 			}
 
 		}
+        
+        
+
 
 		protected static void scanDirectory(string path, bool newThread = true)
 		{
@@ -670,12 +705,12 @@ namespace Wolpertinger.Fileserver
 			return dir;
 		}
 
-		private void removeUnpermittedDirs(DirectoryObject dir)
+		private void removeUnpermittedDirs(DirectoryObject dir, Dictionary<string, Permission> permissions)
 		{
 			bool childPermitted = false;
 			foreach (DirectoryObject item in dir.Directories.ToList<DirectoryObject>())
 			{
-				bool itemPermitted = checkPermission(item.Path) || anyChildPermitted(item.Path);
+				bool itemPermitted = checkPermission(item.Path, permissions) || anyChildPermitted(item.Path);
 
 				childPermitted = childPermitted || itemPermitted;
 
@@ -685,11 +720,11 @@ namespace Wolpertinger.Fileserver
 				}
 				else
 				{
-					removeUnpermittedDirs(item);
+					removeUnpermittedDirs(item, permissions);
 				}
 			}
 
-			if (!checkPermission(dir.Path))
+			if (!checkPermission(dir.Path, permissions))
 			{
 				dir.ClearFiles();
 			}
@@ -727,7 +762,7 @@ namespace Wolpertinger.Fileserver
 			storage.SaveItem("permissions", permissions.Values);
 		}
 
-		protected Permission getPermission(string path)
+		protected Permission getPermission(string path, Dictionary<string, Permission> permissions)
 		{
 			path = path.ToLower();
 			if (permissions.ContainsKey(path))
@@ -747,7 +782,7 @@ namespace Wolpertinger.Fileserver
 			return null;
 		}
 
-		protected bool checkPermission(string path)
+		protected bool checkPermission(string path, Dictionary<string, Permission> permissions)
 		{
 			if (ClientConnection.TrustLevel == 4)
 			{
@@ -755,7 +790,7 @@ namespace Wolpertinger.Fileserver
 			}
 			else
 			{
-				Permission p = getPermission(path);
+				Permission p = getPermission(path, permissions);
 				if (p != null && p.PermittedClients.Contains(this.ClientConnection.Target))
 				{
 					return true;

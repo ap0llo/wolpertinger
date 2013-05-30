@@ -70,7 +70,7 @@ namespace Wolpertinger.Core
             if (servicename.ToLower() == "xmpp")
             {
                 var messagingClient = new XmppMessagingClient();
-                messagingClient.Resource = resource;
+                messagingClient.MyResource = resource;
                 messagingClient.Username = username;
                 messagingClient.Password = password;
                 messagingClient.Server = server;

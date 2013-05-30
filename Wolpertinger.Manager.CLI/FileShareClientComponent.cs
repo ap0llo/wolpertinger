@@ -72,7 +72,7 @@ namespace Wolpertinger.Manager.CLI
         /// Asynchronously calls the "GetDirectoryInfo" RemoteMethod on the target client and 
         /// raises the GetDirectoryInfoCompleted event when the response is receive
         /// </summary>
-        public Task<DirectoryObject> GetDirectoryInfoAsync(string virtualPath, int depth)
+        public Task<DirectoryObject> GetDirectoryInfoAsync(string virtualPath, int depth, Guid? snapshotId = null)
         {
             return Task.Factory.StartNew<DirectoryObject>(delegate
             {
@@ -80,7 +80,8 @@ namespace Wolpertinger.Manager.CLI
                     ComponentNamesExtended.FileShare,
                     FileShareMethods.GetDirectoryInfo,
                     virtualPath,
-                    depth);
+                    depth,
+                    snapshotId.HasValue ? snapshotId.Value : Guid.Empty);
             });
         }
 

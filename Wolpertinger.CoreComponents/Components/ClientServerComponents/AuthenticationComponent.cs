@@ -236,7 +236,7 @@ namespace Wolpertinger.Core
 
             //return result
 
-            var resource = accepted ? this.ClientConnection.WtlpClient.MessagingClient.Resource : Guid.Empty.ToString();
+            var resource = accepted ? this.ClientConnection.WtlpClient.MessagingClient.MyResource : Guid.Empty.ToString();
 
             return new ResponseResult(resource);
         }

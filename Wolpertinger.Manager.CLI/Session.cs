@@ -134,7 +134,7 @@ namespace Wolpertinger.Manager.CLI
 
             try
             {
-                this.connection.WtlpClient.MessagingClient.Resource = "Wolpertinger_Main";
+                this.connection.WtlpClient.MessagingClient.MyResource = "Wolpertinger_Main";
 
                 if (authComponent.EstablishConnectionAsync().Result)
                 {
@@ -323,9 +323,28 @@ namespace Wolpertinger.Manager.CLI
 
         protected void fileshareGetDirectoryCommand(IEnumerable<string> cmds)
         {
+            var path = cmds.First();
+            Guid snapshotId = Guid.Empty;
+            if (path.Contains("@"))
+            {
+                var parts = path.Split('@');
+
+                if(parts.Length != 2)
+                {
+                    Program.UnknownCommand(this);
+                    return;
+                }
+
+                path = parts.First();
+                if (!Guid.TryParse(parts.Last(), out snapshotId))
+                {
+                    Program.UnknownCommand(this);
+                    return;
+                }
+            }
             try
             {
-                DirectoryObject dir = fileShareComponent.GetDirectoryInfoAsync(cmds.First(), 1).Result;
+                DirectoryObject dir = fileShareComponent.GetDirectoryInfoAsync(cmds.First(), 1, snapshotId).Result;
                 printDirectoryObject(dir);
             }
             catch(RemoteErrorException)

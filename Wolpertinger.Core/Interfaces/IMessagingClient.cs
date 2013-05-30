@@ -58,7 +58,7 @@ namespace Wolpertinger.Core
         /// <summary>
         /// The resource gives details on the clients connection. This could be a XMPP resource, a network port or similar
         /// </summary>
-        string Resource { get; set; }
+        string MyResource { get; set; }
 
         /// <summary>
         /// The password for connecting to the server
