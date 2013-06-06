@@ -11,19 +11,18 @@ namespace Wolpertinger.Manager.CLI.Commands.XmppLogger
 
         protected XmppLoggingConfiguratorComponent getLoggerComponent()
         {
-            return new XmppLoggingConfiguratorComponent() { ClientConnection = Context.ActiveConnection };
+            return new XmppLoggingConfiguratorComponent() { ClientConnection = getClientConnection() };
         }
 
-        protected bool checkConnection()
+        protected IClientConnection getClientConnection()
         {
             if (Context.ActiveConnection == null)
             {
-                Context.WriteError("No active connection");
-                return false;
+                throw new CommandExecutionException("No active connection");
             }
             else
             {
-                return true;
+                return Context.ActiveConnection;
             }
         }
 

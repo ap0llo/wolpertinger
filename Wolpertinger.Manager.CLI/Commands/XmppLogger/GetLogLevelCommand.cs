@@ -10,23 +10,12 @@ namespace Wolpertinger.Manager.CLI.Commands.XmppLogger
     {
 
         public override void Execute()
-        {
-            if (!checkConnection())
-            {
-                return;
-            }
-            
+        {            
             var logger = getLoggerComponent();
 
-            try
-            {
-                string loglevel = logger.GetLoglevelAsync().Result.ToString();
-                Context.WriteOutput(loglevel.ToString());
-            }
-            catch (TimeoutException)
-            {
-                Context.WriteError("Connection timed out");
-            }
+            var loglevel = logger.GetLoglevelAsync().Result;
+
+            Context.WriteOutput(loglevel.ToString());
         }
     }
 }

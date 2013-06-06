@@ -316,11 +316,6 @@ namespace Wolpertinger.Manager.CLI
             return result;
         }
 
-
-
-       
-        
-
     }
 
 
@@ -361,20 +356,5 @@ namespace Wolpertinger.Manager.CLI
             this.Position = attribute.Position;
         }
 
-    }
-
-    public class CommandParserException : Exception
-    {
-        public CommandParserException(string message)
-            : base(message)
-        {
-
-        }
-
-
-        public CommandParserException(string format, params object[] args)
-            : this(String.Format(format, args))
-        {
-        }
     }
 }

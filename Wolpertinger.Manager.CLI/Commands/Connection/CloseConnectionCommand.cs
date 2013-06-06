@@ -13,7 +13,7 @@ namespace Wolpertinger.Manager.CLI.Commands.Connection
         {
             if (Context.ActiveConnection == null)
             {
-                Context.WriteError("No connection active");
+                abort("No connection active");
             }
             else
             {
@@ -23,8 +23,6 @@ namespace Wolpertinger.Manager.CLI.Commands.Connection
 
                 Context.ActiveConnection = null;
             }
-
-
         }
 
     }

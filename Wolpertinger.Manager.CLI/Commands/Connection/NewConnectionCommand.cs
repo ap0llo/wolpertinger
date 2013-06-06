@@ -18,7 +18,7 @@ namespace Wolpertinger.Manager.CLI.Commands.Connection
         {
             if (Context.ConnectionManager.GetClientConnection(Target) != null)
             {
-                Context.WriteError("Connection already exists");
+                abort("Connection already exists");
             }
             else
             {
@@ -26,8 +26,6 @@ namespace Wolpertinger.Manager.CLI.Commands.Connection
                             
             }
         }
-
-
 
     }
 }

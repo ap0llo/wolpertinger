@@ -14,14 +14,6 @@ namespace Wolpertinger.Manager.CLI.Commands.Fileshare
 
         public override void Execute()
         {
-            var connection = getClientConnection();
-
-            if (connection == null)
-            {
-                Context.WriteError("No active connection");
-                return;
-            }
-
             var client = getFileShareComponent();
 
             Context.WriteOutput(client.GetPermissionAsync(Path).Result.ToString());

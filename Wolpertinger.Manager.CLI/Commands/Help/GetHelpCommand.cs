@@ -13,9 +13,13 @@ namespace Wolpertinger.Manager.CLI.Commands.Help
 		[Parameter("CommandName", IsOptional=true, Position=1)]
 		public string CommandName { get; set; }
 
+
 		public override void Execute()
 		{
+			//Get a list of all commands known to the CommandParser
 			var allCommands = Context.CommadParser.KnownCommands.OrderBy(x => getCommandName(x));
+
+			//if CommandName has not been specified, print a list of all available command
 			if (CommandName == null)
 			{
 				foreach (var cmd in allCommands)
@@ -23,19 +27,23 @@ namespace Wolpertinger.Manager.CLI.Commands.Help
 					printCommadName(cmd);
 				}
 			}
+			//if CommandName has been specified, find all commands that match that name
 			else
 			{
 				var cmds = allCommands.Where(x => (x.Module + "." + x.Verb + "-" + x.Noun).ToLower().Contains(CommandName.ToLower()));
 				var resultCount = cmds.Count();
 
+				//No command found => error
 				if(resultCount == 0)
 				{
-					Context.WriteError("Command not found");
+					throw new CommandExecutionException("Command not found");
 				}
+				//if only one result was found, display detailed help for that command
 				else if (resultCount == 1)
 				{
 					printCommandDetails(cmds.First());
 				}
+				//if more than 1 command has been found, display a list of all matching commands
 				else
 				{
 					foreach (var cmd in cmds)
@@ -47,6 +55,8 @@ namespace Wolpertinger.Manager.CLI.Commands.Help
 
 		}
 
+
+		#region Private Implementation
 
 		private void printCommadName(CommandInfo cmd)
 		{
@@ -71,6 +81,8 @@ namespace Wolpertinger.Manager.CLI.Commands.Help
 			}
 			Context.WriteOutput();
 		}
+
+		#endregion
 
 	}
 }

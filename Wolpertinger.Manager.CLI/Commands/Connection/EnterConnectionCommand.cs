@@ -19,7 +19,7 @@ namespace Wolpertinger.Manager.CLI.Commands.Connection
 
             if (connection == null)
             {
-                Context.WriteError("Connection not found");
+                abort("Connection not found");
             }
             else
             {

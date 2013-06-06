@@ -10,7 +10,6 @@ namespace Wolpertinger.Manager.CLI.Commands.Wolpertinger
     [Command(CommandVerb.Get, "Version", "Wolpertinger")]
     class GetVersionCommand : CommandBase
     {
-
         public override void Execute()
         {
             Context.WriteOutput("Wolpertinger Manager {0}", Assembly.GetExecutingAssembly().GetName().Version.ToString());

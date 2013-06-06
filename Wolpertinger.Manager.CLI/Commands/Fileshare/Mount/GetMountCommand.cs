@@ -6,20 +6,11 @@ using Wolpertinger.FileShareCommon;
 
 namespace Wolpertinger.Manager.CLI.Commands.Fileshare
 {
-    [Command(CommandVerb.Get, "Mounts", "FileShare")]
-    class GetMountsCommand : FileShareCommand
+    [Command(CommandVerb.Get, "Mount", "FileShare")]
+    class GetMountCommand : FileShareCommand
     {
         public override void Execute()
         {
-            var connection = getClientConnection();
-
-            if (connection == null)
-            {
-                Context.WriteError("No active connection");
-                return;
-            }
-
-
             var client = getFileShareComponent();
 
             var mounts = client.GetMountsAsync().Result;

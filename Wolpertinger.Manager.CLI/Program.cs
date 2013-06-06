@@ -37,11 +37,6 @@ namespace Wolpertinger.Manager.CLI
 	{
 		internal static IConnectionManager connectionManager;
 
-        //internal static Dictionary<string, Session> sessions = new Dictionary<string,Session>();
-        //internal static Context activeContext;
-        //internal static Context mainContext;
-
-
 		private static object outputLock = new object();
 		private static bool waiting;
 
@@ -104,8 +99,8 @@ namespace Wolpertinger.Manager.CLI
 			//Console.WriteLine("Account: {0}@{1}", connectionManager.XmppUsername, connectionManager.XmppServer);
 			Console.WriteLine();
 
-            //ILogger consoleLogger = new Wolpertinger.Core.ConsoleLogger();
-            //LoggerService.SetLogger(consoleLogger);
+			//ILogger consoleLogger = new Wolpertinger.Core.ConsoleLogger();
+			//LoggerService.SetLogger(consoleLogger);
 
 			waitForCommand();
 
@@ -131,50 +126,18 @@ namespace Wolpertinger.Manager.CLI
 						waiting = false;
 					}
 
-                    try
-                    {
-                        var command = commandParser.GetCommand(input);
-                        command.Execute();
-                    }
-                    catch (CommandParserException ex)
-                    {
-                        writeLine("Error: " + ex.Message, ConsoleColor.Red);
-                    }
-                    catch (TimeoutException)
-                    {
-                        writeLine("Error: Connection timed out", ConsoleColor.Red);
-                    }
-                    catch (RemoteErrorException ex)
-                    {
-                        writeLine("Error: " + ex.Error.ToString(), ConsoleColor.Red);
-                    }
-					
+					try
+					{
+						var command = commandParser.GetCommand(input);
+						command.Execute();
+					}
+					catch (Exception ex)
+					{
+						handleException(ex);
+					}
 				}
-
-
-
-				//IEnumerable<string> cmds;
-				//try
-				//{
-				//    cmds = input.SpaceSplitString();
-				//}
-				//catch (FormatException)
-				//{
-				//    UnknownCommand();
-				//    continue;
-				//}
-
-
-				//if (cmds.Any())
-				//    activeContext.ParseCommands(cmds);
-			}			
+			}
 		}
-
-
-
-
-
-
 	 
 
 		#region Helpers
@@ -210,122 +173,66 @@ namespace Wolpertinger.Manager.CLI
 		{
 			lock (outputLock)
 			{
-				if(waiting)
+				if (waiting)
+				{
 					ConsoleHelper.ClearLine();
+				}
 				
 				ConsoleHelper.WriteLine(color, text);
-
-                //if (waiting)
-                //{
-                //    Console.Write("\n");                    
-                //    Console.Write("{0}> ", activeContext.Name);
-                //}
-
 			}
-		}	
-
-		
-
-
-		internal static Session getSession(string str)
-		{
-            //str = str.ToLower();
-            //if (str.StartsWith("#"))
-            //{
-            //    int value = 0;
-            //    if (int.TryParse(str.RemoveFirstChar(), out value) && value >= 0 && value < sessions.Count)
-            //    {
-            //        return sessions.Values.ElementAt(value);
-            //    }
-
-            //}
-            //else if(sessions.ContainsKey(str))
-            //{
-            //    return sessions[str];
-            //}
-
-			return null;
 		}
 
-
-
-		private static void UnknownCommand()
+		private static void handleException(Exception exception)
 		{
-			ErrorLine("Unknown Command or Invalid Parameters");
+			if (exception is AggregateException)
+			{
+				var ex = exception as AggregateException;
+				ex.Flatten();
+				foreach (var innerException in ex.InnerExceptions)
+				{
+					handleException(innerException);
+				}
+			}
+			else if (exception is TimeoutException)
+			{
+				ErrorLine("Connection timed out");
+			}
+			else if (exception is CommandExecutionException || 
+					exception is CommandParserException)
+			{
+				ErrorLine(exception.Message);
+			}
+			else if (exception is RemoteErrorException)
+			{
+				var ex = exception as RemoteErrorException;
+				ErrorLine(ex.Error.ErrorCode.ToString());
+			}
+			else
+			{
+				throw exception;
+			}
 		}
-
-		public static void UnknownCommand(Context context)
-		{
-            //ErrorLine(context, "Unknown Command or Invalid Parameters");
-		}
-
 
 
 		#endregion Helpers
 
 
-		#region Output 
+		#region Output
 
 		public static void OutputLine(string line)
 		{
 			writeLine(line, ConsoleColor.Yellow);
 		}
 
-        //public static void OutputLine(string format, params object[] args)
-        //{
-        //    OutputLine(String.Format(format, args));
-        //}
-
-        //public static void OutputLine(Context caller, string line)
-        //{
-        //    if (activeContext == caller)
-        //        OutputLine(line);
-        //    else
-        //        OutputLine(String.Format("{0}: {1}", caller.Name, line));
-        //}
-
-        //public static void OutputLine(Context caller, string format, params object[] args)
-        //{
-        //    OutputLine(caller, String.Format(format, args));
-        //}
-
-
 		public static void ErrorLine(string line)
 		{
 			writeLine(line, ConsoleColor.Red);
 		}
 
-        //public static void ErrorLine(Context caller, string error)
-        //{
-        //    if (activeContext == caller)
-        //        ErrorLine(error);
-        //    else
-        //        ErrorLine(String.Format("{0}: {1}", caller.Name, error));
-        //}
-
-        //public static void ErrorLine(Context caller, string format, params object[] args)
-        //{
-        //    ErrorLine(caller, String.Format(format, args));
-        //}
-
-
 		public static void StatusLine(string line)
 		{
 			writeLine(line, ConsoleColor.White);
 		}
-
-        //public static void StatusLine(Context caller,string line)
-        //{
-        //    if (activeContext == caller)
-        //        StatusLine(line);
-        //    else
-        //        StatusLine(String.Format("{0}: {1}", caller.Name, line));
-        //}
-
-        //public static void StatusLine(Context caller, string format, params object[] args)
-        //{
-        //    StatusLine(caller, String.Format(format, args));
-        //}
 
 		#endregion
 	}

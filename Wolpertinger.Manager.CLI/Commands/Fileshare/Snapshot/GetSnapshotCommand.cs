@@ -16,10 +16,7 @@ namespace Wolpertinger.Manager.CLI.Commands.Fileshare.Snapshot
         {           
             var client = getFileShareComponent();
 
-
-            var snapshots = client.GetSnapshotsAsync().Result;
-
-            
+            var snapshots = client.GetSnapshotsAsync().Result;            
         }
 
 

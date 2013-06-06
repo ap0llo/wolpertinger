@@ -5,8 +5,8 @@ using System.Text;
 
 namespace Wolpertinger.Manager.CLI.Commands.Fileshare
 {
-    [Command(CommandVerb.New, "SharedDirectory", "FileShare")]
-    class NewSharedDirectory : FileShareCommand
+    [Command(CommandVerb.New, "Mount", "FileShare")]
+    class NewMount : FileShareCommand
     {
         [Parameter("LocalPath", Position=2)]
         public string LocalPath { get; set; }
@@ -17,15 +17,6 @@ namespace Wolpertinger.Manager.CLI.Commands.Fileshare
 
         public override void Execute()
         {
-            var connection = getClientConnection();
-
-            if (connection == null)
-            {
-                Context.WriteError("No active connection");
-                return;
-            }
-
-
             var client = getFileShareComponent();
 
             client.AddSharedDirectoryAsync(LocalPath, VirtualPath);

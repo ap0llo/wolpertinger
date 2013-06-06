@@ -12,25 +12,27 @@ namespace Wolpertinger.Manager.CLI.Commands.Connection
     [Command(CommandVerb.Authenticate, "User", "Connection")]
     class AuthenticateUserCommand : CommandBase
     {
+
         [Parameter("Username", IsOptional= false, Position =1)]
         public string Username { get; set; }
 
+
         public override void Execute()
         {
-
             if(Context.ActiveConnection == null)
             {
-                Context.WriteError("No active connection");
-                return;
+                abort("No active connection");                
             }
-
-
-            SecureString securePassword = ConsoleHelper.GetPassword().ToSecureString();
 
             var authComponent = new AuthenticationComponent() { ClientConnection = Context.ActiveConnection };
 
+            //get a new token for the authentication
             string token = authComponent.UserAuthGetTokenAsync().Result;
 
+            //get the password
+            SecureString securePassword = ConsoleHelper.GetPassword().ToSecureString();
+
+            //authenticate the user
             var authTask = authComponent.UserAuthVerifyAsync(Username, token, securePassword);            
 
             Context.WriteInfo(  authTask.Result

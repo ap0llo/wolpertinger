@@ -5,8 +5,8 @@ using System.Text;
 
 namespace Wolpertinger.Manager.CLI.Commands.Fileshare
 {
-    [Command(CommandVerb.Remove, "SharedDirectory", "FileShare")]
-    class RemoveSharedDirectoryCommand : FileShareCommand
+    [Command(CommandVerb.Remove, "Mount", "FileShare")]
+    class RemoveMountCommand : FileShareCommand
     {
         [Parameter("VirtualPath", Position=2)]
         public string VirtualPath { get; set; }
@@ -14,19 +14,9 @@ namespace Wolpertinger.Manager.CLI.Commands.Fileshare
 
         public override void Execute()
         {
-            var connection = getClientConnection();
-
-            if (connection == null)
-            {
-                Context.WriteError("No active connection");
-                return;
-            }
-
             var client = getFileShareComponent();
 
             client.RemoveSharedDirectoryAsync(VirtualPath);
-
-            //TODO: error checking
         }
     }
 
