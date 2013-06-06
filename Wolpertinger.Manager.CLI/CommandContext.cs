@@ -11,28 +11,17 @@ namespace Wolpertinger.Manager.CLI
 
         public IConnectionManager ConnectionManager { get; set; }
 
-        public IEnumerable<IClientConnection> AllConnections
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
 
-        public IClientConnection CurrentConnection { get; set; }
+        public IClientConnection ActiveConnection { get; set; }
 
+
+        public CommandParser CommadParser { get; set; }
 
 
         public void AddClientConnection(IClientConnection connection)
         {
-
+            
         }
-
-        public bool ConnectionExists(string target)
-        {
-            throw new NotImplementedException();
-        }
-
 
 
 
@@ -40,7 +29,7 @@ namespace Wolpertinger.Manager.CLI
 
         public void WriteError(string message)
         {
-            throw new NotImplementedException();
+            Program.ErrorLine(message);
         }
 
         public void WriteError(string format, params object[] args)
@@ -50,8 +39,24 @@ namespace Wolpertinger.Manager.CLI
 
         public void WriteInfo(string message)
         {
-            throw new NotImplementedException();
+            Program.StatusLine(message);     
         }
 
+
+        public void WriteOutput(string output)
+        {
+            Program.OutputLine(output);
+        }
+
+        public void WriteOutput()
+        {
+            WriteOutput("");
+        }
+
+
+        public void WriteOutput(string format, params object[] args)
+        {
+            WriteOutput(String.Format(format, args));
+        }
     }
 }

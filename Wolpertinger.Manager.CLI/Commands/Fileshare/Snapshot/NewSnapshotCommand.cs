@@ -5,12 +5,18 @@ using System.Text;
 
 namespace Wolpertinger.Manager.CLI.Commands.Fileshare.Snapshot
 {
-    [Module("FileShare"), Action(ActionVerb.New),  ]
-    class NewSnapshotCommand : CommandBase
+    [Command(CommandVerb.New, "Snapshot", "FileShare")]    
+    class NewSnapshotCommand : FileShareCommand
     {
         public override void Execute()
-        {            
-            throw new NotImplementedException();
+        {
+            var client = getFileShareComponent();
+
+            Context.WriteInfo("Creating Snapshot");
+            var task = client.CreateSnapshotAsync();
+            task.Wait();
+            Context.WriteInfo("Snapshot created");
+            Context.WriteOutput("Id: " + task.Result.ToString());
         }
     }
 }

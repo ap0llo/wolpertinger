@@ -37,17 +37,20 @@ namespace Wolpertinger.Manager.CLI
 	{
 		internal static IConnectionManager connectionManager;
 
-		internal static Dictionary<string, Session> sessions = new Dictionary<string,Session>();
-		internal static Context activeContext;
-		internal static Context mainContext;
+        //internal static Dictionary<string, Session> sessions = new Dictionary<string,Session>();
+        //internal static Context activeContext;
+        //internal static Context mainContext;
 
 
 		private static object outputLock = new object();
 		private static bool waiting;
 
+		static CommandParser commandParser;
+		static CommandContext context = new CommandContext();
 
 		public static void Main(string[] args)
 		{
+
 			Console.WindowWidth = 120;
 			Console.WindowHeight = 50;
 			printLogo();
@@ -91,15 +94,18 @@ namespace Wolpertinger.Manager.CLI
 			XmppLogger.ConnectionManager = connectionManager;
 
 
+			commandParser = new CommandParser(context);
+			context.ConnectionManager = connectionManager;
+			commandParser.LoadCommandsFromAssembly(Assembly.GetExecutingAssembly());
+
+
+
+
 			//Console.WriteLine("Account: {0}@{1}", connectionManager.XmppUsername, connectionManager.XmppServer);
 			Console.WriteLine();
 
-			ILogger consoleLogger = new Wolpertinger.Core.ConsoleLogger();
-			LoggerService.SetLogger(consoleLogger);
-
-
-			mainContext = new MainContext();
-			activeContext = mainContext;
+            //ILogger consoleLogger = new Wolpertinger.Core.ConsoleLogger();
+            //LoggerService.SetLogger(consoleLogger);
 
 			waitForCommand();
 
@@ -109,8 +115,8 @@ namespace Wolpertinger.Manager.CLI
 		{
 			while (true)
 			{
-				
-				Console.Write("{0}> ", activeContext.Name);
+				string promptText = context.ActiveConnection == null ? "" : context.ActiveConnection.Target;
+				Console.Write(promptText + "> ");
 
 				lock (outputLock)
 				{
@@ -118,25 +124,49 @@ namespace Wolpertinger.Manager.CLI
 				}
 				string input = Console.ReadLine();
 
-				lock (outputLock)
+				if (!input.IsNullOrEmpty())
 				{
-					waiting = false;
+					lock (outputLock)
+					{
+						waiting = false;
+					}
+
+                    try
+                    {
+                        var command = commandParser.GetCommand(input);
+                        command.Execute();
+                    }
+                    catch (CommandParserException ex)
+                    {
+                        writeLine("Error: " + ex.Message, ConsoleColor.Red);
+                    }
+                    catch (TimeoutException)
+                    {
+                        writeLine("Error: Connection timed out", ConsoleColor.Red);
+                    }
+                    catch (RemoteErrorException ex)
+                    {
+                        writeLine("Error: " + ex.Error.ToString(), ConsoleColor.Red);
+                    }
+					
 				}
 
-				IEnumerable<string> cmds;
-				try
-				{
-					cmds = input.SpaceSplitString();
-				}
-				catch (FormatException)
-				{
-					UnknownCommand();
-					continue;
-				}
 
 
-				if (cmds.Any())
-					activeContext.ParseCommands(cmds);
+				//IEnumerable<string> cmds;
+				//try
+				//{
+				//    cmds = input.SpaceSplitString();
+				//}
+				//catch (FormatException)
+				//{
+				//    UnknownCommand();
+				//    continue;
+				//}
+
+
+				//if (cmds.Any())
+				//    activeContext.ParseCommands(cmds);
 			}			
 		}
 
@@ -185,11 +215,11 @@ namespace Wolpertinger.Manager.CLI
 				
 				ConsoleHelper.WriteLine(color, text);
 
-				if (waiting)
-				{
-					Console.Write("\n");                    
-					Console.Write("{0}> ", activeContext.Name);
-				}
+                //if (waiting)
+                //{
+                //    Console.Write("\n");                    
+                //    Console.Write("{0}> ", activeContext.Name);
+                //}
 
 			}
 		}	
@@ -199,20 +229,20 @@ namespace Wolpertinger.Manager.CLI
 
 		internal static Session getSession(string str)
 		{
-			str = str.ToLower();
-			if (str.StartsWith("#"))
-			{
-				int value = 0;
-				if (int.TryParse(str.RemoveFirstChar(), out value) && value >= 0 && value < sessions.Count)
-				{
-					return sessions.Values.ElementAt(value);
-				}
+            //str = str.ToLower();
+            //if (str.StartsWith("#"))
+            //{
+            //    int value = 0;
+            //    if (int.TryParse(str.RemoveFirstChar(), out value) && value >= 0 && value < sessions.Count)
+            //    {
+            //        return sessions.Values.ElementAt(value);
+            //    }
 
-			}
-			else if(sessions.ContainsKey(str))
-			{
-				return sessions[str];
-			}
+            //}
+            //else if(sessions.ContainsKey(str))
+            //{
+            //    return sessions[str];
+            //}
 
 			return null;
 		}
@@ -226,7 +256,7 @@ namespace Wolpertinger.Manager.CLI
 
 		public static void UnknownCommand(Context context)
 		{
-			ErrorLine(context, "Unknown Command or Invalid Parameters");
+            //ErrorLine(context, "Unknown Command or Invalid Parameters");
 		}
 
 
@@ -236,66 +266,66 @@ namespace Wolpertinger.Manager.CLI
 
 		#region Output 
 
-		private static void OutputLine(string line)
+		public static void OutputLine(string line)
 		{
 			writeLine(line, ConsoleColor.Yellow);
 		}
 
-		private static void OutputLine(string format, params object[] args)
-		{
-			OutputLine(String.Format(format, args));
-		}
+        //public static void OutputLine(string format, params object[] args)
+        //{
+        //    OutputLine(String.Format(format, args));
+        //}
 
-		public static void OutputLine(Context caller, string line)
-		{
-			if (activeContext == caller)
-				OutputLine(line);
-			else
-				OutputLine(String.Format("{0}: {1}", caller.Name, line));
-		}
+        //public static void OutputLine(Context caller, string line)
+        //{
+        //    if (activeContext == caller)
+        //        OutputLine(line);
+        //    else
+        //        OutputLine(String.Format("{0}: {1}", caller.Name, line));
+        //}
 
-		public static void OutputLine(Context caller, string format, params object[] args)
-		{
-			OutputLine(caller, String.Format(format, args));
-		}
+        //public static void OutputLine(Context caller, string format, params object[] args)
+        //{
+        //    OutputLine(caller, String.Format(format, args));
+        //}
 
 
-		private static void ErrorLine(string line)
+		public static void ErrorLine(string line)
 		{
 			writeLine(line, ConsoleColor.Red);
 		}
 
-		public static void ErrorLine(Context caller, string error)
-		{
-			if (activeContext == caller)
-				ErrorLine(error);
-			else
-				ErrorLine(String.Format("{0}: {1}", caller.Name, error));
-		}
+        //public static void ErrorLine(Context caller, string error)
+        //{
+        //    if (activeContext == caller)
+        //        ErrorLine(error);
+        //    else
+        //        ErrorLine(String.Format("{0}: {1}", caller.Name, error));
+        //}
 
-		public static void ErrorLine(Context caller, string format, params object[] args)
-		{
-			ErrorLine(caller, String.Format(format, args));
-		}
+        //public static void ErrorLine(Context caller, string format, params object[] args)
+        //{
+        //    ErrorLine(caller, String.Format(format, args));
+        //}
 
 
-		private static void StatusLine(string line)
+		public static void StatusLine(string line)
 		{
 			writeLine(line, ConsoleColor.White);
 		}
 
-		public static void StatusLine(Context caller,string line)
-		{
-			if (activeContext == caller)
-				StatusLine(line);
-			else
-				StatusLine(String.Format("{0}: {1}", caller.Name, line));
-		}
+        //public static void StatusLine(Context caller,string line)
+        //{
+        //    if (activeContext == caller)
+        //        StatusLine(line);
+        //    else
+        //        StatusLine(String.Format("{0}: {1}", caller.Name, line));
+        //}
 
-		public static void StatusLine(Context caller, string format, params object[] args)
-		{
-			StatusLine(caller, String.Format(format, args));
-		}
+        //public static void StatusLine(Context caller, string format, params object[] args)
+        //{
+        //    StatusLine(caller, String.Format(format, args));
+        //}
 
 		#endregion
 	}

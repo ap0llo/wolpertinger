@@ -9,13 +9,27 @@ namespace Wolpertinger.Manager.CLI
 {
     class CommandParser
     {
-
-        static Dictionary<string, Dictionary<string, Dictionary<string, Type>>> types = new Dictionary<string, Dictionary<string, Dictionary<string, Type>>>();
-
-        static List<CommandInfo> commands = new List<CommandInfo>();
+        CommandContext context;
+        List<CommandInfo> commands = new List<CommandInfo>();
 
 
-        public static CommandBase GetCommand(string input)
+        public IEnumerable<CommandInfo> KnownCommands
+        {
+            get
+            {
+                return commands;
+            }
+        }
+
+
+        public CommandParser(CommandContext context)
+        {
+            this.context = context;
+            context.CommadParser = this;
+        }
+
+
+        public CommandBase GetCommand(string input)
         {
             var args = input.SpaceSplitString();
 
@@ -48,13 +62,176 @@ namespace Wolpertinger.Manager.CLI
             }
 
 
-            var type = findType(module, verb, noun);
+            var commandInfo = findType(module, verb, noun);
+            var commandInstance = (CommandBase)Activator.CreateInstance(commandInfo.Type);
+            commandInstance.Context = this.context;
 
-            return (CommandBase)Activator.CreateInstance(type);
+
+            //set properties
+
+            HashSet<CommandParamterInfo> setParameters = new HashSet<CommandParamterInfo>();
+            bool[] processedArgs = new bool[args.Count];
+            //first paramter has alredy been processed (for finding the apropriate command)
+            processedArgs[0] = true;            
+
+
+            //first get named paramters
+            for (int i = 1; i < args.Count; i++)
+            {
+                string arg = args[i];                
+                //check if current arg is the name of a parameter
+                if(arg.StartsWith("-"))
+                {
+                    var paramterNameQuery = commandInfo.Parameters.Where(x => "-" + x.Name.ToLower() == arg.ToLower());
+                    var count = paramterNameQuery.Count();
+
+                    if (count == 1)
+                    {
+                        if (i + 1 < args.Count)
+                        {
+                            var parameterInfo = paramterNameQuery.First();
+                            string valueStr = args[++i];
+                            object value = parseValue(valueStr,parameterInfo.PropertyType);
+                            parameterInfo.SetMethod.Invoke(commandInstance, new object[] { value});
+
+                            processedArgs[i - 1] = true;
+                            processedArgs[i] = true;
+
+                            setParameters.Add(parameterInfo);
+                        }
+                        else 
+                        {
+                            throw new CommandParserException("Parameter {0} has been declared without value", arg);
+                        }
+                    }
+                    else if (count > 1)
+                    {
+                        throw new CommandParserException("Parameter {0} has been declaed more than once", paramterNameQuery.First().Name);
+                    }
+                }
+            }
+
+
+
+            //find missing paramters (positional)
+            for (int i = 1; i < args.Count; i++)
+            {
+                //if argument has already been processed, skip 
+                if (processedArgs[i])
+                {
+                    continue;
+                }
+
+                //find all paramters not already set
+                var unsetParamters = commandInfo.Parameters.Where(x => !setParameters.Contains(x)).OrderBy(x => x.Position);
+
+                if (unsetParamters.Any())
+                {
+                    var nextParamter = unsetParamters.First();
+                    object value = parseValue(args[i], nextParamter.PropertyType);
+
+                    nextParamter.SetMethod.Invoke(commandInstance, new object[] { value });
+
+                    setParameters.Add(nextParamter);
+                    processedArgs[i] = true;
+                }
+            }
+
+
+            //check if all args have ben processed
+            if (processedArgs.Any(x => !x))
+            {
+                throw new CommandParserException("Not all arguments could were processed");
+            }
+
+
+
+            var missingRequiredParamters = commandInfo.Parameters.Where(x => !x.IsOptional && !setParameters.Contains(x));
+
+            //ask the user to supply values for missing paramters
+            if (missingRequiredParamters.Any())
+            {
+                Console.WriteLine("You need to supply the value for the follwing parameters: ");
+            }
+
+            
+            foreach (var parameter in missingRequiredParamters )
+            {
+                Console.Write("{0}: ", parameter.Name);
+                string valueStr = Console.ReadLine();
+
+                object value = parseValue(valueStr, parameter.PropertyType);
+
+                if (value == null)
+                {
+                    throw new CommandParserException("Invalid value");
+                }
+                else
+                {
+                    parameter.SetMethod.Invoke(commandInstance, new object[] { value });
+                    setParameters.Add(parameter);
+                }
+            }
+
+            //check if all required parameters have been set
+            if (missingRequiredParamters.Any())
+            {                
+                throw new CommandParserException("Not all required parameters could be set");
+            }
+            return commandInstance;
         }
 
 
-        private static Type findType(string module, string verb, string noun)
+        private object parseValue(string value, Type toType)
+        {
+            if (toType == typeof(string))
+            {
+                return value;
+            }
+            else if (toType == typeof(bool))
+            {
+                bool outValue;
+                if (bool.TryParse(value, out outValue))
+                {
+                    return outValue;
+                }
+                else
+                {
+                    throw new CommandParserException("Cannot parse '{0}' as bool", value);
+                }
+            }
+            else if (toType == typeof(Guid))
+            {
+                Guid outValue;
+                if (Guid.TryParse(value, out outValue))
+                {
+                    return outValue;
+                }
+                else
+                {
+                    throw new CommandParserException("Cannot parse '{0}' as Guid", value);
+                }
+            }
+            else if (toType == typeof(Core.LogLevel))
+            {
+                Core.LogLevel lvl;
+
+                if (Enum.TryParse<Core.LogLevel>(value, true, out lvl))
+                {
+                    return lvl;
+                }
+                else
+                {
+                    throw new CommandParserException("Cannot parse '{0}' as LogLevel", value);
+                }
+            }
+            else
+            {
+                throw new CommandParserException("Cannot parse argument to type {0}", toType.FullName);
+            }
+        }
+
+        private CommandInfo findType(string module, string verb, string noun)
         {
             module = module.ToLower();
             verb = verb.ToLower();
@@ -68,7 +245,7 @@ namespace Wolpertinger.Manager.CLI
             var count = commandsQuery.Count();
             if (count == 1)
             {
-                return commandsQuery.First().Type;
+                return commandsQuery.First();
             }
             else if (count > 1)
             {
@@ -80,12 +257,8 @@ namespace Wolpertinger.Manager.CLI
             }
 
         }
-
-
-
-      
-
-        public static void LoadCommandsFromAssembly(Assembly assembly)
+     
+        public void LoadCommandsFromAssembly(Assembly assembly)
         {
             foreach (var type in assembly.GetTypes())
             {
@@ -115,27 +288,80 @@ namespace Wolpertinger.Manager.CLI
                                 Module = info.Module, 
                                 Verb = info.Verb, 
                                 Noun = info.Noun, 
-                                Type = type });
+                                Type = type,
+                                Parameters = loadParamters(type)});
                     }
                 }
             }
         }
 
-
-        private class CommandInfo
+        private List<CommandParamterInfo> loadParamters(Type commandType)
         {
-            public string Module { get; set; }
+            var result = new List<CommandParamterInfo>();
 
-            public string Verb { get; set; }
+            //iterate over all of the command's properties
+            foreach (var property in commandType.GetProperties())
+            {
+                var attributes = property.GetCustomAttributes(typeof(ParameterAttribute), true);
 
-            public string Noun { get; set; }
+                if (attributes.Any())
+                {
+                    var paramInfo = new CommandParamterInfo(attributes.First() as ParameterAttribute);
+                    paramInfo.PropertyType = property.PropertyType;
+                    paramInfo.SetMethod = property.GetSetMethod();
+                    result.Add(paramInfo);
+                }
+            }
 
-            public Type Type { get; set; }
+            return result;
         }
 
 
+
+       
+        
+
     }
 
+
+    public class CommandInfo
+    {
+        public string Module { get; set; }
+
+        public string Verb { get; set; }
+
+        public string Noun { get; set; }
+
+        public Type Type { get; set; }
+
+        public List<CommandParamterInfo> Parameters { get; set; }
+    }
+
+    public class CommandParamterInfo
+    {
+        public string Name { get; set; }
+
+        public bool IsOptional { get; set; }
+
+        public int Position { get; set; }
+
+        public Type PropertyType { get; set; }
+
+        public MethodInfo SetMethod { get; set; }
+
+        public CommandParamterInfo()
+        {
+
+        }
+
+        public CommandParamterInfo(ParameterAttribute attribute)
+        {
+            this.Name = attribute.Name;
+            this.IsOptional = attribute.IsOptional;
+            this.Position = attribute.Position;
+        }
+
+    }
 
     public class CommandParserException : Exception
     {
@@ -143,6 +369,12 @@ namespace Wolpertinger.Manager.CLI
             : base(message)
         {
 
+        }
+
+
+        public CommandParserException(string format, params object[] args)
+            : this(String.Format(format, args))
+        {
         }
     }
 }

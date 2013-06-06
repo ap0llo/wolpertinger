@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Wolpertinger.Manager.CLI.Commands.Connection
 {
-    [Command(CommandVerb.New, "Connection")]
+    [Command(CommandVerb.New, "Connection", "Connection")]
     class NewConnectionCommand : CommandBase
     {
 
@@ -16,14 +16,14 @@ namespace Wolpertinger.Manager.CLI.Commands.Connection
 
         public override void Execute()
         {
-            if (Context.ConnectionExists(this.Target))
+            if (Context.ConnectionManager.GetClientConnection(Target) != null)
             {
                 Context.WriteError("Connection already exists");
             }
             else
             {
-                var newConnection = Context.ConnectionManager.AddClientConnection(this.Target);
-                Context.AddClientConnection(newConnection);
+                var newConnection = Context.ConnectionManager.AddClientConnection(this.Target);   
+                            
             }
         }
 

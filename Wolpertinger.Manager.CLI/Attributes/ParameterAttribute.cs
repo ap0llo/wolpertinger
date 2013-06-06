@@ -6,7 +6,7 @@ using Nerdcave.Common.Extensions;
 
 namespace Wolpertinger.Manager.CLI
 {
-    class ParameterAttribute : Attribute
+    public class ParameterAttribute : Attribute
     {
         public string Name { get; set; }
 
@@ -14,7 +14,6 @@ namespace Wolpertinger.Manager.CLI
 
         public int Position { get; set; }
 
-        public int foo { get; set; }
 
         public ParameterAttribute(string name)
             : this (name, false)
@@ -27,6 +26,11 @@ namespace Wolpertinger.Manager.CLI
             if (name.IsNullOrEmpty())
             {
                 throw new ArgumentException("ParameterName may not be empty");
+            }
+
+            if (name.StartsWith("-") || name.StartsWith("/"))
+            {
+                throw new ArgumentException("ParameterName may not start with '-' or '/'");
             }
 
             this.Name = name;

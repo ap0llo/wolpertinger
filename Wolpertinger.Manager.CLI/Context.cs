@@ -1,7 +1,7 @@
 ﻿/*
 
 Licensed under the new BSD-License
- 
+
 Copyright (c) 2011-2013, Andreas Grünwald 
 All rights reserved.
 
@@ -33,49 +33,49 @@ namespace Wolpertinger.Manager.CLI
 
         public Context()
         {
-            commands.Add("clear-screen", new CommandInfo() { CheckConnection = false, ParameterCount = 0, CommandMethod = clearScreenCommand });
-            commands.Add("set-alias", new CommandInfo() { CheckConnection = false, ParameterCount = 2, CommandMethod = setAliasCommand });
-            commands.Add("remove-alias", new CommandInfo() { CheckConnection = false, ParameterCount = 1, CommandMethod = removeAliasCommand });
+            //commands.Add("clear-screen", new CommandInfo() { CheckConnection = false, ParameterCount = 0, CommandMethod = clearScreenCommand });
+            //commands.Add("set-alias", new CommandInfo() { CheckConnection = false, ParameterCount = 2, CommandMethod = setAliasCommand });
+            //commands.Add("remove-alias", new CommandInfo() { CheckConnection = false, ParameterCount = 1, CommandMethod = removeAliasCommand });
 
         }
-        
-        
-        
+
+
+
         public void ParseCommands(IEnumerable<string> cmds)
         {
 
-            string name = cmds.First().ToLower();
+            //string name = cmds.First().ToLower();
 
-            if (aliases.ContainsKey(name))
-                name = aliases[name.ToLower()].ToLower();
+            //if (aliases.ContainsKey(name))
+            //    name = aliases[name.ToLower()].ToLower();
 
-            if (commands.ContainsKey(name) &&(
-                    (commands[name].ParameterCount == cmds.Count() - 1)
-                || (commands[name].ParameterCount < 0 && cmds.Count() >= Math.Abs(commands[name].ParameterCount))))
-            {
-                if ((commands[name].CheckConnection && checkConnection()) || !commands[name].CheckConnection)
-                {
-                    commands[name].CommandMethod.Invoke(cmds.Skip(1));
-                    return;
-                }
-            }
+            //if (commands.ContainsKey(name) && (
+            //        (commands[name].ParameterCount == cmds.Count() - 1)
+            //    || (commands[name].ParameterCount < 0 && cmds.Count() >= Math.Abs(commands[name].ParameterCount))))
+            //{
+            //    if ((commands[name].CheckConnection && checkConnection()) || !commands[name].CheckConnection)
+            //    {
+            //        commands[name].CommandMethod.Invoke(cmds.Skip(1));
+            //        return;
+            //    }
+            //}
 
-            Program.UnknownCommand(this);
+            //Program.UnknownCommand(this);
 
         }
 
 
         protected abstract bool checkConnection();
 
-        protected static Core.LogLevel? getLogLevel(string str)
-        {
-            Core.LogLevel lvl;
+        //protected static Core.LogLevel? getLogLevel(string str)
+        //{
+        //    Core.LogLevel lvl;
 
-            if (Enum.TryParse<Core.LogLevel>(str, true, out lvl))
-                return lvl;
-            else
-                return null;
-        }
+        //    if (Enum.TryParse<Core.LogLevel>(str, true, out lvl))
+        //        return lvl;
+        //    else
+        //        return null;
+        //}
 
         protected static bool? getBool(string str)
         {
@@ -90,7 +90,7 @@ namespace Wolpertinger.Manager.CLI
 
 
 
-        
+
 
 
 
@@ -103,31 +103,31 @@ namespace Wolpertinger.Manager.CLI
 
         protected virtual void setAliasCommand(IEnumerable<string> cmds)
         {
-            if (!aliases.ContainsKey(cmds.First().ToLower()))
-                aliases.Add(cmds.First().ToLower(), cmds.Last());
-            else
-                Program.ErrorLine(this, "Alias already exists");
-               
+            //if (!aliases.ContainsKey(cmds.First().ToLower()))
+            //    aliases.Add(cmds.First().ToLower(), cmds.Last());
+            //else
+            //    Program.ErrorLine(this, "Alias already exists");
+
         }
 
         protected virtual void removeAliasCommand(IEnumerable<string> cmds)
         {
-            if (aliases.ContainsKey(cmds.First().ToLower()))
-            {
-                aliases.Remove(cmds.First().ToLower());
-            }
-            else
-            {
-                Program.ErrorLine(this, "Alias not found");
-            }
+            //if (aliases.ContainsKey(cmds.First().ToLower()))
+            //{
+            //    aliases.Remove(cmds.First().ToLower());
+            //}
+            //else
+            //{
+            //    Program.ErrorLine(this, "Alias not found");
+            //}
         }
     }
 
 
-    public class CommandInfo
-    {
-        public Action<IEnumerable<string>> CommandMethod;
-        public int ParameterCount;
-        public bool CheckConnection = true;
-    }
+    //public class CommandInfo
+    //{
+    //    public Action<IEnumerable<string>> CommandMethod;
+    //    public int ParameterCount;
+    //    public bool CheckConnection = true;
+    //}
 }

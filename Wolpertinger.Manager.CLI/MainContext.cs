@@ -27,82 +27,82 @@ namespace Wolpertinger.Manager.CLI
 
         public MainContext()
         {
-            this.Name = "";
+            //this.Name = "";
 
-            commands.Add("new-session", new CommandInfo() { ParameterCount = 1, CommandMethod = newSessionCommand });
-            commands.Add("remove-session", new CommandInfo() { ParameterCount = 1, CommandMethod = removeSessionCommand });
-            commands.Add("get-sessions", new CommandInfo() { ParameterCount = 0, CommandMethod = getSessionsCommand });
-            commands.Add("enter-session", new CommandInfo() { ParameterCount = 1, CommandMethod = enterSessionCommand });
+            //commands.Add("new-session", new CommandInfo() { ParameterCount = 1, CommandMethod = newSessionCommand });
+            //commands.Add("remove-session", new CommandInfo() { ParameterCount = 1, CommandMethod = removeSessionCommand });
+            //commands.Add("get-sessions", new CommandInfo() { ParameterCount = 0, CommandMethod = getSessionsCommand });
+            //commands.Add("enter-session", new CommandInfo() { ParameterCount = 1, CommandMethod = enterSessionCommand });
         }
 
 
 
-        protected void newSessionCommand(IEnumerable<string> cmds)
-        {
-            string target = cmds.First();
+        //protected void newSessionCommand(IEnumerable<string> cmds)
+        //{
+        //    string target = cmds.First();
 
 
-            if (Program.sessions.ContainsKey(target))
-            {
-                Program.ErrorLine(this, "Session already exists");
-            }
-            else
-            {
-                Session s = new Session(target, Program.connectionManager);
-                Program.sessions.Add(target.ToLower(), s);
-                Program.activeContext = s;
-            }
-        }
+        //    if (Program.sessions.ContainsKey(target))
+        //    {
+        //        Program.ErrorLine(this, "Session already exists");
+        //    }
+        //    else
+        //    {
+        //        Session s = new Session(target, Program.connectionManager);
+        //        Program.sessions.Add(target.ToLower(), s);
+        //        Program.activeContext = s;
+        //    }
+        //}
 
-        protected void removeSessionCommand(IEnumerable<string> cmds)
-        {
+        //protected void removeSessionCommand(IEnumerable<string> cmds)
+        //{
 
-            Session s = Program.getSession(cmds.First());
+        //    Session s = Program.getSession(cmds.First());
 
-            if (s == null)
-            {
-                Program.UnknownCommand(this);
-            }
-            else
-            {
-                s.disconnectCommand(new List<string>());
+        //    if (s == null)
+        //    {
+        //        Program.UnknownCommand(this);
+        //    }
+        //    else
+        //    {
+        //        s.disconnectCommand(new List<string>());
 
-                Program.sessions.Remove(s.Target.ToLower());
-            }
-        }
+        //        Program.sessions.Remove(s.Target.ToLower());
+        //    }
+        //}
 
-        protected void getSessionsCommand(IEnumerable<string> cmds)
-        {
-            int column1Width = Math.Max(Program.sessions.Count.ToString().Length, "Index".Length);
-            int column2Width = Math.Max((Program.sessions.Keys.Any() ? Program.sessions.Keys.Max(x => x.Length) : 0), "Target".Length);
-
-
-            string formatString = " {0, -" + column1Width + "} | {1,-" + column2Width + "}";
-            string hl = " " + new String('-', column1Width + column2Width + 3);
-
-            Program.OutputLine(this, hl);
-            Program.OutputLine(this, formatString, "Index", "Target");
-            Program.OutputLine(this, hl);
+        //protected void getSessionsCommand(IEnumerable<string> cmds)
+        //{
+        //    int column1Width = Math.Max(Program.sessions.Count.ToString().Length, "Index".Length);
+        //    int column2Width = Math.Max((Program.sessions.Keys.Any() ? Program.sessions.Keys.Max(x => x.Length) : 0), "Target".Length);
 
 
-            int index = 0;
-            foreach (string target in Program.sessions.Keys)
-            {
-                Program.OutputLine(this, formatString, index, target);
-                index++;
-            }
-            Program.OutputLine(this, hl);
-        }
+        //    string formatString = " {0, -" + column1Width + "} | {1,-" + column2Width + "}";
+        //    string hl = " " + new String('-', column1Width + column2Width + 3);
 
-        protected void enterSessionCommand(IEnumerable<string> cmds)
-        {
-            Session s = Program.getSession(cmds.First());
+        //    Program.OutputLine(this, hl);
+        //    Program.OutputLine(this, formatString, "Index", "Target");
+        //    Program.OutputLine(this, hl);
 
-            if (s != null)
-                Program.activeContext = s;
-            else
-                Program.ErrorLine(this, "Session not found");
-        }
+
+        //    int index = 0;
+        //    foreach (string target in Program.sessions.Keys)
+        //    {
+        //        Program.OutputLine(this, formatString, index, target);
+        //        index++;
+        //    }
+        //    Program.OutputLine(this, hl);
+        //}
+
+        //protected void enterSessionCommand(IEnumerable<string> cmds)
+        //{
+        //    Session s = Program.getSession(cmds.First());
+
+        //    if (s != null)
+        //        Program.activeContext = s;
+        //    else
+        //        Program.ErrorLine(this, "Session not found");
+        //}
 
 
         protected override bool checkConnection()

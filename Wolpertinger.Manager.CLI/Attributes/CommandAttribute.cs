@@ -48,7 +48,16 @@ namespace Wolpertinger.Manager.CLI
     {
         Get, 
         Set,
-        New
+        New,
+        Remove,
+        Enter, 
+        Exit,
+        Start,
+        Close,
+        Authenticate,
+        Test,
+        Clear,
+        Compare
     }
 
 }
