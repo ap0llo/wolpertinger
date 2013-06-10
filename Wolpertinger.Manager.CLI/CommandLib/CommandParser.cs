@@ -1,9 +1,33 @@
-﻿using System;
+﻿/*
+
+Licensed under the new BSD-License
+ 
+Copyright (c) 2011-2013, Andreas Grünwald 
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+    Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+    Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer 
+	in the documentation and/or other materials provided with the distribution.
+    Neither the name of the Wolpertinger project nor the names of its contributors may be used to endorse or promote products 
+	derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
+THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS 
+BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF 
+SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, 
+STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+*/
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Nerdcave.Common.Extensions;
 using System.Reflection;
+using System.Security;
+using Nerdcave.Common;
 
 namespace Wolpertinger.Manager.CLI
 {
@@ -11,6 +35,7 @@ namespace Wolpertinger.Manager.CLI
     {
         CommandContext context;
         List<CommandInfo> commands = new List<CommandInfo>();
+
 
 
         public IEnumerable<CommandInfo> KnownCommands
@@ -22,12 +47,53 @@ namespace Wolpertinger.Manager.CLI
         }
 
 
+
         public CommandParser(CommandContext context)
         {
             this.context = context;
             context.CommadParser = this;
         }
 
+
+
+        public void LoadCommandsFromAssembly(Assembly assembly)
+        {
+            foreach (var type in assembly.GetTypes())
+            {
+                //check if type is derived from CommandBase
+                if (type.IsSubclassOf(typeof(CommandBase)))
+                {
+                    //check if instances of the type can be created
+                    try
+                    {
+                        object test = Activator.CreateInstance(type);
+                    }
+                    catch (MissingMethodException)
+                    {
+                        continue;
+                    }
+
+                    var attributes = type.GetCustomAttributes(typeof(CommandAttribute), false);
+                    if (attributes == null || !attributes.Any())
+                    {
+                        continue;
+                    }
+
+                    foreach (var item in attributes)
+                    {
+                        var info = item as CommandAttribute;
+                        commands.Add(new CommandInfo()
+                        {
+                            Module = info.Module,
+                            Verb = info.Verb,
+                            Noun = info.Noun,
+                            Type = type,
+                            Parameters = loadParamters(type)
+                        });
+                    }
+                }
+            }
+        }
 
         public CommandBase GetCommand(string input)
         {
@@ -91,7 +157,7 @@ namespace Wolpertinger.Manager.CLI
                         {
                             var parameterInfo = paramterNameQuery.First();
                             string valueStr = args[++i];
-                            object value = parseValue(valueStr,parameterInfo.PropertyType);
+                            object value = parseValue(valueStr,parameterInfo.DataType);
                             parameterInfo.SetMethod.Invoke(commandInstance, new object[] { value});
 
                             processedArgs[i - 1] = true;
@@ -112,7 +178,6 @@ namespace Wolpertinger.Manager.CLI
             }
 
 
-
             //find missing paramters (positional)
             for (int i = 1; i < args.Count; i++)
             {
@@ -122,13 +187,13 @@ namespace Wolpertinger.Manager.CLI
                     continue;
                 }
 
-                //find all paramters not already set
-                var unsetParamters = commandInfo.Parameters.Where(x => !setParameters.Contains(x)).OrderBy(x => x.Position);
+                //find all paramters not already set that are positional parameters
+                var unsetParamters = commandInfo.Parameters.Where(x => !setParameters.Contains(x) && x.Position > 0).OrderBy(x => x.Position);
 
                 if (unsetParamters.Any())
                 {
                     var nextParamter = unsetParamters.First();
-                    object value = parseValue(args[i], nextParamter.PropertyType);
+                    object value = parseValue(args[i], nextParamter.DataType);
 
                     nextParamter.SetMethod.Invoke(commandInstance, new object[] { value });
 
@@ -151,16 +216,24 @@ namespace Wolpertinger.Manager.CLI
             //ask the user to supply values for missing paramters
             if (missingRequiredParamters.Any())
             {
-                Console.WriteLine("You need to supply the value for the follwing parameters: ");
+                Console.WriteLine("You need to supply the value for the following parameters: ");
             }
 
             
             foreach (var parameter in missingRequiredParamters )
             {
-                Console.Write("{0}: ", parameter.Name);
-                string valueStr = Console.ReadLine();
-
-                object value = parseValue(valueStr, parameter.PropertyType);
+                string valueStr;
+                if (parameter.DataType == typeof(SecureString))
+                {
+                    valueStr = ConsoleHelper.GetPassword(parameter.Name);                    
+                }
+                else
+                {
+                    Console.Write("{0}: ", parameter.Name);
+                    valueStr = Console.ReadLine();
+                }
+                
+                object value = parseValue(valueStr, parameter.DataType);
 
                 if (value == null)
                 {
@@ -176,10 +249,12 @@ namespace Wolpertinger.Manager.CLI
             //check if all required parameters have been set
             if (missingRequiredParamters.Any())
             {                
-                throw new CommandParserException("Not all required parameters could be set");
+                throw new CommandParserException("Not all required parameters could be set (have you specified all of them?)");
             }
             return commandInstance;
         }
+
+
 
 
         private object parseValue(string value, Type toType)
@@ -225,6 +300,11 @@ namespace Wolpertinger.Manager.CLI
                     throw new CommandParserException("Cannot parse '{0}' as LogLevel", value);
                 }
             }
+            else if(toType == typeof(SecureString))
+            {
+                SecureString secStr = value.ToSecureString();
+                return secStr;
+            }
             else
             {
                 throw new CommandParserException("Cannot parse argument to type {0}", toType.FullName);
@@ -257,44 +337,7 @@ namespace Wolpertinger.Manager.CLI
             }
 
         }
-     
-        public void LoadCommandsFromAssembly(Assembly assembly)
-        {
-            foreach (var type in assembly.GetTypes())
-            {
-                //check if type is derived from CommandBase
-                if (type.IsSubclassOf(typeof(CommandBase)))
-                {
-                    //check if instances of the type can be created
-                    try
-                    {
-                        object test = Activator.CreateInstance(type);
-                    }
-                    catch (MissingMethodException)
-                    {
-                        continue;
-                    }
-
-                    var attributes = type.GetCustomAttributes(typeof(CommandAttribute), false);
-                    if (attributes == null || !attributes.Any())
-                    {
-                        continue;
-                    }
-
-                    foreach (var item in attributes)
-                    {
-                        var info = item as CommandAttribute;
-                        commands.Add(new CommandInfo() { 
-                                Module = info.Module, 
-                                Verb = info.Verb, 
-                                Noun = info.Noun, 
-                                Type = type,
-                                Parameters = loadParamters(type)});
-                    }
-                }
-            }
-        }
-
+            
         private List<CommandParamterInfo> loadParamters(Type commandType)
         {
             var result = new List<CommandParamterInfo>();
@@ -307,7 +350,7 @@ namespace Wolpertinger.Manager.CLI
                 if (attributes.Any())
                 {
                     var paramInfo = new CommandParamterInfo(attributes.First() as ParameterAttribute);
-                    paramInfo.PropertyType = property.PropertyType;
+                    paramInfo.DataType = property.PropertyType;
                     paramInfo.SetMethod = property.GetSetMethod();
                     result.Add(paramInfo);
                 }
@@ -319,42 +362,7 @@ namespace Wolpertinger.Manager.CLI
     }
 
 
-    public class CommandInfo
-    {
-        public string Module { get; set; }
+    
 
-        public string Verb { get; set; }
-
-        public string Noun { get; set; }
-
-        public Type Type { get; set; }
-
-        public List<CommandParamterInfo> Parameters { get; set; }
-    }
-
-    public class CommandParamterInfo
-    {
-        public string Name { get; set; }
-
-        public bool IsOptional { get; set; }
-
-        public int Position { get; set; }
-
-        public Type PropertyType { get; set; }
-
-        public MethodInfo SetMethod { get; set; }
-
-        public CommandParamterInfo()
-        {
-
-        }
-
-        public CommandParamterInfo(ParameterAttribute attribute)
-        {
-            this.Name = attribute.Name;
-            this.IsOptional = attribute.IsOptional;
-            this.Position = attribute.Position;
-        }
-
-    }
+    
 }

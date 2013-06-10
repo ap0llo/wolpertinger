@@ -86,7 +86,7 @@ namespace Wolpertinger.Fileserver
 		/// <returns>Returns a key for the speicified filename</returns>
 		private string getKey(string fileName)
 		{
-			return BinaryRage.Key.GenerateMD5Hash(fileName);
+			return BinaryRage.Key.GenerateMD5Hash(fileName.ToLower().Trim());
 		}
 
 		/// <summary>
@@ -230,6 +230,7 @@ namespace Wolpertinger.Fileserver
 
 						//store HashInfo in cache
 						BinaryRage.DB<HashInfo>.Insert(getKey(file), info, hashDbFolder);
+
 
 						hashCompleted(file, hash);
 

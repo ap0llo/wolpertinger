@@ -7,10 +7,10 @@ All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 
-    Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-    Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer 
+	Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+	Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer 
 	in the documentation and/or other materials provided with the distribution.
-    Neither the name of the Wolpertinger project nor the names of its contributors may be used to endorse or promote products 
+	Neither the name of the Wolpertinger project nor the names of its contributors may be used to endorse or promote products 
 	derived from this software without specific prior written permission.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
@@ -25,17 +25,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Wolpertinger.Manager.CLI.Commands.XmppLogger
+namespace Wolpertinger.Manager.CLI
 {
-    [Command(CommandVerb.Get, "Recipient", "XmppLogger")]
-    class GetRecipientCommand : LoggerCommand
-    {
-        public override void Execute()
-        {
-            var logger = getLoggerComponent();
+	public class CommandInfo
+	{
+		public string Module { get; set; }
 
-            string recipient = logger.GetRecipientAsync().Result.ToString();
-            Context.WriteOutput(recipient.ToString());
-        }
-    }
+		public string Verb { get; set; }
+
+		public string Noun { get; set; }
+
+	    public Type Type { get; set; }        
+
+		public List<CommandParamterInfo> Parameters { get; set; }
+
+	}
 }

@@ -65,6 +65,8 @@
     <Compile Include="CommandLib\CommandBase.cs" />
     <Compile Include="CommandLib\CommandContext.cs" />
     <Compile Include="CommandLib\CommandExecutionException.cs" />
+    <Compile Include="CommandLib\CommandInfo.cs" />
+    <Compile Include="CommandLib\CommandParameterInfo.cs" />
     <Compile Include="CommandLib\CommandParser.cs" />
     <Compile Include="CommandLib\CommandParserException.cs" />
     <Compile Include="Commands\ClientInfo\GetClientInfoCommand.cs" />
@@ -132,6 +134,7 @@
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
+    <None Include="Wolpertinger.Manager.CLI.licenseheader" />
   </ItemGroup>
   <!--Copy Xml Schema files to Output directory-->
   <ItemGroup>

@@ -250,6 +250,8 @@ namespace Wolpertinger.Fileserver
                     
                     var dir = snapshot.FilesystemState.Clone(depth);
 
+                    dir.Path = "/";
+
                     if (!(checkPermission(virtualPath, snapshot.Permissions.ToDictionary(x => x.Path.ToLower())) || anyChildPermitted(virtualPath)))
                     {
                         logger.Error("Access violation found");
@@ -702,6 +704,8 @@ namespace Wolpertinger.Fileserver
 				parent.AddDirectory(subDir);
 			}
 
+            dir.Path = virtualPath;
+
 			return dir;
 		}
 
@@ -791,7 +795,7 @@ namespace Wolpertinger.Fileserver
 			else
 			{
 				Permission p = getPermission(path, permissions);
-				if (p != null && p.PermittedClients.Contains(this.ClientConnection.Target))
+				if (p != null && p.PermittedClients.Contains(removeResource(this.ClientConnection.Target)))
 				{
 					return true;
 				}
@@ -801,6 +805,20 @@ namespace Wolpertinger.Fileserver
 				}
 			}
 		}
+
+
+        private string removeResource(string jid)
+        {
+            if (!jid.Contains('/'))
+            {
+                return jid;
+            }
+            else
+            {
+                return jid.Remove(jid.IndexOf('/'));
+            }
+
+        }
 
 
 		public IClientConnection ClientConnection { get; set; }

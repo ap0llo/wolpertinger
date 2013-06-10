@@ -211,13 +211,18 @@ namespace Nerdcave.Common
             return (input == "y" || input == "yes");
         }
 
+        public static string GetPassword()
+        {
+            return GetPassword("Enter password: ");
+        }
+
         /// <summary>
         /// Prompts the user to enter a password. The password in the console window will be marked with asterisks. After the usser pressed enter, the entire password-line will be removed from the Console window
         /// </summary>
         /// <returns>Returns the string the user enterd.</returns>
-        public static string GetPassword()
+        public static string GetPassword(string message)
         {
-            Console.Write("Enter password: ");
+            Console.Write("{0}: ", message);
             string pw = "";
 
             ConsoleKeyInfo key = Console.ReadKey(true);
@@ -229,7 +234,7 @@ namespace Nerdcave.Common
                 {
                     ClearLine();
                     pw = "";
-                    Console.Write("Enter password: ");                    
+                    Console.Write("{0}: ", message);                 
                 }
                 // Backspace Should Not Work
                 else if (key.Key != ConsoleKey.Backspace)
@@ -247,8 +252,6 @@ namespace Nerdcave.Common
 
             }
 
-
-            ClearLine();
             return pw;
 
         }
