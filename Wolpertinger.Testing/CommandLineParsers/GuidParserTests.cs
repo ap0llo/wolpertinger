@@ -20,33 +20,32 @@ SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRU
 STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Wolpertinger.FileShareCommon;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Wolpertinger.Manager.CLI.CommandLib.Parsers;
 
-namespace Wolpertinger.Testing.XmlSerialization
+namespace Wolpertinger.Testing.CommandLineParsers
 {
     [TestClass]
-    public class DirectoryObjectSerializationTests : XmlSerializationTest
+    public class GuidParserTests
     {
+        IParameterParser parser = new GuidParser();
+
+
         [TestMethod]
-        public void TestDirectoryObjectSerialization()
+        public void TestCanParse()
         {
-            var dir = new DirectoryObject() { LocalPath = ".." };
-            dir.LoadFromDisk();
-            dir.Path = "/";
 
-            var xml = dir.Serialize();
-            
-            var roundTrip = new DirectoryObject();
-            Assert.IsTrue(roundTrip.Validate(xml));
-            roundTrip.Deserialize(xml);
+            Assert.IsTrue(parser.CanParse(Guid.Empty.ToString()));
+            Assert.IsTrue(parser.CanParse(Guid.NewGuid().ToString()));
 
-            assertAreEqual(dir, roundTrip);
+            Assert.IsFalse(parser.CanParse(""));
+            Assert.IsFalse(parser.CanParse(null));
+
+            Assert.IsFalse(parser.CanParse("jsbidvbibv"));
+            Assert.IsFalse(parser.CanParse(Guid.Empty.ToString() + Guid.Empty.ToString() ));
+
+
         }
-
     }
 }

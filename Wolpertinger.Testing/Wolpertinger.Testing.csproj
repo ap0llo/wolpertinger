@@ -64,6 +64,10 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="CommandLineParsers\BoolParserTests.cs" />
+    <Compile Include="CommandLineParsers\GuidParserTests.cs" />
+    <Compile Include="CommandLineParsers\IntParserTest.cs" />
+    <Compile Include="CommandLineParsers\LogLevelParserTest.cs" />
     <Compile Include="KeyValueStoreTests.cs" />
     <Compile Include="TestHashingService.cs" />
     <Compile Include="InteropTests.cs" />
@@ -109,6 +113,7 @@
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
+    <None Include="Wolpertinger.Testing.licenseheader" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

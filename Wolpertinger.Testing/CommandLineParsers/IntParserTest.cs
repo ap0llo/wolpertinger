@@ -20,33 +20,36 @@ SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRU
 STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Text;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using Wolpertinger.FileShareCommon;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Wolpertinger.Manager.CLI.CommandLib.Parsers;
 
-namespace Wolpertinger.Testing.XmlSerialization
+namespace Wolpertinger.Testing.CommandLineParsers
 {
+    /// <summary>
+    /// Summary description for IntParserTest
+    /// </summary>
     [TestClass]
-    public class DirectoryObjectSerializationTests : XmlSerializationTest
+    public class IntParserTest
     {
+
+        IParameterParser parser = new IntParser();
+
+
         [TestMethod]
-        public void TestDirectoryObjectSerialization()
+        public void Test_CanParse()
         {
-            var dir = new DirectoryObject() { LocalPath = ".." };
-            dir.LoadFromDisk();
-            dir.Path = "/";
+            Assert.IsTrue(parser.CanParse("0"));
+            Assert.IsTrue(parser.CanParse("1"));
+            Assert.IsTrue(parser.CanParse("00"));
+            Assert.IsTrue(parser.CanParse("5456789"));
 
-            var xml = dir.Serialize();
-            
-            var roundTrip = new DirectoryObject();
-            Assert.IsTrue(roundTrip.Validate(xml));
-            roundTrip.Deserialize(xml);
-
-            assertAreEqual(dir, roundTrip);
+            Assert.IsFalse(parser.CanParse(null));
+            Assert.IsFalse(parser.CanParse(""));
+            Assert.IsFalse(parser.CanParse("12abcde"));
         }
-
     }
 }
