@@ -97,7 +97,7 @@ namespace Wolpertinger.Manager.CLI
 
 			commandParser = new CommandParser(context);
 			context.ConnectionManager = connectionManager;
-			commandParser.LoadCommandsFromAssembly(Assembly.GetExecutingAssembly());
+			commandParser.LoadCommandsAndParsersFromAssembly(Assembly.GetExecutingAssembly());
 
 
 

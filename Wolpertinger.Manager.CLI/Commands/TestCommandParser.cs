@@ -21,38 +21,47 @@ STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
 
 */
 
+#if DEBUG
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 
-namespace Wolpertinger.Manager.CLI
+namespace Wolpertinger.Manager.CLI.Commands
 {
-    public class CommandParameterInfo
+
+    [Command(CommandVerb.Test, "CommandParser", "Debug")]
+    class TestCommandParser : CommandBase
     {
-        public string Name { get; set; }
 
-        public bool IsOptional { get; set; }
-
-        public int Position { get; set; }
-
-        public Type DataType { get; set; }
-
-        public MethodInfo SetMethod { get; set; }
+        [Parameter("String1", IsOptional = false, Position = 1)]
+        public string String1 { get; set; }
 
 
-        public CommandParameterInfo()
+        [Parameter("String2", IsOptional = true, Position = 2)]
+        public string String2 { get; set; }
+
+        [Parameter("Bool1", IsOptional = true, Position = 3)]
+        public bool Bool1 { get; set; }
+
+        [Parameter("String3", IsOptional = false, Position = 4)]
+        public string String3 { get; set; }
+
+        [Parameter("Bool2", IsOptional = true, Position = 5)]
+        public bool Bool2 { get; set; }
+
+
+        public override void Execute()
         {
+            Context.WriteOutput("String1: {0}", String1);
+            Context.WriteOutput("String2: {0}", String2);
+            Context.WriteOutput("String3: {0}", String3);
+            Context.WriteOutput("Bool1: {0}", Bool1);
+            Context.WriteOutput("Bool2: {0}", Bool2);
 
         }
-
-        public CommandParameterInfo(ParameterAttribute attribute)
-        {
-            this.Name = attribute.Name;
-            this.IsOptional = attribute.IsOptional;
-            this.Position = attribute.Position;
-        }
-
     }
 }
+
+#endif

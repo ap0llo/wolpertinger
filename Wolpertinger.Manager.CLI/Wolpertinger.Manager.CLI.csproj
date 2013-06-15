@@ -62,6 +62,7 @@
   <ItemGroup>
     <Compile Include="CommandLib\Attributes\CommandAttribute.cs" />
     <Compile Include="CommandLib\Attributes\ParameterAttribute.cs" />
+    <Compile Include="CommandLib\Attributes\ParameterParserAttribute.cs" />
     <Compile Include="CommandLib\CommandBase.cs" />
     <Compile Include="CommandLib\CommandContext.cs" />
     <Compile Include="CommandLib\CommandExecutionException.cs" />
@@ -69,6 +70,13 @@
     <Compile Include="CommandLib\CommandParameterInfo.cs" />
     <Compile Include="CommandLib\CommandParser.cs" />
     <Compile Include="CommandLib\CommandParserException.cs" />
+    <Compile Include="CommandLib\Parsers\BoolParser.cs" />
+    <Compile Include="CommandLib\Parsers\GuidParser.cs" />
+    <Compile Include="CommandLib\Parsers\IntParser.cs" />
+    <Compile Include="CommandLib\Parsers\IParameterParser.cs" />
+    <Compile Include="CommandLib\Parsers\LogLevelParser.cs" />
+    <Compile Include="CommandLib\Parsers\SecureStringParser.cs" />
+    <Compile Include="CommandLib\Parsers\StringParser.cs" />
     <Compile Include="Commands\ClientInfo\GetClientInfoCommand.cs" />
     <Compile Include="Commands\Connection\AuthenticateUserCommand.cs" />
     <Compile Include="Commands\Connection\CloseConnectionCommand.cs" />
@@ -94,6 +102,7 @@
     <Compile Include="Commands\Fileshare\Snapshot\RemoveSnapshotCommand.cs" />
     <Compile Include="Commands\Fileshare\Permission\TestPermissionCommand.cs" />
     <Compile Include="Commands\Help\GetHelpCommand.cs" />
+    <Compile Include="Commands\TestCommandParser.cs" />
     <Compile Include="Commands\Wolpertinger\ClearScreenCommand.cs" />
     <Compile Include="Commands\Wolpertinger\GetVersionCommand.cs" />
     <Compile Include="Commands\XmppLogger\GetEnableDebugLoggingCommand.cs" />

@@ -252,6 +252,8 @@ namespace Nerdcave.Common
 
             }
 
+            Console.Write("\n");
+
             return pw;
 
         }

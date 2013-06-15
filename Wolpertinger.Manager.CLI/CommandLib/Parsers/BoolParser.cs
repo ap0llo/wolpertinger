@@ -20,39 +20,44 @@ SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRU
 STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 
-namespace Wolpertinger.Manager.CLI
+namespace Wolpertinger.Manager.CLI.CommandLib.Parsers
 {
-    public class CommandParameterInfo
+    [ParameterParser(typeof(bool))]
+    public class BoolParser : IParameterParser
     {
-        public string Name { get; set; }
+        const string BOOLPATTERN = @"\A(true|false|0|1){1}\Z";
 
-        public bool IsOptional { get; set; }
-
-        public int Position { get; set; }
-
-        public Type DataType { get; set; }
-
-        public MethodInfo SetMethod { get; set; }
-
-
-        public CommandParameterInfo()
+        public bool CanParse(string input)
         {
-
+            return (input != null && Regex.IsMatch(input, BOOLPATTERN, RegexOptions.IgnoreCase));            
         }
 
-        public CommandParameterInfo(ParameterAttribute attribute)
+        public object Parse(string input)
         {
-            this.Name = attribute.Name;
-            this.IsOptional = attribute.IsOptional;
-            this.Position = attribute.Position;
-        }
+            bool outValue;
 
+            if (input == "0")
+            {
+                return false;
+            }
+            else if (input == "1")
+            {
+                return true;
+            }
+            else if (bool.TryParse(input, out outValue))
+            {
+                return outValue;
+            }
+            else
+            {
+                throw new ArgumentException("Value could not be parsed. Did you call CanParse() to check if the value is valid?");
+            }
+        }
     }
 }
