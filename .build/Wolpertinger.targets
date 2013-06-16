@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Version;Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<Import Project="$(SolutionDir)\.build\MSBuild.Community.Tasks.Targets"/>
+	<PropertyGroup>
+		<MSBuildCommunityTasksLib>$(SolutionDir)\.build\MSBuild.Community.Tasks.dll</MSBuildCommunityTasksLib>
+		<NoWarn>1591</NoWarn>
+	</PropertyGroup>
+	<PropertyGroup>
+		<CurrentYear>$([System.DateTime]::Now.Year.ToString())</CurrentYear>
+		<CurrentMonth>$([System.DateTime]::Now.Month.ToString())</CurrentMonth>
+		<CurrentDay>$([System.DateTime]::Now.Day.ToString())</CurrentDay>
+	</PropertyGroup>
+	<Target Name="Version">
+		<GitVersion LocalPath="$(MSBuildProjectDirectory)">
+			<Output TaskParameter="CommitHash" PropertyName="GitRevision" />
+		</GitVersion>
+
+		<AssemblyInfo
+			CodeLanguage="CS"
+			OutputFile="$(SolutionDir)\GlobalAssemblyInfo.cs"
+			AssemblyCopyright="Copyright 2011-2013"
+			ComVisible="false"
+			CLSCompliant="true"
+			AssemblyInformationalVersion="$(CurrentYear).$(CurrentMonth).$(CurrentDay) (git $(GitRevision))"
+			AssemblyVersion="$(CurrentYear).$(CurrentMonth).$(CurrentDay).0"
+			AssemblyFileVersion="$(CurrentYear).$(CurrentMonth).$(CurrentDay).0">
+		</AssemblyInfo>
+	</Target>
+	<ItemGroup>
+		<Compile Include="$(SolutionDir)\GlobalAssemblyInfo.cs" />
+    </ItemGroup>
+</Project>
