@@ -34,6 +34,8 @@ namespace Wolpertinger.Manager.CLI.CommandLib.Parsers
 
         const string GUIDPATTERN = @"\A[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}\Z";
 
+        public CommandContext CommandContext { get; set; }
+
         public bool CanParse(string input)
         {
             return (input != null && Regex.IsMatch(input, GUIDPATTERN, RegexOptions.IgnoreCase));

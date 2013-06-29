@@ -33,7 +33,7 @@ using Wolpertinger.Manager.CLI.CommandLib;
 
 namespace Wolpertinger.Manager.CLI
 {
-    class CommandParser
+    public class CommandParser
     {
         #region Fields
 
@@ -123,6 +123,7 @@ namespace Wolpertinger.Manager.CLI
 
 
                     IParameterParser instance = Activator.CreateInstance(type) as IParameterParser;
+                    instance.CommandContext = this.context;
                     parameterParsers.Add(parameterType, instance);
 
                 }

@@ -33,6 +33,10 @@ namespace Wolpertinger.Manager.CLI.CommandLib.Parsers
     {
         const string BOOLPATTERN = @"\A(true|false|0|1){1}\Z";
 
+
+        public CommandContext CommandContext { get; set; }
+
+
         public bool CanParse(string input)
         {
             return (input != null && Regex.IsMatch(input, BOOLPATTERN, RegexOptions.IgnoreCase));            

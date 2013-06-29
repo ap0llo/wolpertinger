@@ -27,7 +27,7 @@ using System.Text;
 
 namespace Wolpertinger.Manager.CLI
 {
-    abstract class CommandBase
+    public abstract class CommandBase
     {
         public CommandContext Context { get; set; }
 

@@ -28,7 +28,7 @@ using Wolpertinger.Core;
 
 namespace Wolpertinger.Manager.CLI
 {
-    class CommandContext
+    public class CommandContext
     {
 
         public IConnectionManager ConnectionManager { get; set; }

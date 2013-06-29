@@ -30,6 +30,8 @@ namespace Wolpertinger.Manager.CLI.CommandLib.Parsers
     [ParameterParser(typeof(string))]
     public class StringParser : IParameterParser
     {
+        public CommandContext CommandContext { get; set; }
+
         public virtual bool CanParse(string input)
         {
             return true;

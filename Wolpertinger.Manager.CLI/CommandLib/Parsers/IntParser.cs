@@ -34,6 +34,8 @@ namespace Wolpertinger.Manager.CLI.CommandLib.Parsers
 
         const string INTPATTERN = @"\A[0-9]+\Z";
 
+        public CommandContext CommandContext { get; set; }
+
         public bool CanParse(string input)
         {
             return (input != null && Regex.IsMatch(input, INTPATTERN));

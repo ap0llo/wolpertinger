@@ -29,6 +29,8 @@ namespace Wolpertinger.Manager.CLI.CommandLib.Parsers
 {
     public interface IParameterParser
     {
+        CommandContext CommandContext { get; set; }
+
         bool CanParse(string input);
 
         object Parse(string input);
