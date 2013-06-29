@@ -36,6 +36,7 @@ using System.Threading;
 using System.Security;
 using Nerdcave.Common.Xml;
 using Wolpertinger.FileShareCommon;
+using System.Diagnostics;
 
 namespace Wolpertinger.Manager.CLI
 {
@@ -57,8 +58,7 @@ namespace Wolpertinger.Manager.CLI
 			printLogo();
 			Console.Title = "Wolpertinger Manager";
 			Console.WriteLine();
-			ConsoleHelper.WriteLine(ConsoleColor.Cyan, " Wolpertinger Manager {0}", Assembly.GetExecutingAssembly().GetName().Version.ToString());
-			ConsoleHelper.WriteLine(ConsoleColor.Cyan, " Wolpertinger.Core    {0}", Assembly.GetAssembly(typeof(DefaultConnectionManager)).GetName().Version.ToString());
+			ConsoleHelper.WriteLine(ConsoleColor.Cyan, " {0}", FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion);
 			Console.WriteLine();
 
 			//Set up XmlSerializer

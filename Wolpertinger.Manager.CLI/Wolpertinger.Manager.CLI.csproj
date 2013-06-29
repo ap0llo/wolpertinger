@@ -71,6 +71,7 @@
     <Compile Include="CommandLib\CommandParser.cs" />
     <Compile Include="CommandLib\CommandParserException.cs" />
     <Compile Include="CommandLib\Parsers\BoolParser.cs" />
+    <Compile Include="CommandLib\Parsers\ClientConnectionParser.cs" />
     <Compile Include="CommandLib\Parsers\GuidParser.cs" />
     <Compile Include="CommandLib\Parsers\IntParser.cs" />
     <Compile Include="CommandLib\Parsers\IParameterParser.cs" />
@@ -78,6 +79,7 @@
     <Compile Include="CommandLib\Parsers\SecureStringParser.cs" />
     <Compile Include="CommandLib\Parsers\StringParser.cs" />
     <Compile Include="Commands\ClientInfo\GetClientInfoCommand.cs" />
+    <Compile Include="Commands\ConnectionDependentCommand.cs" />
     <Compile Include="Commands\Connection\AuthenticateUserCommand.cs" />
     <Compile Include="Commands\Connection\CloseConnectionCommand.cs" />
     <Compile Include="Commands\Connection\EnterConnectionCommand.cs" />

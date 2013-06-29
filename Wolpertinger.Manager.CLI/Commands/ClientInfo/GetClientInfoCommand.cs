@@ -29,17 +29,12 @@ using Wolpertinger.Core;
 namespace Wolpertinger.Manager.CLI.Commands.ClientInfo
 {
     [Command(CommandVerb.Get, "ClientInfo", "ClientInfo")]
-    class GetClientInfoCommand : CommandBase
+    class GetClientInfoCommand : ConnectionDependentCommand
     {
         public override void Execute()
         {
-            if (Context.ActiveConnection == null)
-            {
-                Context.WriteError("No active connection");
-                return;
-            }
 
-            var clientInfoComponent = new ClientInfoClientComponent() { ClientConnection = Context.ActiveConnection };
+            var clientInfoComponent = new ClientInfoClientComponent() { ClientConnection = getClientConnection() };
 
             try
             {

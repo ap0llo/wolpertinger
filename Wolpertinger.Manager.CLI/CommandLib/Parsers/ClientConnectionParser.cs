@@ -24,37 +24,46 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Security;
-using Nerdcave.Common;
-using Nerdcave.Common.Extensions;
 using Wolpertinger.Core;
 
-namespace Wolpertinger.Manager.CLI.Commands.Connection
+namespace Wolpertinger.Manager.CLI.CommandLib.Parsers
 {
-    [Command(CommandVerb.Authenticate, "User", "Connection")]
-    class AuthenticateUserCommand : ConnectionDependentCommand
+    [ParameterParser(typeof(IClientConnection))]
+    class ClientConnectionParser : IParameterParser
     {
-
-        [Parameter("Username", IsOptional= false, Position =2)]
-        public string Username { get; set; }
-
-        [Parameter("Password", IsOptional=false, Position =3)]
-        public SecureString Password { get; set; }
-
-        public override void Execute()
-        {
-
-            var authComponent = new AuthenticationComponent() { ClientConnection = getClientConnection() };
-
-            //get a new token for the authentication
-            string token = authComponent.UserAuthGetTokenAsync().Result;
+        public CommandContext CommandContext { get; set;}
         
-            //authenticate the user
-            var authTask = authComponent.UserAuthVerifyAsync(Username, token, Password);            
+        public bool CanParse(string input)
+        {
+            return getConnection(input) != null;
+        }
 
-            Context.WriteInfo(  authTask.Result
-                                ? "User Authentication successful"
-                                : "User Authentication failed");                        
+        public object Parse(string input)
+        {
+            return getConnection(input) ;
+        }
+
+
+
+        private IClientConnection getConnection(string queryString)
+        {
+            if (queryString.StartsWith("#"))
+            {
+                int value;
+                if (int.TryParse(queryString.Substring(1), out value)
+                    && value < CommandContext.ConnectionManager.GetClientConnections().Count())
+                {
+                    return CommandContext.ConnectionManager.GetClientConnections().Skip(value).First();
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            else
+            {
+                return CommandContext.ConnectionManager.GetClientConnection(queryString);
+            }
         }
     }
 }

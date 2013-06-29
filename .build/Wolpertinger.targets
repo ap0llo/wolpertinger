@@ -5,23 +5,30 @@
 		<MSBuildCommunityTasksLib>$(SolutionDir)\.build\MSBuild.Community.Tasks.dll</MSBuildCommunityTasksLib>
 		<NoWarn>1591</NoWarn>
 	</PropertyGroup>
+	
+	<!--Set properties required for the generation of the AssemblyInfo-->
 	<PropertyGroup>
 		<CurrentYear>$([System.DateTime]::Now.Year.ToString())</CurrentYear>
 		<CurrentMonth>$([System.DateTime]::Now.Month.ToString())</CurrentMonth>
 		<CurrentDay>$([System.DateTime]::Now.Day.ToString())</CurrentDay>
+		<WolpertingerBuildType>Wolpertinger </WolpertingerBuildType>
 	</PropertyGroup>
+	<!--If we build in configuration debug, lets make clear in the version it's a dev build-->
+	<PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+		<WolpertingerBuildType>Wolpertinger Development Build </WolpertingerBuildType>
+	</PropertyGroup>
+	
 	<Target Name="Version">
 		<GitVersion LocalPath="$(MSBuildProjectDirectory)">
 			<Output TaskParameter="CommitHash" PropertyName="GitRevision" />
-		</GitVersion>
-
+		</GitVersion>		
 		<AssemblyInfo
 			CodeLanguage="CS"
 			OutputFile="$(SolutionDir)\GlobalAssemblyInfo.cs"
 			AssemblyCopyright="Copyright 2011-2013"
 			ComVisible="false"
 			CLSCompliant="true"
-			AssemblyInformationalVersion="$(CurrentYear).$(CurrentMonth).$(CurrentDay) (git $(GitRevision))"
+			AssemblyInformationalVersion="$(WolpertingerBuildType)$(CurrentYear).$(CurrentMonth).$(CurrentDay) (git $(GitRevision))"
 			AssemblyVersion="$(CurrentYear).$(CurrentMonth).$(CurrentDay).0"
 			AssemblyFileVersion="$(CurrentYear).$(CurrentMonth).$(CurrentDay).0">
 		</AssemblyInfo>

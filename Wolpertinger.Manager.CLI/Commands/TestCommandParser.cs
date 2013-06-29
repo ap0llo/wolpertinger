@@ -27,6 +27,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Wolpertinger.Core;
 
 namespace Wolpertinger.Manager.CLI.Commands
 {
@@ -35,30 +36,35 @@ namespace Wolpertinger.Manager.CLI.Commands
     class TestCommandParser : CommandBase
     {
 
-        [Parameter("String1", IsOptional = false, Position = 1)]
-        public string String1 { get; set; }
+
+        [Parameter("Connection", IsOptional = true, Position = 1)]
+        public IClientConnection Connection { get; set; }
 
 
-        [Parameter("String2", IsOptional = true, Position = 2)]
-        public string String2 { get; set; }
+        //[Parameter("String1", IsOptional = false, Position = 1)]
+        //public string String1 { get; set; }
 
-        [Parameter("Bool1", IsOptional = true, Position = 3)]
-        public bool Bool1 { get; set; }
 
-        [Parameter("String3", IsOptional = false, Position = 4)]
-        public string String3 { get; set; }
+        //[Parameter("String2", IsOptional = true, Position = 2)]
+        //public string String2 { get; set; }
 
-        [Parameter("Bool2", IsOptional = true, Position = 5)]
-        public bool Bool2 { get; set; }
+        //[Parameter("Bool1", IsOptional = true, Position = 3)]
+        //public bool Bool1 { get; set; }
+
+        //[Parameter("String3", IsOptional = false, Position = 4)]
+        //public string String3 { get; set; }
+
+        //[Parameter("Bool2", IsOptional = true, Position = 5)]
+        //public bool Bool2 { get; set; }
 
 
         public override void Execute()
         {
-            Context.WriteOutput("String1: {0}", String1);
-            Context.WriteOutput("String2: {0}", String2);
-            Context.WriteOutput("String3: {0}", String3);
-            Context.WriteOutput("Bool1: {0}", Bool1);
-            Context.WriteOutput("Bool2: {0}", Bool2);
+            Context.WriteOutput("Connection: {0}", Connection.Target);
+            //Context.WriteOutput("String2: {0}", String2);
+            //Context.WriteOutput("String3: {0}", String3);
+            //Context.WriteOutput("Bool1: {0}", Bool1);
+            //Context.WriteOutput("Bool2: {0}", Bool2);
 
         }
     }

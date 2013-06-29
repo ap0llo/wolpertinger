@@ -24,37 +24,34 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Security;
-using Nerdcave.Common;
-using Nerdcave.Common.Extensions;
 using Wolpertinger.Core;
 
-namespace Wolpertinger.Manager.CLI.Commands.Connection
+namespace Wolpertinger.Manager.CLI.Commands
 {
-    [Command(CommandVerb.Authenticate, "User", "Connection")]
-    class AuthenticateUserCommand : ConnectionDependentCommand
+    abstract class ConnectionDependentCommand : CommandBase
     {
+        [Parameter("Connection", IsOptional=true, Position=1)]
+        public IClientConnection Connection { get; set; }
 
-        [Parameter("Username", IsOptional= false, Position =2)]
-        public string Username { get; set; }
 
-        [Parameter("Password", IsOptional=false, Position =3)]
-        public SecureString Password { get; set; }
 
-        public override void Execute()
+
+
+        protected IClientConnection getClientConnection()
         {
-
-            var authComponent = new AuthenticationComponent() { ClientConnection = getClientConnection() };
-
-            //get a new token for the authentication
-            string token = authComponent.UserAuthGetTokenAsync().Result;
-        
-            //authenticate the user
-            var authTask = authComponent.UserAuthVerifyAsync(Username, token, Password);            
-
-            Context.WriteInfo(  authTask.Result
-                                ? "User Authentication successful"
-                                : "User Authentication failed");                        
+            if (Connection != null)
+            {
+                return Connection;
+            }
+            else if (this.Context.ActiveConnection != null)
+            {
+                return this.Context.ActiveConnection;
+            }
+            else
+            {
+                throw new CommandExecutionException("No active connection and no connection specified");
+            }
         }
+
     }
 }

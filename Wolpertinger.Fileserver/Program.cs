@@ -26,6 +26,7 @@ using Nerdcave.Common.Extensions;
 using Nerdcave.Common.Xml;
 using Slf;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Pipes;
 using System.Reflection;
@@ -52,8 +53,7 @@ namespace Wolpertinger.Fileserver
 
             Console.Title = "Wolpertinger Fileserver";
             Console.WriteLine();
-            ConsoleHelper.WriteLine(ConsoleColor.Red, " Wolpertinger.FileServer {0}", Assembly.GetExecutingAssembly().GetName().Version.ToString());
-            ConsoleHelper.WriteLine(ConsoleColor.Red, " Wolpertinger.Core       {0}", Assembly.GetAssembly(typeof(DefaultConnectionManager)).GetName().Version.ToString());
+            ConsoleHelper.WriteLine(ConsoleColor.Red, " {0}", FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion);
             Console.WriteLine();
 
             //Set up XmlSerializer

@@ -29,63 +29,58 @@ using Wolpertinger.Core;
 namespace Wolpertinger.Manager.CLI.Commands.Connection
 {
     [Command(CommandVerb.Start, "Connection", "Connection")]
-    class StartConnectionCommand : CommandBase
+    class StartConnectionCommand : ConnectionDependentCommand
     {
 
         public override void Execute()
         {
-            if (Context.ActiveConnection == null)
+
+            var connection = getClientConnection();
+
+            connection.WtlpClient.MessagingClient.Connect();
+
+            var authComponent = new AuthenticationComponent() { ClientConnection = connection };
+
+            connection.WtlpClient.MessagingClient.MyResource = "Wolpertinger_Main";
+
+            if (authComponent.EstablishConnectionAsync().Result)
             {
-                Context.WriteError("No connection active");
-            }
-            else
-            {
-                var connection = Context.ActiveConnection;
+                Context.WriteInfo("Exchanging keys");
 
-                connection.WtlpClient.MessagingClient.Connect();
+                authComponent.KeyExchangeAsync().Wait();
 
-                var authComponent = new AuthenticationComponent() { ClientConnection = connection };
+                Context.WriteInfo("Key exchange completed");
+                Context.WriteInfo("Initiating Cluster Authentication");
 
-                connection.WtlpClient.MessagingClient.MyResource = "Wolpertinger_Main";
+                string token = authComponent.ClusterAuthGetTokenAsync().Result;
 
-                if (authComponent.EstablishConnectionAsync().Result)
+                if (authComponent.ClusterAuthVerifyAsync(token).Result)
                 {
-                    Context.WriteInfo("Exchanging keys");
-
-                    authComponent.KeyExchangeAsync().Wait();
-
-                    Context.WriteInfo("Key exchange completed");
-                    Context.WriteInfo("Initiating Cluster Authentication");
-
-                    string token = authComponent.ClusterAuthGetTokenAsync().Result;
-
-                    if (authComponent.ClusterAuthVerifyAsync(token).Result)
+                    Context.WriteInfo("Verified my Cluster Membership");
+                    if (authComponent.ClusterAuthRequestVerificationAsync().Result)
                     {
-                        Context.WriteInfo("Verified my Cluster Membership");
-                        if (authComponent.ClusterAuthRequestVerificationAsync().Result)
-                        {
-                            Context.WriteInfo("Verified Cluster Membership of target client");
+                        Context.WriteInfo("Verified Cluster Membership of target client");
 
-                            //we're finished
-                            Context.WriteInfo("Successfully connected to target");
+                        //we're finished
+                        Context.WriteInfo("Successfully connected to target");
 
-                        }
-                        else
-                        {
-                            Context.WriteInfo("Cluster Authentication of target client failed");
-                        }
                     }
                     else
                     {
-                        Context.WriteInfo("Cluster Authentication failed");
+                        Context.WriteInfo("Cluster Authentication of target client failed");
                     }
-
+                }
+                else
+                {
+                    Context.WriteInfo("Cluster Authentication failed");
                 }
 
-
-
-
             }
+
+
+
+
+
         }
 
     }
