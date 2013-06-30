@@ -8,32 +8,43 @@
 	
 	<!--Set properties required for the generation of the AssemblyInfo-->
 	<PropertyGroup>
-		<CurrentYear>$([System.DateTime]::Now.Year.ToString())</CurrentYear>
+		<!--<CurrentYear>$([System.DateTime]::Now.Year.ToString())</CurrentYear>
 		<CurrentMonth>$([System.DateTime]::Now.Month.ToString())</CurrentMonth>
-		<CurrentDay>$([System.DateTime]::Now.Day.ToString())</CurrentDay>
-		<WolpertingerBuildType>Wolpertinger </WolpertingerBuildType>
+		<CurrentDay>$([System.DateTime]::Now.Day.ToString())</CurrentDay>-->
+		<WolpertingerBuildType></WolpertingerBuildType>
 	</PropertyGroup>
 	<!--If we build in configuration debug, lets make clear in the version it's a dev build-->
 	<PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-		<WolpertingerBuildType>Wolpertinger Development Build </WolpertingerBuildType>
+		<WolpertingerBuildType>Development Build </WolpertingerBuildType>
 	</PropertyGroup>
 	
 	<Target Name="Version">
+		<MakeDir Directories="$(SolutionDir)\buildgen" />
+		<Time>
+			<Output TaskParameter="Year" PropertyName="TMajor" />
+			<Output TaskParameter="Month" PropertyName="TMinor" />
+			<Output TaskParameter="Day" PropertyName="TBuild" />
+		</Time>
+		<!-- Need version to auto-generate its Build property so that the revision will automatically update between days -->
+		<Version Major="$(TMajor)" Minor="$(TMinor)" BuildType="Automatic" RevisionType="BuildIncrement" VersionFile="$(SolutionDir)\buildgen\$(ProjectName)Version.txt">
+			<Output TaskParameter="Revision" PropertyName="VRevision" />
+		</Version>
+	
 		<GitVersion LocalPath="$(MSBuildProjectDirectory)">
 			<Output TaskParameter="CommitHash" PropertyName="GitRevision" />
 		</GitVersion>		
 		<AssemblyInfo
 			CodeLanguage="CS"
-			OutputFile="$(SolutionDir)\GlobalAssemblyInfo.cs"
+			OutputFile="$(SolutionDir)\buildgen\GlobalAssemblyInfo.cs"
 			AssemblyCopyright="Copyright 2011-2013"
 			ComVisible="false"
 			CLSCompliant="true"
-			AssemblyInformationalVersion="$(WolpertingerBuildType)$(CurrentYear).$(CurrentMonth).$(CurrentDay) (git $(GitRevision))"
-			AssemblyVersion="$(CurrentYear).$(CurrentMonth).$(CurrentDay).0"
-			AssemblyFileVersion="$(CurrentYear).$(CurrentMonth).$(CurrentDay).0">
+			AssemblyInformationalVersion="$(WolpertingerBuildType)$(TMajor).$(TMinor).$(TBuild).$(VRevision) (git $(GitRevision))"
+			AssemblyVersion="$(TMajor).$(TMinor).$(TBuild).$(VRevision)"
+			AssemblyFileVersion="$(TMajor).$(TMinor).$(TBuild).$(VRevision)">
 		</AssemblyInfo>
 	</Target>
 	<ItemGroup>
-		<Compile Include="$(SolutionDir)\GlobalAssemblyInfo.cs" />
+		<Compile Include="$(SolutionDir)\buildgen\GlobalAssemblyInfo.cs" />
     </ItemGroup>
 </Project>
