@@ -20,38 +20,28 @@ SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRU
 STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 
-namespace Wolpertinger.Manager.CLI
+namespace CommandLineParser.CommandParser
 {
-    public class CommandParameterInfo
+    public abstract class CommandBase
     {
-        public string Name { get; set; }
-
-        public bool IsOptional { get; set; }
-
-        public int Position { get; set; }
-
-        public Type DataType { get; set; }
-
-        public MethodInfo SetMethod { get; set; }
+        public CommandContext Context { get; set; }
 
 
-        public CommandParameterInfo()
+        public abstract void Execute();
+
+
+        /// <summary>
+        /// Aborts the execution of the command by throwing a CommandExecutionException with the specified message
+        /// </summary>
+        /// <param name="message">The message for the CommandExecutionException</param>
+        protected void abort(string message)
         {
-
-        }
-
-        public CommandParameterInfo(ParameterAttribute attribute)
-        {
-            this.Name = attribute.Name;
-            this.IsOptional = attribute.IsOptional;
-            this.Position = attribute.Position;
+            throw new CommandExecutionException(message);
         }
 
     }

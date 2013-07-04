@@ -20,38 +20,51 @@ SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRU
 STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
+using CommandLineParser.Attributes;
+using CommandLineParser.CommandParser;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
+using Wolpertinger.Core;
 
-namespace Wolpertinger.Manager.CLI.CommandLib.Parsers
+namespace CommandLineParser.ParameterParsers
 {
-    [ParameterParser(typeof(Guid))]
-    public class GuidParser : IParameterParser
+    [ParameterParser(typeof(IClientConnection))]
+    class ClientConnectionParser : IParameterParser
     {
-
-        const string GUIDPATTERN = @"\A[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}\Z";
-
-        public CommandContext CommandContext { get; set; }
-
+        public CommandContext CommandContext { get; set;}
+        
         public bool CanParse(string input)
         {
-            return (input != null && Regex.IsMatch(input, GUIDPATTERN, RegexOptions.IgnoreCase));
+            return getConnection(input) != null;
         }
 
         public object Parse(string input)
         {
-            Guid outValue;
+            return getConnection(input) ;
+        }
 
-            if (Guid.TryParse(input, out outValue))
+
+
+        private IClientConnection getConnection(string queryString)
+        {
+            if (queryString.StartsWith("#"))
             {
-                return outValue;
+                int value;
+                if (int.TryParse(queryString.Substring(1), out value)
+                    && value < CommandContext.ConnectionManager.GetClientConnections().Count())
+                {
+                    return CommandContext.ConnectionManager.GetClientConnections().Skip(value).First();
+                }
+                else
+                {
+                    return null;
+                }
             }
             else
             {
-                throw new ArgumentException("Value could not be parsed. Did you call CanParse() to check if the value is valid?");
+                return CommandContext.ConnectionManager.GetClientConnection(queryString);
             }
         }
     }

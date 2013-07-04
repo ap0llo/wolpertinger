@@ -23,23 +23,47 @@ STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using CommandLineParser.Attributes;
 using System.Text;
+using System.Text.RegularExpressions;
+using CommandLineParser.CommandParser;
 
-namespace Wolpertinger.Manager.CLI.CommandLib.Parsers
+namespace CommandLineParser.ParameterParsers
 {
-    [ParameterParser(typeof(string))]
-    public class StringParser : IParameterParser
+    [ParameterParser(typeof(bool))]
+    public class BoolParser : IParameterParser
     {
+        const string BOOLPATTERN = @"\A(true|false|0|1){1}\Z";
+
+
         public CommandContext CommandContext { get; set; }
 
-        public virtual bool CanParse(string input)
+
+        public bool CanParse(string input)
         {
-            return true;
+            return (input != null && Regex.IsMatch(input, BOOLPATTERN, RegexOptions.IgnoreCase));            
         }
 
-        public virtual object Parse(string input)
+        public object Parse(string input)
         {
-            return input;
+            bool outValue;
+
+            if (input == "0")
+            {
+                return false;
+            }
+            else if (input == "1")
+            {
+                return true;
+            }
+            else if (bool.TryParse(input, out outValue))
+            {
+                return outValue;
+            }
+            else
+            {
+                throw new ArgumentException("Value could not be parsed. Did you call CanParse() to check if the value is valid?");
+            }
         }
     }
 }

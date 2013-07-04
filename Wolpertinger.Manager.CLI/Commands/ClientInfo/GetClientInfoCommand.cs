@@ -25,6 +25,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Wolpertinger.Core;
+using CommandLineParser.CommandParser;
+using CommandLineParser.Attributes;
 
 namespace Wolpertinger.Manager.CLI.Commands.ClientInfo
 {

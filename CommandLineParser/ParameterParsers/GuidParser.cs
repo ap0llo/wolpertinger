@@ -1,4 +1,5 @@
-﻿/*
+﻿using CommandLineParser.Attributes;
+/*
 
 Licensed under the new BSD-License
  
@@ -25,27 +26,28 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using CommandLineParser.CommandParser;
 
-namespace Wolpertinger.Manager.CLI.CommandLib.Parsers
+namespace CommandLineParser.ParameterParsers
 {
-    [ParameterParser(typeof(int))]
-    public class IntParser : IParameterParser
+    [ParameterParser(typeof(Guid))]
+    public class GuidParser : IParameterParser
     {
 
-        const string INTPATTERN = @"\A[0-9]+\Z";
+        const string GUIDPATTERN = @"\A[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}\Z";
 
         public CommandContext CommandContext { get; set; }
 
         public bool CanParse(string input)
         {
-            return (input != null && Regex.IsMatch(input, INTPATTERN));
+            return (input != null && Regex.IsMatch(input, GUIDPATTERN, RegexOptions.IgnoreCase));
         }
 
         public object Parse(string input)
         {
-            int outValue;
+            Guid outValue;
 
-            if (int.TryParse(input, out outValue))
+            if (Guid.TryParse(input, out outValue))
             {
                 return outValue;
             }

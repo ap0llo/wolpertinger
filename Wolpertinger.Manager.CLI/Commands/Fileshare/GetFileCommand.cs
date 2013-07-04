@@ -26,6 +26,8 @@ using System.Linq;
 using System.Text;
 using Wolpertinger.Core;
 using Wolpertinger.FileShareCommon;
+using CommandLineParser.Attributes;
+using CommandLineParser.CommandParser;
 
 namespace Wolpertinger.Manager.CLI.Commands.Fileshare
 {

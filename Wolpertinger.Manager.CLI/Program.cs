@@ -37,6 +37,7 @@ using System.Security;
 using Nerdcave.Common.Xml;
 using Wolpertinger.FileShareCommon;
 using System.Diagnostics;
+using CommandLineParser.CommandParser;
 
 namespace Wolpertinger.Manager.CLI
 {

@@ -28,10 +28,11 @@ using Nerdcave.Common.Extensions;
 using System.Reflection;
 using System.Security;
 using Nerdcave.Common;
-using Wolpertinger.Manager.CLI.CommandLib.Parsers;
-using Wolpertinger.Manager.CLI.CommandLib;
+using CommandLineParser.Attributes;
+using CommandLineParser.Info;
+using CommandLineParser.ParameterParsers;
 
-namespace Wolpertinger.Manager.CLI
+namespace CommandLineParser.CommandParser
 {
 	public class CommandParser
 	{

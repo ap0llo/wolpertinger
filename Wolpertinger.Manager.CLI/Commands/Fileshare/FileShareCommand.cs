@@ -27,6 +27,7 @@ using System.Text;
 using Wolpertinger.Core;
 using Wolpertinger.FileShareCommon;
 using Nerdcave.Common.Extensions;
+using CommandLineParser.CommandParser;
 
 namespace Wolpertinger.Manager.CLI.Commands.Fileshare
 {

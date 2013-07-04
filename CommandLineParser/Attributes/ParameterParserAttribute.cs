@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Wolpertinger.Manager.CLI.CommandLib
+namespace CommandLineParser.Attributes
 {
     public class ParameterParserAttribute : Attribute
     {

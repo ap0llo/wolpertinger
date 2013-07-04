@@ -25,6 +25,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Wolpertinger.FileShareCommon;
+using CommandLineParser.Attributes;
+using CommandLineParser.CommandParser;
 
 namespace Wolpertinger.Manager.CLI.Commands.Fileshare.Snapshot
 {

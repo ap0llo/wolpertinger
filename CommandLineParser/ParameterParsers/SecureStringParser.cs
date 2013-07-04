@@ -24,20 +24,18 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Nerdcave.Common.Extensions;
+using System.Security;
+using CommandLineParser.Attributes;
 
-namespace Wolpertinger.Manager.CLI
+namespace CommandLineParser.ParameterParsers
 {
-    public class CommandParserException : Exception
+    [ParameterParser(typeof(SecureString))]
+    class SecureStringParser : StringParser
     {
-        public CommandParserException(string message)
-            : base(message)
+        public override object Parse(string input)
         {
-        }
-
-
-        public CommandParserException(string format, params object[] args)
-            : this(String.Format(format, args))
-        {
+            return (base.Parse(input) as string).ToSecureString();
         }
     }
 }

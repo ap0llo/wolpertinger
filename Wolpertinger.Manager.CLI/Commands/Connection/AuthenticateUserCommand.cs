@@ -28,6 +28,8 @@ using System.Security;
 using Nerdcave.Common;
 using Nerdcave.Common.Extensions;
 using Wolpertinger.Core;
+using CommandLineParser.Attributes;
+using CommandLineParser.CommandParser;
 
 namespace Wolpertinger.Manager.CLI.Commands.Connection
 {

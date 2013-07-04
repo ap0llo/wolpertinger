@@ -24,46 +24,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Wolpertinger.Core;
+using CommandLineParser.CommandParser;
 
-namespace Wolpertinger.Manager.CLI.CommandLib.Parsers
+namespace CommandLineParser.ParameterParsers
 {
-    [ParameterParser(typeof(IClientConnection))]
-    class ClientConnectionParser : IParameterParser
+    public interface IParameterParser
     {
-        public CommandContext CommandContext { get; set;}
-        
-        public bool CanParse(string input)
-        {
-            return getConnection(input) != null;
-        }
+        CommandContext CommandContext { get; set; }
 
-        public object Parse(string input)
-        {
-            return getConnection(input) ;
-        }
+        bool CanParse(string input);
 
-
-
-        private IClientConnection getConnection(string queryString)
-        {
-            if (queryString.StartsWith("#"))
-            {
-                int value;
-                if (int.TryParse(queryString.Substring(1), out value)
-                    && value < CommandContext.ConnectionManager.GetClientConnections().Count())
-                {
-                    return CommandContext.ConnectionManager.GetClientConnections().Skip(value).First();
-                }
-                else
-                {
-                    return null;
-                }
-            }
-            else
-            {
-                return CommandContext.ConnectionManager.GetClientConnection(queryString);
-            }
-        }
+        object Parse(string input);
     }
 }

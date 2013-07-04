@@ -25,36 +25,29 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using CommandLineParser.CommandParser;
+using CommandLineParser.Attributes;
 
-namespace Wolpertinger.Manager.CLI.CommandLib.Parsers
+namespace CommandLineParser.ParameterParsers
 {
-    [ParameterParser(typeof(bool))]
-    public class BoolParser : IParameterParser
+    [ParameterParser(typeof(Wolpertinger.Core.LogLevel))]
+    public class LogLevelParser : IParameterParser
     {
-        const string BOOLPATTERN = @"\A(true|false|0|1){1}\Z";
 
+        const string LOGLEVELPATTERN = @"\A(None|Info|Warn|Error|Fatal)\Z";
 
         public CommandContext CommandContext { get; set; }
 
-
         public bool CanParse(string input)
         {
-            return (input != null && Regex.IsMatch(input, BOOLPATTERN, RegexOptions.IgnoreCase));            
+            return (input != null && Regex.IsMatch(input, LOGLEVELPATTERN, RegexOptions.IgnoreCase));
         }
 
         public object Parse(string input)
         {
-            bool outValue;
+            Wolpertinger.Core.LogLevel outValue;
 
-            if (input == "0")
-            {
-                return false;
-            }
-            else if (input == "1")
-            {
-                return true;
-            }
-            else if (bool.TryParse(input, out outValue))
+            if (Enum.TryParse<Wolpertinger.Core.LogLevel>(input, true, out outValue))
             {
                 return outValue;
             }

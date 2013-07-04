@@ -24,17 +24,37 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Nerdcave.Common.Extensions;
-using System.Security;
+using System.Text.RegularExpressions;
+using CommandLineParser.Attributes;
+using CommandLineParser.CommandParser;
 
-namespace Wolpertinger.Manager.CLI.CommandLib.Parsers
+namespace CommandLineParser.ParameterParsers
 {
-    [ParameterParser(typeof(SecureString))]
-    class SecureStringParser : StringParser
+    [ParameterParser(typeof(int))]
+    public class IntParser : IParameterParser
     {
-        public override object Parse(string input)
+
+        const string INTPATTERN = @"\A[0-9]+\Z";
+
+        public CommandContext CommandContext { get; set; }
+
+        public bool CanParse(string input)
         {
-            return (base.Parse(input) as string).ToSecureString();
+            return (input != null && Regex.IsMatch(input, INTPATTERN));
+        }
+
+        public object Parse(string input)
+        {
+            int outValue;
+
+            if (int.TryParse(input, out outValue))
+            {
+                return outValue;
+            }
+            else
+            {
+                throw new ArgumentException("Value could not be parsed. Did you call CanParse() to check if the value is valid?");
+            }
         }
     }
 }

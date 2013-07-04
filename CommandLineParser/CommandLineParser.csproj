@@ -43,21 +43,21 @@
     <Compile Include="Attributes\CommandAttribute.cs" />
     <Compile Include="Attributes\ParameterAttribute.cs" />
     <Compile Include="Attributes\ParameterParserAttribute.cs" />
-    <Compile Include="CommandBase.cs" />
-    <Compile Include="CommandContext.cs" />
-    <Compile Include="CommandExecutionException.cs" />
-    <Compile Include="CommandInfo.cs" />
-    <Compile Include="CommandParameterInfo.cs" />
-    <Compile Include="CommandParser.cs" />
-    <Compile Include="CommandParserException.cs" />
-    <Compile Include="Parsers\BoolParser.cs" />
-    <Compile Include="Parsers\ClientConnectionParser.cs" />
-    <Compile Include="Parsers\GuidParser.cs" />
-    <Compile Include="Parsers\IntParser.cs" />
-    <Compile Include="Parsers\IParameterParser.cs" />
-    <Compile Include="Parsers\LogLevelParser.cs" />
-    <Compile Include="Parsers\SecureStringParser.cs" />
-    <Compile Include="Parsers\StringParser.cs" />
+    <Compile Include="CommandParser\CommandBase.cs" />
+    <Compile Include="CommandParser\CommandContext.cs" />
+    <Compile Include="CommandParser\CommandExecutionException.cs" />
+    <Compile Include="Info\CommandInfo.cs" />
+    <Compile Include="Info\CommandParameterInfo.cs" />
+    <Compile Include="CommandParser\CommandParser.cs" />
+    <Compile Include="CommandParser\CommandParserException.cs" />
+    <Compile Include="ParameterParsers\BoolParser.cs" />
+    <Compile Include="ParameterParsers\ClientConnectionParser.cs" />
+    <Compile Include="ParameterParsers\GuidParser.cs" />
+    <Compile Include="ParameterParsers\IntParser.cs" />
+    <Compile Include="ParameterParsers\IParameterParser.cs" />
+    <Compile Include="ParameterParsers\LogLevelParser.cs" />
+    <Compile Include="ParameterParsers\SecureStringParser.cs" />
+    <Compile Include="ParameterParsers\StringParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

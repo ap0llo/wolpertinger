@@ -26,7 +26,7 @@ using System.Linq;
 using System.Text;
 using Nerdcave.Common.Extensions;
 
-namespace Wolpertinger.Manager.CLI
+namespace CommandLineParser.Attributes
 {
     public class ParameterAttribute : Attribute
     {

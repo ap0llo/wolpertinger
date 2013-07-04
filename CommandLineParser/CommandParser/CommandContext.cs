@@ -1,4 +1,5 @@
-﻿/*
+﻿using Nerdcave.Common;
+/*
 
 Licensed under the new BSD-License
  
@@ -24,35 +25,85 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
+using Wolpertinger.Core;
 
-namespace Wolpertinger.Manager.CLI.CommandLib.Parsers
+namespace CommandLineParser.CommandParser
 {
-    [ParameterParser(typeof(Core.LogLevel))]
-    public class LogLevelParser : IParameterParser
+    public class CommandContext
     {
 
-        const string LOGLEVELPATTERN = @"\A(None|Info|Warn|Error|Fatal)\Z";
+        public IConnectionManager ConnectionManager { get; set; }
 
-        public CommandContext CommandContext { get; set; }
 
-        public bool CanParse(string input)
+        public IClientConnection ActiveConnection { get; set; }
+
+
+        public CommandParser CommadParser { get; set; }
+
+
+        public void AddClientConnection(IClientConnection connection)
         {
-            return (input != null && Regex.IsMatch(input, LOGLEVELPATTERN, RegexOptions.IgnoreCase));
+            
         }
 
-        public object Parse(string input)
-        {
-            Core.LogLevel outValue;
 
-            if (Enum.TryParse<Core.LogLevel>(input, true, out outValue))
-            {
-                return outValue;
-            }
-            else
-            {
-                throw new ArgumentException("Value could not be parsed. Did you call CanParse() to check if the value is valid?");
-            }
+
+
+
+        public void WriteError(string message)
+        {
+            ErrorLine(message);
         }
+
+        public void WriteError(string format, params object[] args)
+        {
+            WriteError(String.Format(format, args));
+        }
+
+        public void WriteInfo(string message)
+        {
+            StatusLine(message);     
+        }
+
+
+        public void WriteOutput(string output)
+        {
+            OutputLine(output);
+        }
+
+        public void WriteOutput()
+        {
+            WriteOutput("");
+        }
+
+
+        public void WriteOutput(string format, params object[] args)
+        {
+            WriteOutput(String.Format(format, args));
+        }
+
+
+        private static void OutputLine(string line)
+        {
+            writeLine(line, ConsoleColor.Yellow);
+        }
+
+        private static void ErrorLine(string line)
+        {
+            writeLine(line, ConsoleColor.Red);
+        }
+
+        private static void StatusLine(string line)
+        {
+            writeLine(line, ConsoleColor.White);
+        }
+
+
+        private static void writeLine(string text, ConsoleColor color)
+        {           
+            ConsoleHelper.WriteLine(color, text);           
+        }
+
     }
+
 }

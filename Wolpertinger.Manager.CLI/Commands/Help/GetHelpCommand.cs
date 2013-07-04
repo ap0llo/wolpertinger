@@ -25,6 +25,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Nerdcave.Common.Extensions;
+using CommandLineParser.Attributes;
+using CommandLineParser.CommandParser;
+using CommandLineParser.Info;
 
 namespace Wolpertinger.Manager.CLI.Commands.Help
 {

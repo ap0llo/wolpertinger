@@ -24,25 +24,24 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using CommandLineParser.Attributes;
+using CommandLineParser.CommandParser;
 
-namespace Wolpertinger.Manager.CLI
+namespace CommandLineParser.ParameterParsers
 {
-    public abstract class CommandBase
+    [ParameterParser(typeof(string))]
+    public class StringParser : IParameterParser
     {
-        public CommandContext Context { get; set; }
+        public CommandContext CommandContext { get; set; }
 
-
-        public abstract void Execute();
-
-
-        /// <summary>
-        /// Aborts the execution of the command by throwing a CommandExecutionException with the specified message
-        /// </summary>
-        /// <param name="message">The message for the CommandExecutionException</param>
-        protected void abort(string message)
+        public virtual bool CanParse(string input)
         {
-            throw new CommandExecutionException(message);
+            return true;
         }
 
+        public virtual object Parse(string input)
+        {
+            return input;
+        }
     }
 }
