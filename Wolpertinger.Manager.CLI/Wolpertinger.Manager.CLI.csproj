@@ -60,24 +60,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CommandLib\Attributes\CommandAttribute.cs" />
-    <Compile Include="CommandLib\Attributes\ParameterAttribute.cs" />
-    <Compile Include="CommandLib\Attributes\ParameterParserAttribute.cs" />
-    <Compile Include="CommandLib\CommandBase.cs" />
-    <Compile Include="CommandLib\CommandContext.cs" />
-    <Compile Include="CommandLib\CommandExecutionException.cs" />
-    <Compile Include="CommandLib\CommandInfo.cs" />
-    <Compile Include="CommandLib\CommandParameterInfo.cs" />
-    <Compile Include="CommandLib\CommandParser.cs" />
-    <Compile Include="CommandLib\CommandParserException.cs" />
-    <Compile Include="CommandLib\Parsers\BoolParser.cs" />
-    <Compile Include="CommandLib\Parsers\ClientConnectionParser.cs" />
-    <Compile Include="CommandLib\Parsers\GuidParser.cs" />
-    <Compile Include="CommandLib\Parsers\IntParser.cs" />
-    <Compile Include="CommandLib\Parsers\IParameterParser.cs" />
-    <Compile Include="CommandLib\Parsers\LogLevelParser.cs" />
-    <Compile Include="CommandLib\Parsers\SecureStringParser.cs" />
-    <Compile Include="CommandLib\Parsers\StringParser.cs" />
     <Compile Include="Commands\ClientInfo\GetClientInfoCommand.cs" />
     <Compile Include="Commands\ConnectionDependentCommand.cs" />
     <Compile Include="Commands\Connection\AuthenticateUserCommand.cs" />
@@ -122,6 +104,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\CommandLineParser\CommandLineParser.csproj">
+      <Project>{7c9a7177-9dde-4107-a3dd-7d718abccaab}</Project>
+      <Name>CommandLineParser</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Nerdcave.Common\Nerdcave.Common.csproj">
       <Project>{B7FA3F58-FDF8-4AAD-AE7C-EF1A80CCF069}</Project>
       <Name>Nerdcave.Common</Name>

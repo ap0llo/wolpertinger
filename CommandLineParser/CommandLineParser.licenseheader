@@ -1,4 +1,5 @@
-﻿/*
+extensions: .cs .cpp .h
+/*
 
 Licensed under the new BSD-License
  
@@ -20,65 +21,3 @@ SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRU
 STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Wolpertinger.Core;
-
-namespace Wolpertinger.Manager.CLI
-{
-    public class CommandContext
-    {
-
-        public IConnectionManager ConnectionManager { get; set; }
-
-
-        public IClientConnection ActiveConnection { get; set; }
-
-
-        public CommandParser CommadParser { get; set; }
-
-
-        public void AddClientConnection(IClientConnection connection)
-        {
-            
-        }
-
-
-
-
-
-        public void WriteError(string message)
-        {
-            Program.ErrorLine(message);
-        }
-
-        public void WriteError(string format, params object[] args)
-        {
-            WriteError(String.Format(format, args));
-        }
-
-        public void WriteInfo(string message)
-        {
-            Program.StatusLine(message);     
-        }
-
-
-        public void WriteOutput(string output)
-        {
-            Program.OutputLine(output);
-        }
-
-        public void WriteOutput()
-        {
-            WriteOutput("");
-        }
-
-
-        public void WriteOutput(string format, params object[] args)
-        {
-            WriteOutput(String.Format(format, args));
-        }
-    }
-}

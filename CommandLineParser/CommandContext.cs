@@ -1,4 +1,5 @@
-﻿/*
+﻿using Nerdcave.Common;
+/*
 
 Licensed under the new BSD-License
  
@@ -24,20 +25,85 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Wolpertinger.Core;
 
 namespace Wolpertinger.Manager.CLI
 {
-    class CommandExecutionException : Exception
+    public class CommandContext
     {
-        public CommandExecutionException(string message)
-            : base(message)
+
+        public IConnectionManager ConnectionManager { get; set; }
+
+
+        public IClientConnection ActiveConnection { get; set; }
+
+
+        public CommandParser CommadParser { get; set; }
+
+
+        public void AddClientConnection(IClientConnection connection)
         {
+            
         }
 
-        public CommandExecutionException(string message, Exception innerException)
-            : base(message, innerException)
+
+
+
+
+        public void WriteError(string message)
         {
+            ErrorLine(message);
+        }
+
+        public void WriteError(string format, params object[] args)
+        {
+            WriteError(String.Format(format, args));
+        }
+
+        public void WriteInfo(string message)
+        {
+            StatusLine(message);     
+        }
+
+
+        public void WriteOutput(string output)
+        {
+            OutputLine(output);
+        }
+
+        public void WriteOutput()
+        {
+            WriteOutput("");
+        }
+
+
+        public void WriteOutput(string format, params object[] args)
+        {
+            WriteOutput(String.Format(format, args));
+        }
+
+
+        private static void OutputLine(string line)
+        {
+            writeLine(line, ConsoleColor.Yellow);
+        }
+
+        private static void ErrorLine(string line)
+        {
+            writeLine(line, ConsoleColor.Red);
+        }
+
+        private static void StatusLine(string line)
+        {
+            writeLine(line, ConsoleColor.White);
+        }
+
+
+        private static void writeLine(string text, ConsoleColor color)
+        {           
+            ConsoleHelper.WriteLine(color, text);           
         }
 
     }
+
 }

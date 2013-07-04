@@ -85,6 +85,10 @@
     <Compile Include="XmlSerialization\XmlSerializerTest.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\CommandLineParser\CommandLineParser.csproj">
+      <Project>{7c9a7177-9dde-4107-a3dd-7d718abccaab}</Project>
+      <Name>CommandLineParser</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Nerdcave.Common\Nerdcave.Common.csproj">
       <Project>{b7fa3f58-fdf8-4aad-ae7c-ef1a80ccf069}</Project>
       <Name>Nerdcave.Common</Name>
