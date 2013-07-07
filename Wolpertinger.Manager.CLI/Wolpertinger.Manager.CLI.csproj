@@ -91,6 +91,7 @@
     <Compile Include="Commands\LogLevelParser.cs" />
     <Compile Include="Commands\TestCommandParser.cs" />
     <Compile Include="Commands\Wolpertinger\ClearScreenCommand.cs" />
+    <Compile Include="Commands\Wolpertinger\ExitApplicationCommand.cs" />
     <Compile Include="Commands\Wolpertinger\GetVersionCommand.cs" />
     <Compile Include="Commands\XmppLogger\GetEnableDebugLoggingCommand.cs" />
     <Compile Include="Commands\XmppLogger\SetEnableDebugLoggingCommand.cs" />
