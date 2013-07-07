@@ -35,7 +35,7 @@ namespace Wolpertinger.Manager.CLI.Commands
 {
 
     [Command(CommandVerb.Test, "CommandParser", "Debug")]
-    class TestCommandParser : CommandBase
+    class TestCommandParser : CommandBase<CommandContext>
     {
 
 

@@ -30,7 +30,7 @@ using CommandLineParser.CommandParser;
 
 namespace Wolpertinger.Manager.CLI.Commands.XmppLogger
 {
-    abstract class LoggerCommand : CommandBase
+    abstract class LoggerCommand : CommandBase<CommandContext>
     {
 
         protected XmppLoggingConfiguratorComponent getLoggerComponent()

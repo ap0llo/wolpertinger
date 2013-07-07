@@ -30,7 +30,7 @@ using CommandLineParser.CommandParser;
 namespace Wolpertinger.Manager.CLI.Commands.Connection
 {
     [Command(CommandVerb.Close, "Connection", "Connection")]
-    class CloseConnectionCommand : CommandBase
+    class CloseConnectionCommand : CommandBase<CommandContext>
     {
 
         public override void Execute()

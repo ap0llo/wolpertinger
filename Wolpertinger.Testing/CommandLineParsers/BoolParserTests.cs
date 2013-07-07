@@ -23,6 +23,7 @@ STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using CommandLineParser.ParameterParsers;
+using CommandLineParser.Interfaces;
 
 namespace Wolpertinger.Testing.CommandLineParsers
 {

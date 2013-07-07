@@ -27,16 +27,14 @@ using CommandLineParser.Attributes;
 using System.Text;
 using System.Text.RegularExpressions;
 using CommandLineParser.CommandParser;
+using CommandLineParser.Interfaces;
 
 namespace CommandLineParser.ParameterParsers
 {
     [ParameterParser(typeof(bool))]
-    public class BoolParser : IParameterParser
+    public class BoolParser: IParameterParser
     {
         const string BOOLPATTERN = @"\A(true|false|0|1){1}\Z";
-
-
-        public CommandContext CommandContext { get; set; }
 
 
         public bool CanParse(string input)

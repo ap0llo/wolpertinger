@@ -20,40 +20,62 @@ SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRU
 STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
+using CommandLineParser.Attributes;
+using CommandLineParser.CommandParser;
+using CommandLineParser.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Wolpertinger.Core;
-using CommandLineParser.Attributes;
-using CommandLineParser.CommandParser;
 
-namespace Wolpertinger.Manager.CLI.Commands
+namespace Wolpertinger.Manager.CLI
 {
-    abstract class ConnectionDependentCommand : CommandBase<CommandContext>
+    [ParameterParser(typeof(IClientConnection))]
+    class ClientConnectionParser : IParameterParser
     {
-        [Parameter("Connection", IsOptional=true, Position=1)]
-        public IClientConnection Connection { get; set; }
+        private CommandContext context;
 
 
-
-
-
-        protected IClientConnection getClientConnection()
+        public ClientConnectionParser(CommandContext context)
         {
-            if (Connection != null)
+            this.context = context;
+        }
+
+
+
+
+        public bool CanParse(string input)
+        {
+            return getConnection(input) != null;
+        }
+
+        public object Parse(string input)
+        {
+            return getConnection(input);
+        }
+
+
+
+        private IClientConnection getConnection(string queryString)
+        {
+            if (queryString.StartsWith("#"))
             {
-                return Connection;
-            }
-            else if (this.Context.ActiveConnection != null)
-            {
-                return this.Context.ActiveConnection;
+                int value;
+                if (int.TryParse(queryString.Substring(1), out value)
+                    && value < context.ConnectionManager.GetClientConnections().Count())
+                {
+                    return context.ConnectionManager.GetClientConnections().Skip(value).First();
+                }
+                else
+                {
+                    return null;
+                }
             }
             else
             {
-                throw new CommandExecutionException("No active connection and no connection specified");
+                return context.ConnectionManager.GetClientConnection(queryString);
             }
         }
-
     }
 }

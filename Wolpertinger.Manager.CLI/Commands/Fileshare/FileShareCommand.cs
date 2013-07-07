@@ -31,7 +31,7 @@ using CommandLineParser.CommandParser;
 
 namespace Wolpertinger.Manager.CLI.Commands.Fileshare
 {
-    abstract class FileShareCommand : CommandBase
+    abstract class FileShareCommand : CommandBase<CommandContext>
     {
         protected FileShareClientComponent getFileShareComponent()
         {

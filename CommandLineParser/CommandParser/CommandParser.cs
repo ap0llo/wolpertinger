@@ -31,15 +31,16 @@ using Nerdcave.Common;
 using CommandLineParser.Attributes;
 using CommandLineParser.Info;
 using CommandLineParser.ParameterParsers;
+using CommandLineParser.Interfaces;
 
 namespace CommandLineParser.CommandParser
 {
-	public class CommandParser
+	public class CommandParser<T> where T: ICommandContext<T>
 	{
 		#region Fields
 
 		//The CommandContext in whcih the commands will be executed
-		CommandContext context;
+		T context;
 		//The commands knwon to the CommandParser
 		List<CommandInfo> commands = new List<CommandInfo>();
 		//The parsers known to the commandparser
@@ -63,10 +64,10 @@ namespace CommandLineParser.CommandParser
 		/// Initializes a new instance of CommandParser
 		/// </summary>
 		/// <param name="context">The <see cref="CommandContext"/> to use for executing commands</param>
-		public CommandParser(CommandContext context)
+		public CommandParser(T context)
 		{
 			this.context = context;
-			context.CommadParser = this;
+            context.CommandParser = this;            
 		}
 
 
@@ -78,8 +79,8 @@ namespace CommandLineParser.CommandParser
 		{
 			foreach (var type in assembly.GetTypes())
 			{
-				if (type.IsSubclassOf(typeof(CommandBase)) 
-					|| type.IsAssignableFrom(typeof(IParameterParser)))
+				if (type.IsSubclassOf(typeof(CommandBase<T>))
+                    || typeof(IParameterParser).IsAssignableFrom(type))
 				{
 					//check if instances of the type can be created
 					if (!canCreateInstance(type))
@@ -90,7 +91,7 @@ namespace CommandLineParser.CommandParser
 
 
 				//check if type is derived from CommandBase
-				if (type.IsSubclassOf(typeof(CommandBase)))
+				if (type.IsSubclassOf(typeof(CommandBase<T>)))
 				{
 					var attributes = type.GetCustomAttributes(typeof(CommandAttribute), false);
 					if (attributes == null || !attributes.Any())
@@ -123,8 +124,7 @@ namespace CommandLineParser.CommandParser
 					var parameterType = (attributes.First() as ParameterParserAttribute).ParameterType;
 
 
-					IParameterParser instance = Activator.CreateInstance(type) as IParameterParser;
-					instance.CommandContext = this.context;
+					IParameterParser instance = Activator.CreateInstance(type) as IParameterParser;					
 					parameterParsers.Add(parameterType, instance);
 
 				}
@@ -139,7 +139,7 @@ namespace CommandLineParser.CommandParser
 		/// Returns a new instance of a class derived from CommandBase with all the paramters set.
 		/// On Error <see cref="CommandParserException"/> is thrown
 		/// </returns>
-		public CommandBase GetCommand(string input)
+		public CommandBase<T> GetCommand(string input)
 		{
 			var args = input.SpaceSplitString();
 
@@ -150,7 +150,7 @@ namespace CommandLineParser.CommandParser
 
 
 			var commandInfo =  getCommandInfo(args);
-			var commandInstance = (CommandBase)Activator.CreateInstance(commandInfo.Type);
+			var commandInstance = (CommandBase<T>)Activator.CreateInstance(commandInfo.Type);
 			commandInstance.Context = this.context;
 
 
@@ -228,6 +228,18 @@ namespace CommandLineParser.CommandParser
 
 
 
+        public void SetParser(Type type, IParameterParser parser)
+        {
+            if (parameterParsers.ContainsKey(type))
+            {
+                parameterParsers[type] = parser;
+            }
+            else
+            {
+                parameterParsers.Add(type, parser);
+            }
+        }
+
 
 		/// <summary>
 		/// Helper method for GetCommand(). Parses the supplied command args and tries to find the right command
@@ -264,7 +276,7 @@ namespace CommandLineParser.CommandParser
 		/// <summary>
 		/// Helper method for GetCommand(). Searches all the named parameters found in args and sets the apropriate properties of commandInstance
 		/// </summary>
-		private void setNamedParameters(List<string> args, CommandInfo commandInfo, CommandBase commandInstance, 
+		private void setNamedParameters(List<string> args, CommandInfo commandInfo, CommandBase<T> commandInstance, 
 			bool[] processedArgs, HashSet<CommandParameterInfo> setParameters)
 		{
 			//first get named paramters
@@ -356,7 +368,7 @@ namespace CommandLineParser.CommandParser
 		/// <summary>
 		/// Helper method for GetCommand(). Tries to determine the right combination of paramters for the args that have not already been processed based on their positon
 		/// </summary>
-		private void setPositionalParameters(List<string> args, CommandInfo commandInfo, CommandBase commandInstance, 
+		private void setPositionalParameters(List<string> args, CommandInfo commandInfo, CommandBase<T> commandInstance, 
 			bool[] processedArgs, HashSet<CommandParameterInfo> setParameters)
 		{
 			//first, build a list of all possible combinations

@@ -26,10 +26,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Wolpertinger.Core;
+using Wolpertinger.Manager.CLI.Commands;
+using CommandLineParser.Interfaces;
+using CommandLineParser.CommandParser;
 
-namespace CommandLineParser.CommandParser
+namespace Wolpertinger.Manager.CLI
 {
-    public class CommandContext
+    public class CommandContext : ICommandContext<CommandContext>
     {
 
         public IConnectionManager ConnectionManager { get; set; }
@@ -38,7 +41,7 @@ namespace CommandLineParser.CommandParser
         public IClientConnection ActiveConnection { get; set; }
 
 
-        public CommandParser CommadParser { get; set; }
+        public CommandParser<CommandContext> CommandParser { get; set; }
 
 
         public void AddClientConnection(IClientConnection connection)
@@ -103,6 +106,8 @@ namespace CommandLineParser.CommandParser
         {           
             ConsoleHelper.WriteLine(color, text);           
         }
+
+
 
     }
 

@@ -30,7 +30,7 @@ using CommandLineParser.CommandParser;
 namespace Wolpertinger.Manager.CLI.Commands.Wolpertinger
 {
     [Command(CommandVerb.Clear, "Screen", "Wolpertinger")]
-    class ClearScreenCommand : CommandBase
+    class ClearScreenCommand : CommandBase<CommandContext>
     {
         public override void Execute()
         {

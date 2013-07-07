@@ -30,7 +30,7 @@ using CommandLineParser.CommandParser;
 namespace Wolpertinger.Manager.CLI.Commands.Connection
 {
     [Command(CommandVerb.New, "Connection", "Connection")]
-    class NewConnectionCommand : CommandBase
+    class NewConnectionCommand : CommandBase<CommandContext>
     {
 
         [Parameter("Target", IsOptional= false, Position=1)]

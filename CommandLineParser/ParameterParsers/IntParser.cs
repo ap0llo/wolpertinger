@@ -27,6 +27,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using CommandLineParser.Attributes;
 using CommandLineParser.CommandParser;
+using CommandLineParser.Interfaces;
 
 namespace CommandLineParser.ParameterParsers
 {
@@ -36,7 +37,6 @@ namespace CommandLineParser.ParameterParsers
 
         const string INTPATTERN = @"\A[0-9]+\Z";
 
-        public CommandContext CommandContext { get; set; }
 
         public bool CanParse(string input)
         {

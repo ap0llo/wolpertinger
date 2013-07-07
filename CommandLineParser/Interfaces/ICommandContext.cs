@@ -20,20 +20,24 @@ SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRU
 STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
+using CommandLineParser.CommandParser;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using CommandLineParser.CommandParser;
 
-namespace CommandLineParser.ParameterParsers
+namespace CommandLineParser.Interfaces
 {
-    public interface IParameterParser
+    /// <summary>
+    /// Interface that needs to be implemented by a command context
+    /// </summary>
+    /// <typeparam name="T">The type of the command context implementation</typeparam>
+    public interface ICommandContext<T> where T : ICommandContext<T>
     {
-        CommandContext CommandContext { get; set; }
+        /// <summary>
+        /// The CommandParser in the current context (property will be set by CommandParser)
+        /// </summary>
+        CommandParser<T> CommandParser { get; set; }
 
-        bool CanParse(string input);
-
-        object Parse(string input);
     }
 }

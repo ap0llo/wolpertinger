@@ -60,7 +60,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Commands\ClientConnectionParser.cs" />
     <Compile Include="Commands\ClientInfo\GetClientInfoCommand.cs" />
+    <Compile Include="Commands\CommandContext.cs" />
     <Compile Include="Commands\ConnectionDependentCommand.cs" />
     <Compile Include="Commands\Connection\AuthenticateUserCommand.cs" />
     <Compile Include="Commands\Connection\CloseConnectionCommand.cs" />
@@ -86,6 +88,7 @@
     <Compile Include="Commands\Fileshare\Snapshot\RemoveSnapshotCommand.cs" />
     <Compile Include="Commands\Fileshare\Permission\TestPermissionCommand.cs" />
     <Compile Include="Commands\Help\GetHelpCommand.cs" />
+    <Compile Include="Commands\LogLevelParser.cs" />
     <Compile Include="Commands\TestCommandParser.cs" />
     <Compile Include="Commands\Wolpertinger\ClearScreenCommand.cs" />
     <Compile Include="Commands\Wolpertinger\GetVersionCommand.cs" />

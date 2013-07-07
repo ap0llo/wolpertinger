@@ -32,7 +32,7 @@ using CommandLineParser.CommandParser;
 namespace Wolpertinger.Manager.CLI.Commands.Wolpertinger
 {
     [Command(CommandVerb.Get, "Version", "Wolpertinger")]
-    class GetVersionCommand : CommandBase
+    class GetVersionCommand : CommandBase<CommandContext>
     {
         public override void Execute()
         {

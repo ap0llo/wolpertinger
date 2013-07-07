@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using CommandLineParser.ParameterParsers;
+using CommandLineParser.Interfaces;
 
 
 namespace Wolpertinger.Testing.CommandLineParsers

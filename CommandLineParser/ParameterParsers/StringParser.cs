@@ -26,13 +26,13 @@ using System.Linq;
 using System.Text;
 using CommandLineParser.Attributes;
 using CommandLineParser.CommandParser;
+using CommandLineParser.Interfaces;
 
 namespace CommandLineParser.ParameterParsers
 {
     [ParameterParser(typeof(string))]
     public class StringParser : IParameterParser
     {
-        public CommandContext CommandContext { get; set; }
 
         public virtual bool CanParse(string input)
         {

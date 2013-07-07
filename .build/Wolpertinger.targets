@@ -35,7 +35,7 @@
 		</GitVersion>		
 		<AssemblyInfo
 			CodeLanguage="CS"
-			OutputFile="$(SolutionDir)\buildgen\GlobalAssemblyInfo.cs"
+			OutputFile="$(SolutionDir)\buildgen\GlobalAssemblyInfo_$(ProjectName).cs"
 			AssemblyCopyright="Copyright 2011-2013"
 			ComVisible="false"
 			CLSCompliant="true"
@@ -45,6 +45,6 @@
 		</AssemblyInfo>
 	</Target>
 	<ItemGroup>
-		<Compile Include="$(SolutionDir)\buildgen\GlobalAssemblyInfo.cs" />
+		<Compile Include="$(SolutionDir)\buildgen\GlobalAssemblyInfo_$(ProjectName).cs" />
 		</ItemGroup>
 </Project>

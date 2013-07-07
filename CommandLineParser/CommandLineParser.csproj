@@ -44,18 +44,16 @@
     <Compile Include="Attributes\ParameterAttribute.cs" />
     <Compile Include="Attributes\ParameterParserAttribute.cs" />
     <Compile Include="CommandParser\CommandBase.cs" />
-    <Compile Include="CommandParser\CommandContext.cs" />
     <Compile Include="CommandParser\CommandExecutionException.cs" />
     <Compile Include="Info\CommandInfo.cs" />
     <Compile Include="Info\CommandParameterInfo.cs" />
     <Compile Include="CommandParser\CommandParser.cs" />
     <Compile Include="CommandParser\CommandParserException.cs" />
+    <Compile Include="Interfaces\ICommandContext.cs" />
     <Compile Include="ParameterParsers\BoolParser.cs" />
-    <Compile Include="ParameterParsers\ClientConnectionParser.cs" />
     <Compile Include="ParameterParsers\GuidParser.cs" />
     <Compile Include="ParameterParsers\IntParser.cs" />
-    <Compile Include="ParameterParsers\IParameterParser.cs" />
-    <Compile Include="ParameterParsers\LogLevelParser.cs" />
+    <Compile Include="Interfaces\IParameterParser.cs" />
     <Compile Include="ParameterParsers\SecureStringParser.cs" />
     <Compile Include="ParameterParsers\StringParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -64,10 +62,6 @@
     <ProjectReference Include="..\Nerdcave.Common\Nerdcave.Common.csproj">
       <Project>{b7fa3f58-fdf8-4aad-ae7c-ef1a80ccf069}</Project>
       <Name>Nerdcave.Common</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Wolpertinger.Core\Wolpertinger.Core.csproj">
-      <Project>{42bf5ac0-a438-49fb-8049-9549da556898}</Project>
-      <Name>Wolpertinger.Core</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

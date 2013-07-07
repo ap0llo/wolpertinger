@@ -26,10 +26,10 @@ using System.Linq;
 using System.Text;
 
 namespace CommandLineParser.CommandParser
-{
-    public abstract class CommandBase
+{    
+    public abstract class CommandBase<T>
     {
-        public CommandContext Context { get; set; }
+        public T Context { get; set; }
 
 
         public abstract void Execute();

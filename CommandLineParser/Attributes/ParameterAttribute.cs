@@ -24,33 +24,52 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Nerdcave.Common.Extensions;
 
 namespace CommandLineParser.Attributes
 {
+    /// <summary>
+    /// Attribute to identify a command's property as parameter
+    /// </summary>
     public class ParameterAttribute : Attribute
     {
+        /// <summary>
+        /// The parameter's name
+        /// </summary>
         public string Name { get; set; }
 
+        /// <summary>
+        /// Gets or sets whether the paramter is optional 
+        /// </summary>
         public bool IsOptional { get; set; }
 
+        /// <summary>
+        /// The parameter's position if it can be used as positional parameter
+        /// </summary>
         public int Position { get; set; }
 
-
+        /// <summary>
+        /// Initializes a new instance of ParameterAttribute
+        /// </summary>
+        /// <param name="name">The parameter's name</param>
         public ParameterAttribute(string name)
             : this (name, false)
         {
-
         }
 
+        /// <summary>
+        /// Initializes a new instance of ParameterAttribute
+        /// </summary>
+        /// <param name="name">The parameter's name</param>
+        /// <param name="isOptional">Specifies whether the parameter is optional</param>
+        /// <param name="position">The parameter's position if it can be used as positional parameter</param>
         public ParameterAttribute(string name, bool isOptional, int position = -1)
         {
-            if (name.IsNullOrEmpty())
+            //check if specified name is valid
+            if (String.IsNullOrEmpty(name))
             {
                 throw new ArgumentException("ParameterName may not be empty");
             }
-
-            if (name.StartsWith("-") || name.StartsWith("/"))
+            else if (name.StartsWith("-") || name.StartsWith("/"))
             {
                 throw new ArgumentException("ParameterName may not start with '-' or '/'");
             }

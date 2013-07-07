@@ -32,7 +32,7 @@ using CommandLineParser.Info;
 namespace Wolpertinger.Manager.CLI.Commands.Help
 {
 	[Command(CommandVerb.Get, "Help", "Help")]
-	class GetHelpCommand : CommandBase
+    class GetHelpCommand : CommandBase<CommandContext>
 	{
 
 		[Parameter("CommandName", IsOptional=true, Position=1)]
@@ -42,7 +42,7 @@ namespace Wolpertinger.Manager.CLI.Commands.Help
 		public override void Execute()
 		{
 			//Get a list of all commands known to the CommandParser
-			var allCommands = Context.CommadParser.KnownCommands.OrderBy(x => getCommandName(x));
+			var allCommands = Context.CommandParser.KnownCommands.OrderBy(x => getCommandName(x));
 
 			//if CommandName has not been specified, print a list of all available command
 			if (CommandName == null)

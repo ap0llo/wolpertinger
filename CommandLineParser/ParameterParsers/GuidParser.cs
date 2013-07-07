@@ -27,16 +27,16 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using CommandLineParser.CommandParser;
+using CommandLineParser.Interfaces;
 
 namespace CommandLineParser.ParameterParsers
 {
     [ParameterParser(typeof(Guid))]
-    public class GuidParser : IParameterParser
+    public class GuidParser: IParameterParser
     {
 
         const string GUIDPATTERN = @"\A[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}\Z";
 
-        public CommandContext CommandContext { get; set; }
 
         public bool CanParse(string input)
         {

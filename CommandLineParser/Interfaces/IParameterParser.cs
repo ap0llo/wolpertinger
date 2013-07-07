@@ -24,37 +24,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 using CommandLineParser.CommandParser;
-using CommandLineParser.Attributes;
 
-namespace CommandLineParser.ParameterParsers
+namespace CommandLineParser.Interfaces
 {
-    [ParameterParser(typeof(Wolpertinger.Core.LogLevel))]
-    public class LogLevelParser : IParameterParser
+    public interface IParameterParser
     {
+        bool CanParse(string input);
 
-        const string LOGLEVELPATTERN = @"\A(None|Info|Warn|Error|Fatal)\Z";
-
-        public CommandContext CommandContext { get; set; }
-
-        public bool CanParse(string input)
-        {
-            return (input != null && Regex.IsMatch(input, LOGLEVELPATTERN, RegexOptions.IgnoreCase));
-        }
-
-        public object Parse(string input)
-        {
-            Wolpertinger.Core.LogLevel outValue;
-
-            if (Enum.TryParse<Wolpertinger.Core.LogLevel>(input, true, out outValue))
-            {
-                return outValue;
-            }
-            else
-            {
-                throw new ArgumentException("Value could not be parsed. Did you call CanParse() to check if the value is valid?");
-            }
-        }
+        object Parse(string input);
     }
 }

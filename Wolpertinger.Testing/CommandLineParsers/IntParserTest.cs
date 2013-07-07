@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using CommandLineParser.ParameterParsers;
+using CommandLineParser.Interfaces;
 
 namespace Wolpertinger.Testing.CommandLineParsers
 {

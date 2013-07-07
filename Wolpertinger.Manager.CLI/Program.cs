@@ -48,7 +48,7 @@ namespace Wolpertinger.Manager.CLI
 		private static object outputLock = new object();
 		private static bool waiting;
 
-		static CommandParser commandParser;
+		static CommandParser<CommandContext> commandParser;
 		static CommandContext context = new CommandContext();
 
 		public static void Main(string[] args)
@@ -96,10 +96,12 @@ namespace Wolpertinger.Manager.CLI
 			XmppLogger.ConnectionManager = connectionManager;
 
 
-			commandParser = new CommandParser(context);
+			commandParser = new CommandParser<CommandContext>(context);
 			context.ConnectionManager = connectionManager;
+            
+            commandParser.LoadCommandsAndParsersFromAssembly(Assembly.GetAssembly(typeof(CommandParser<CommandContext>)));
 			commandParser.LoadCommandsAndParsersFromAssembly(Assembly.GetExecutingAssembly());
-
+            commandParser.SetParser(typeof(IClientConnection), new ClientConnectionParser(context)); 
 
 
 

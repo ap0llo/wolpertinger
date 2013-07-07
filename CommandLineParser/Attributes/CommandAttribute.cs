@@ -24,35 +24,61 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Nerdcave.Common.Extensions;
 
 namespace CommandLineParser.Attributes
 {
+    /// <summary>
+    /// Attribute to identify classes as command classes
+    /// </summary>
 	public class CommandAttribute : Attribute
 	{
+        //characters not allow in command verbs or nouns
 		static HashSet<char> forbiddenCharacters = new HashSet<char>() { '.', '-' };
 
-
+        /// <summary>
+        /// The command verb
+        /// </summary>
 		public string Verb { get; set; }
 
+        /// <summary>
+        /// The command noun
+        /// </summary>
 		public string Noun { get; set; }
 
+        /// <summary>
+        /// The command's module
+        /// </summary>
 		public string Module { get; set; }
 
 
+        /// <summary>
+        /// Initializes a new instance of CommandAttribute
+        /// </summary>
+        /// <param name="verb">The command verb</param>
+        /// <param name="noun">The command noun</param>
+        /// <param name="module">The command's module</param>
 		public CommandAttribute(CommandVerb verb, string noun, string module = "") 
 			: this(verb.ToString(), noun, module)
 		{
 		}
 
+        /// <summary>
+        /// Initializes a new instance of CommandAttribute
+        /// </summary>
+        /// <param name="verb">The command verb</param>
+        /// <param name="noun">The command noun</param>
+        /// <param name="module">The command's module</param>
 		public CommandAttribute(string verb, string noun, string module = "")
 		{
-			if (noun.IsNullOrEmpty() || verb.IsNullOrEmpty())
+            //check if both verb and noun have been specified
+			if (String.IsNullOrEmpty(noun) || String.IsNullOrEmpty(verb))
 			{
 				throw new ArgumentException("'Noun' and 'Verb' must not be empty");
 			}
 
-			if (verb.Any(x => forbiddenCharacters.Contains(x)) || noun.Any(x => forbiddenCharacters.Contains(x)))
+            //make sure neither verb nor noun contain forbidden characters
+			if (verb.Any(x => forbiddenCharacters.Contains(x)) || 
+                noun.Any(x => forbiddenCharacters.Contains(x)))
 			{
 				throw new ArgumentException("'Noun' or 'Verb' contains illegal characters");
 			}
@@ -66,6 +92,9 @@ namespace CommandLineParser.Attributes
 	}
 
 
+    /// <summary>
+    /// Common command verbs
+    /// </summary>
 	public enum CommandVerb
 	{
 		Get, 
