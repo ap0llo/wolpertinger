@@ -37,7 +37,7 @@ namespace CommandLineParser.Interfaces
         /// <summary>
         /// The CommandParser in the current context (property will be set by CommandParser)
         /// </summary>
-        CommandParser<T> CommandParser { get; set; }
+        ICommandParser<T> CommandParser { get; set; }
 
     }
 }

@@ -50,6 +50,7 @@
     <Compile Include="CommandParser\CommandParser.cs" />
     <Compile Include="CommandParser\CommandParserException.cs" />
     <Compile Include="Interfaces\ICommandContext.cs" />
+    <Compile Include="Interfaces\ICommandParser.cs" />
     <Compile Include="ParameterParsers\BoolParser.cs" />
     <Compile Include="ParameterParsers\GuidParser.cs" />
     <Compile Include="ParameterParsers\IntParser.cs" />

@@ -20,65 +20,23 @@ SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRU
 STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
+using CommandLineParser.CommandParser;
+using CommandLineParser.Info;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Reflection;
 
-namespace CommandLineParser.Attributes
+namespace CommandLineParser.Interfaces
 {
-	/// <summary>
-	/// Attribute to identify a command's property as parameter
-	/// </summary>
-	public class ParameterAttribute : Attribute
+	public interface ICommandParser<T> where T : ICommandContext<T>
 	{
-		/// <summary>
-		/// The parameter's name
-		/// </summary>
-		public string Name { get; set; }
-
-		/// <summary>
-		/// Gets or sets whether the parameter is optional 
-		/// </summary>
-		public bool IsOptional { get; set; }
-
-		/// <summary>
-		/// The parameter's position if it can be used as positional parameter
-		/// </summary>
-		public int Position { get; set; }
-
-		/// <summary>
-		/// Initializes a new instance of ParameterAttribute
-		/// </summary>
-		/// <param name="name">The parameter's name</param>
-		public ParameterAttribute(string name)
-			: this (name, false)
-		{
-		}
-
-		/// <summary>
-		/// Initializes a new instance of ParameterAttribute
-		/// </summary>
-		/// <param name="name">The parameter's name</param>
-		/// <param name="isOptional">Specifies whether the parameter is optional</param>
-		/// <param name="position">The parameter's position if it can be used as positional parameter</param>
-		public ParameterAttribute(string name, bool isOptional, int position = -1)
-		{
-			//check if specified name is valid
-			if (String.IsNullOrEmpty(name))
-			{
-				throw new ArgumentException("ParameterName may not be empty");
-			}
-			else if (name.StartsWith("-") || name.StartsWith("/"))
-			{
-				throw new ArgumentException("ParameterName may not start with '-' or '/'");
-			}
-
-			this.Name = name;
-			this.IsOptional = isOptional;
-			this.Position = position;
-		}
+		IEnumerable<CommandInfo> KnownCommands { get; }
 
 
+		void LoadCommandsAndParsersFromAssembly(Assembly assembly);
+
+		CommandBase<T> GetCommand(string input);
+
+		void SetParser(Type type, IParameterParser parser);
 	}
 }

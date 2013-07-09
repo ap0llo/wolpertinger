@@ -38,6 +38,7 @@ using Nerdcave.Common.Xml;
 using Wolpertinger.FileShareCommon;
 using System.Diagnostics;
 using CommandLineParser.CommandParser;
+using CommandLineParser.Interfaces;
 
 namespace Wolpertinger.Manager.CLI
 {
@@ -48,7 +49,7 @@ namespace Wolpertinger.Manager.CLI
 		private static object outputLock = new object();
 		private static bool waiting;
 
-		static CommandParser<CommandContext> commandParser;
+		static ICommandParser<CommandContext> commandParser;
 		static CommandContext context = new CommandContext();
 
 		public static void Main(string[] args)

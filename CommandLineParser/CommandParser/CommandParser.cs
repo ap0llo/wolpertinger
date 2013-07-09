@@ -35,7 +35,7 @@ using CommandLineParser.Interfaces;
 
 namespace CommandLineParser.CommandParser
 {
-	public class CommandParser<T> where T: ICommandContext<T>
+	public class CommandParser<T> : ICommandParser<T> where T: ICommandContext<T>
 	{
 		#region Fields
 
@@ -67,7 +67,7 @@ namespace CommandLineParser.CommandParser
 		public CommandParser(T context)
 		{
 			this.context = context;
-            context.CommandParser = this;            
+			context.CommandParser = this;            
 		}
 
 
@@ -80,7 +80,7 @@ namespace CommandLineParser.CommandParser
 			foreach (var type in assembly.GetTypes())
 			{
 				if (type.IsSubclassOf(typeof(CommandBase<T>))
-                    || typeof(IParameterParser).IsAssignableFrom(type))
+					|| typeof(IParameterParser).IsAssignableFrom(type))
 				{
 					//check if instances of the type can be created
 					if (!canCreateInstance(type))
@@ -228,17 +228,17 @@ namespace CommandLineParser.CommandParser
 
 
 
-        public void SetParser(Type type, IParameterParser parser)
-        {
-            if (parameterParsers.ContainsKey(type))
-            {
-                parameterParsers[type] = parser;
-            }
-            else
-            {
-                parameterParsers.Add(type, parser);
-            }
-        }
+		public void SetParser(Type type, IParameterParser parser)
+		{
+			if (parameterParsers.ContainsKey(type))
+			{
+				parameterParsers[type] = parser;
+			}
+			else
+			{
+				parameterParsers.Add(type, parser);
+			}
+		}
 
 
 		/// <summary>
