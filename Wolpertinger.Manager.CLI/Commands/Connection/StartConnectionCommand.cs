@@ -78,11 +78,6 @@ namespace Wolpertinger.Manager.CLI.Commands.Connection
                 }
 
             }
-
-
-
-
-
         }
 
     }

@@ -41,6 +41,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Attributes\CommandAttribute.cs" />
+    <Compile Include="Attributes\CommandDescriptionAttribute.cs" />
     <Compile Include="Attributes\ParameterAttribute.cs" />
     <Compile Include="Attributes\ParameterParserAttribute.cs" />
     <Compile Include="CommandParser\CommandBase.cs" />

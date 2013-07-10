@@ -7,10 +7,10 @@ All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 
-    Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-    Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer 
+	Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+	Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer 
 	in the documentation and/or other materials provided with the distribution.
-    Neither the name of the Wolpertinger project nor the names of its contributors may be used to endorse or promote products 
+	Neither the name of the Wolpertinger project nor the names of its contributors may be used to endorse or promote products 
 	derived from this software without specific prior written permission.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
@@ -31,106 +31,114 @@ using CommandLineParser.Info;
 
 namespace Wolpertinger.Manager.CLI.Commands.Help
 {
-    [Command(CommandVerb.Get, "Help", "Help")]
-    class GetHelpCommand : CommandBase<CommandContext>
-    {
+	[Command(CommandVerb.Get, "Help", "Help")]
+	[CommandDescription("Displays help information about available commands")]
+	class GetHelpCommand : CommandBase<CommandContext>
+	{
 
-        [Parameter("CommandName", IsOptional = true, Position = 1)]
-        public string CommandName { get; set; }
-
-
-        public override void Execute()
-        {
-            //Get a list of all commands known to the CommandParser
-            var allCommands = Context.CommandParser.KnownCommands.OrderBy(x => getCommandName(x));
-
-            //if CommandName has not been specified, print a list of all available command
-            if (CommandName == null)
-            {
-                foreach (var cmd in allCommands)
-                {
-                    printCommadName(cmd);
-                }
-            }
-            //if CommandName has been specified, find all commands that match that name
-            else
-            {
-                var cmds = allCommands.Where(x => (x.Module + "." + x.Verb + "-" + x.Noun).ToLower().Contains(CommandName.ToLower()));
-                var resultCount = cmds.Count();
-
-                //No command found => error
-                if (resultCount == 0)
-                {
-                    throw new CommandExecutionException("Command not found");
-                }
-                //if only one result was found, display detailed help for that command
-                else if (resultCount == 1)
-                {
-                    printCommandDetails(cmds.First());
-                }
-                //if more than 1 command has been found, display a list of all matching commands
-                else
-                {
-                    foreach (var cmd in cmds)
-                    {
-                        printCommadName(cmd);
-                    }
-                }
-            }
-
-        }
+		[Parameter("CommandName", IsOptional = true, Position = 1)]
+		public string CommandName { get; set; }
 
 
-        #region Private Implementation
+		public override void Execute()
+		{
+			//Get a list of all commands known to the CommandParser
+			var allCommands = Context.CommandParser.KnownCommands.OrderBy(x => getCommandName(x));
 
-        private void printCommadName(CommandInfo cmd)
-        {
-            Context.WriteOutput(getCommandName(cmd));
-        }
+			//if CommandName has not been specified, print a list of all available command
+			if (CommandName == null)
+			{
+				foreach (var cmd in allCommands)
+				{
+					printCommadName(cmd);
+				}
+			}
+			//if CommandName has been specified, find all commands that match that name
+			else
+			{
+				var cmds = allCommands.Where(x => (x.Module + "." + x.Verb + "-" + x.Noun).ToLower().Contains(CommandName.ToLower()));
+				var resultCount = cmds.Count();
 
-        private string getCommandName(CommandInfo cmd)
-        {
-            return (cmd.Module.IsNullOrEmpty() ? "" : cmd.Module + ".") + cmd.Verb + "-" + cmd.Noun;
-        }
+				//No command found => error
+				if (resultCount == 0)
+				{
+					throw new CommandExecutionException("Command not found");
+				}
+				//if only one result was found, display detailed help for that command
+				else if (resultCount == 1)
+				{
+					printCommandDetails(cmds.First());
+				}
+				//if more than 1 command has been found, display a list of all matching commands
+				else
+				{
+					foreach (var cmd in cmds)
+					{
+						printCommadName(cmd);
+					}
+				}
+			}
 
-        private void printCommandDetails(CommandInfo command)
-        {
-            Context.WriteOutput();
-            Context.WriteOutput("\t" + getCommandName(command));
-            Context.WriteOutput();
-
-
-            if (command.ParameterSets.Count() == 1)
-            {
-                Context.WriteOutput("\tParameters:");
-                foreach (var paramter in command.ParameterSets.First().Parameters)
-                {
-                    printParameter(paramter);
-                }
-                Context.WriteOutput();
-            }
-            else
-            {
-                foreach (var set in command.ParameterSets)
-                {
-                    Context.WriteOutput("\tParameter-Set: {0}", set.Name);
-                    foreach (var paramter in set.Parameters)
-                    {
-                        printParameter(paramter);
-                    }
-                    Context.WriteOutput();
-                }
-            }
+		}
 
 
-        }
+		#region Private Implementation
 
-        private void printParameter(ParameterInfo paramter)
-        {
-            Context.WriteOutput("\t\t" + paramter.Name + " : " + paramter.DataType.Name + (paramter.IsOptional ? "  (optional)" : ""));
-        }
+		private void printCommadName(CommandInfo cmd)
+		{
+			Context.WriteOutput(getCommandName(cmd));
+		}
 
-        #endregion
+		private string getCommandName(CommandInfo cmd)
+		{
+			return (cmd.Module.IsNullOrEmpty() ? "" : cmd.Module + ".") + cmd.Verb + "-" + cmd.Noun;
+		}
 
-    }
+		private void printCommandDetails(CommandInfo command)
+		{
+			Context.WriteOutput();
+			Context.WriteOutput("\t" + getCommandName(command));
+			Context.WriteOutput();
+
+			if (!String.IsNullOrEmpty(command.Description))
+			{
+				Context.WriteOutput("\tDescription:");
+				Context.WriteOutput("\t\t" + command.Description);
+				Context.WriteOutput();
+			}
+
+
+			if (command.ParameterSets.Count() == 1)
+			{
+				Context.WriteOutput("\tParameters:");
+				foreach (var paramter in command.ParameterSets.First().Parameters)
+				{
+					printParameter(paramter);
+				}
+				Context.WriteOutput();
+			}
+			else
+			{
+				foreach (var set in command.ParameterSets)
+				{
+					Context.WriteOutput("\tParameter-Set: {0}", set.Name);
+					foreach (var paramter in set.Parameters)
+					{
+						printParameter(paramter);
+					}
+					Context.WriteOutput();
+				}
+			}
+
+
+		}
+
+		private void printParameter(ParameterInfo paramter)
+		{
+			Context.WriteOutput("\t\t" + paramter.Name + " : " + paramter.DataType.Name + (paramter.IsOptional ? "  (optional)" : ""));
+		}
+
+		#endregion
+
+	}
 }

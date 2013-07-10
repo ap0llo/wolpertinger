@@ -30,6 +30,7 @@ namespace CommandLineParser.Info
 {
 	public class CommandInfo
 	{
+        private string _description = "";
 
         public CommandInfo()
         {
@@ -54,6 +55,39 @@ namespace CommandLineParser.Info
 	    public Type Type { get; set; }        
 
 		public IEnumerable<ParameterSet> ParameterSets { get; set; }
+
+        public string Description 
+        {
+            get
+            {
+                if (!String.IsNullOrEmpty(_description))
+                {
+                    return _description;
+                }
+                else
+                {
+                    _description = getDescriptionText();
+                    return _description;
+                }
+            }
+        }
+
+
+
+
+        private string getDescriptionText()
+        {
+            var attributes = Type.GetCustomAttributes(typeof(CommandDescriptionAttribute), false);
+
+            if (attributes.Any())
+            {
+                return (attributes.First() as CommandDescriptionAttribute).Description;
+            }
+            else
+            {
+                return "";
+            }
+        }
 
 	}
 }

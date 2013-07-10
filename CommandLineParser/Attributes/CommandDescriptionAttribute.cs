@@ -7,10 +7,10 @@ All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 
-    Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-    Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer 
+	Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+	Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer 
 	in the documentation and/or other materials provided with the distribution.
-    Neither the name of the Wolpertinger project nor the names of its contributors may be used to endorse or promote products 
+	Neither the name of the Wolpertinger project nor the names of its contributors may be used to endorse or promote products 
 	derived from this software without specific prior written permission.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
@@ -24,31 +24,19 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using CommandLineParser.Attributes;
-using CommandLineParser.CommandParser;
 
-namespace Wolpertinger.Manager.CLI.Commands.Connection
+namespace CommandLineParser.Attributes
 {
-    [Command(CommandVerb.New, "Connection", "Connection")]
-    class NewConnectionCommand : CommandBase<CommandContext>
-    {
-
-        [Parameter("Target", IsOptional= false, Position=1)]
-        public string Target { get; set; }
+	[AttributeUsage(AttributeTargets.Class, AllowMultiple=false)]
+	public class CommandDescriptionAttribute : Attribute
+	{
+		public string Description { get; private set; }
 
 
+		public CommandDescriptionAttribute(string description)
+		{
+			this.Description = description;
+		}
 
-        public override void Execute()
-        {
-            if (Context.ConnectionManager.GetClientConnection(Target) != null)
-            {
-                abort("Connection already exists");
-            }
-            else
-            {
-                Context.ConnectionManager.AddClientConnection(this.Target);                               
-            }
-        }
-
-    }
+	}
 }
