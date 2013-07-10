@@ -20,6 +20,7 @@ SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRU
 STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
+using CommandLineParser.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,6 +30,21 @@ namespace CommandLineParser.Info
 {
 	public class CommandInfo
 	{
+
+        public CommandInfo()
+        {
+
+        }
+
+        public CommandInfo(CommandAttribute attribute)
+        {
+            this.Module = attribute.Module;
+            this.Verb = attribute.Verb;
+            this.Noun = attribute.Noun;
+        }
+
+
+
 		public string Module { get; set; }
 
 		public string Verb { get; set; }
@@ -37,7 +53,7 @@ namespace CommandLineParser.Info
 
 	    public Type Type { get; set; }        
 
-		public List<CommandParameterInfo> Parameters { get; set; }
+		public IEnumerable<ParameterSet> ParameterSets { get; set; }
 
 	}
 }

@@ -31,7 +31,7 @@ using CommandLineParser.Attributes;
 namespace Wolpertinger.Manager.CLI.Commands.ClientInfo
 {
     [Command(CommandVerb.Get, "ClientInfo", "ClientInfo")]
-    class GetClientInfoCommand : ConnectionDependentCommand
+    class GetClientInfoCommand : SingleParameterConnectionDependentCommand
     {
         public override void Execute()
         {

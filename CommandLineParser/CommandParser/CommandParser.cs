@@ -25,9 +25,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Nerdcave.Common.Extensions;
-using System.Reflection;
 using System.Security;
 using Nerdcave.Common;
+using Nerdcave.Common.Extensions;
 using CommandLineParser.Attributes;
 using CommandLineParser.Info;
 using CommandLineParser.ParameterParsers;
@@ -39,17 +39,17 @@ namespace CommandLineParser.CommandParser
 	{
 		#region Fields
 
-		//The CommandContext in whcih the commands will be executed
+		//The CommandContext in which the commands will be executed
 		T context;
-		//The commands knwon to the CommandParser
+		//The commands known to the CommandParser
 		List<CommandInfo> commands = new List<CommandInfo>();
-		//The parsers known to the commandparser
+		//The parsers known to the command-parser
 		Dictionary<Type, IParameterParser> parameterParsers = new Dictionary<Type, IParameterParser>();
 
 		#endregion
 
 		/// <summary>
-		/// The list of commands knwon to the CommandParser
+		/// The list of commands known to the CommandParser
 		/// </summary>
 		public IEnumerable<CommandInfo> KnownCommands
 		{
@@ -60,6 +60,7 @@ namespace CommandLineParser.CommandParser
 		}
 
 
+
 		/// <summary>
 		/// Initializes a new instance of CommandParser
 		/// </summary>
@@ -67,15 +68,16 @@ namespace CommandLineParser.CommandParser
 		public CommandParser(T context)
 		{
 			this.context = context;
-			context.CommandParser = this;            
+			context.CommandParser = this;   
+		 
+			ParameterArgumentMapping.ParameterParsers = this.parameterParsers;
 		}
-
 
 		/// <summary>
 		/// Scans the specified assembly for command and parameter parsers and adds them to the CommandParser'S list of commands/parsers
 		/// </summary>
 		/// <param name="assembly">The assembly to scan</param>
-		public void LoadCommandsAndParsersFromAssembly(Assembly assembly)
+		public void LoadCommandsAndParsersFromAssembly(System.Reflection.Assembly assembly)
 		{
 			foreach (var type in assembly.GetTypes())
 			{
@@ -83,7 +85,7 @@ namespace CommandLineParser.CommandParser
 					|| typeof(IParameterParser).IsAssignableFrom(type))
 				{
 					//check if instances of the type can be created
-					if (!canCreateInstance(type))
+					if (!type.CanCreateInstance())
 					{
 						continue;
 					}
@@ -93,24 +95,7 @@ namespace CommandLineParser.CommandParser
 				//check if type is derived from CommandBase
 				if (type.IsSubclassOf(typeof(CommandBase<T>)))
 				{
-					var attributes = type.GetCustomAttributes(typeof(CommandAttribute), false);
-					if (attributes == null || !attributes.Any())
-					{
-						continue;
-					}
-
-					foreach (var item in attributes)
-					{
-						var info = item as CommandAttribute;
-						commands.Add(new CommandInfo()
-						{
-							Module = info.Module,
-							Verb = info.Verb,
-							Noun = info.Noun,
-							Type = type,
-							Parameters = loadParamters(type)
-						});
-					}
+					commands.Add(loadCommandInfo(type));
 				}
 
 				if (typeof(IParameterParser).IsAssignableFrom(type))
@@ -132,11 +117,11 @@ namespace CommandLineParser.CommandParser
 		}
 
 		/// <summary>
-		/// Parses the supplied command string, creates an instance of the apropriate command and sets its parameters based on the parsed input
+		/// Parses the supplied command string, creates an instance of the appropriate command and sets its parameters based on the parsed input
 		/// </summary>
 		/// <param name="input">The command string to parse</param>
 		/// <returns>
-		/// Returns a new instance of a class derived from CommandBase with all the paramters set.
+		/// Returns a new instance of a class derived from CommandBase with all the parameters set.
 		/// On Error <see cref="CommandParserException"/> is thrown
 		/// </returns>
 		public CommandBase<T> GetCommand(string input)
@@ -153,80 +138,90 @@ namespace CommandLineParser.CommandParser
 			var commandInstance = (CommandBase<T>)Activator.CreateInstance(commandInfo.Type);
 			commandInstance.Context = this.context;
 
-
+			//array that stores a bool for each element of args that indicates whether that parameter is done
+			bool[] processedArgs = new bool[args.Count];     
+			processedArgs[0] = true;    
 			//set properties
 
-			HashSet<CommandParameterInfo> setParameters = new HashSet<CommandParameterInfo>();      //List of all parameters that have already been set 
-			bool[] processedArgs = new bool[args.Count];                                            //array that stores a bool for each element of args that indicates whether that paramter is done
 
-			processedArgs[0] = true;        //first paramter has alredy been processed (for finding the apropriate command)
+			List<ParameterArgumentMapping> parameterArgumentMappings = new List<ParameterArgumentMapping>();
 
-
-			//first, set named parameters
-			setNamedParameters(args, commandInfo, commandInstance, processedArgs, setParameters);
-
-
-			//check if there are any args left to process
-			if (processedArgs.Any(x => !x))
+			foreach (var set in commandInfo.ParameterSets)
 			{
-				setPositionalParameters(args, commandInfo, commandInstance, processedArgs, setParameters);
-			}
+				ParameterArgumentMapping mapping = null;
 
-		   
-			//check if all args have ben processed
-			if (processedArgs.Any(x => !x))
-			{
-				throw new CommandParserException("Not all arguments could were processed");
-			}
-
-
-
-			var missingRequiredParamters = commandInfo.Parameters.Where(x => !x.IsOptional && !setParameters.Contains(x));
-
-			//ask the user to supply values for missing paramters
-			if (missingRequiredParamters.Any())
-			{
-				Console.WriteLine("You need to supply the value for the following parameters: ");
-			}
-
-			//iterate over all missing paramters
-			foreach (var parameter in missingRequiredParamters )
-			{
-				//request input
-				string valueStr;
-				if (parameter.DataType == typeof(SecureString))
+				try
 				{
-					valueStr = ConsoleHelper.GetPassword(parameter.Name);                    
+					mapping = new ParameterArgumentMapping(args.ToArray(), processedArgs, set);
+				}
+				catch (CommandParserException)
+				{
+					continue;
+				}
+
+				parameterArgumentMappings.Add(mapping);
+			}
+
+
+
+			int count = parameterArgumentMappings.Count();
+
+			if (count == 0)
+			{
+				throw new CommandParserException("No ParameterSet found that matches the given parameters");
+			}
+			else if (count == 1)
+			{
+				//verify the parameter set can be applied
+				if (parameterArgumentMappings.First().ProcessedArgs.Any(x => !x))
+				{
+					throw new CommandParserException("Not all arguments were processed");
+				}
+
+				applyParameters(parameterArgumentMappings.First(), commandInstance);
+			}
+			else
+			{
+				//try to rule out parameter sets
+				parameterArgumentMappings = parameterArgumentMappings.Where(x => !x.ProcessedArgs.Any(y => !y)).ToList();              
+
+				if (parameterArgumentMappings.Count() == 1)
+				{
+					applyParameters(parameterArgumentMappings.First(), commandInstance);
 				}
 				else
 				{
-					Console.Write("{0}: ", parameter.Name);
-					valueStr = Console.ReadLine();
-				}
-				
-				//try to parse the supplied string as value for the paramter                
-				if (!canParse(valueStr, parameter.DataType))
-				{
-					throw new CommandParserException("Invalid value");
-				}
-				else
-				{
-					parameter.SetMethod.Invoke(commandInstance, new object[] { parseValue(valueStr, parameter.DataType) });
-					setParameters.Add(parameter);
-				}
-			}
+					var unsetRequierdParametersCounts = parameterArgumentMappings.Select(m => m.ParameterSet.Parameters.Count(p => !p.IsOptional && !m.Mapping.ContainsKey(p)));
+					var min = unsetRequierdParametersCounts.Min();
 
-			//check if all required parameters have been set
-			if (missingRequiredParamters.Any())
-			{                
-				throw new CommandParserException("Not all required parameters could be set (have you specified all of them?)");
-			}
+					parameterArgumentMappings = parameterArgumentMappings.Where(m => m.ParameterSet.Parameters.Count(p => !p.IsOptional && !m.Mapping.ContainsKey(p)) == min).ToList();
 
+					if (parameterArgumentMappings.Count() == 1)
+					{
+						applyParameters(parameterArgumentMappings.First(), commandInstance);
+					}
+					else
+					{
+
+						var unsetParametersCount = parameterArgumentMappings.Select(m => m.ParameterSet.Parameters.Count(p=> !m.Mapping.ContainsKey(p)));
+						var min2 = unsetParametersCount.Min();
+						parameterArgumentMappings = parameterArgumentMappings.Where(m => m.ParameterSet.Parameters.Count(p=> !m.Mapping.ContainsKey(p)) == min).ToList();
+
+						if (parameterArgumentMappings.Count() == 1)
+						{
+							applyParameters(parameterArgumentMappings.First(), commandInstance);
+						}
+						else
+						{
+							throw new CommandParserException("Could not determine the correct parameter-set to apply. Try using named parameters or specifying more parameters");
+						}
+					}
+				}
+
+			}
 
 			return commandInstance;
 		}
-
-
 
 		public void SetParser(Type type, IParameterParser parser)
 		{
@@ -240,6 +235,53 @@ namespace CommandLineParser.CommandParser
 			}
 		}
 
+
+
+
+
+		private void applyParameters(ParameterArgumentMapping mapping, CommandBase<T> commandInstance)
+		{
+			foreach (var item in mapping.Mapping)
+			{
+				var value = parseValue(item.Value, item.Key.DataType, true);
+				item.Key.SetMethod.Invoke(commandInstance, new object[] { value });
+			}
+
+            commandInstance.ParameterSetName = mapping.ParameterSet.Name;
+
+
+			//get values for unset required parameters 
+			var unsetParameters = mapping.ParameterSet.Parameters
+											.Where(p => !p.IsOptional)
+											.Where(p => !mapping.Mapping.ContainsKey(p))
+											.ToList();
+
+			foreach (var parameter in unsetParameters)
+			{
+				 //request input
+				string valueStr;
+				if (parameter.DataType == typeof(SecureString))
+				{
+					valueStr = ConsoleHelper.GetPassword(parameter.Name);
+				}
+				else
+				{
+					Console.Write("{0}: ", parameter.Name);
+					valueStr = Console.ReadLine();
+				}
+
+				//try to parse the supplied string as value for the parameter                
+				if (!ParameterArgumentMapping.CanParse(valueStr, parameter.DataType))
+				{
+					throw new CommandParserException("Invalid value");
+				}
+				else
+				{
+					parameter.SetMethod.Invoke(commandInstance, new object[] { parseValue(valueStr, parameter.DataType) });                    
+				}
+			}
+
+		}
 
 		/// <summary>
 		/// Helper method for GetCommand(). Parses the supplied command args and tries to find the right command
@@ -273,197 +315,62 @@ namespace CommandLineParser.CommandParser
 			return commandInfo;
 		}
 
-		/// <summary>
-		/// Helper method for GetCommand(). Searches all the named parameters found in args and sets the apropriate properties of commandInstance
-		/// </summary>
-		private void setNamedParameters(List<string> args, CommandInfo commandInfo, CommandBase<T> commandInstance, 
-			bool[] processedArgs, HashSet<CommandParameterInfo> setParameters)
+		private CommandInfo loadCommandInfo(Type type)
 		{
-			//first get named paramters
-			for (int i = 1; i < args.Count; i++)
+			var attributes = type.GetCustomAttributes(typeof(CommandAttribute), false);
+
+			if (!attributes.Any())
 			{
-				string arg = args[i];
-				//check if current arg is the name of a parameter
-				if (arg.StartsWith("-"))
+				return null;
+			}
+
+			CommandInfo result = new CommandInfo(attributes.First() as CommandAttribute) { Type = type };
+			
+
+
+			/*
+			 * load parameters
+			 */
+			var properties = type.GetProperties().Where(x => x.GetCustomAttributes(typeof(ParameterAttribute), true).Any());
+
+			Dictionary<string, ParameterSet> parameterSets = new Dictionary<string, ParameterSet>();
+			HashSet<ParameterInfo> parametersWithoutSet = new HashSet<ParameterInfo>();
+			foreach (var parameter in properties)
+			{
+				var parameterAttributes = parameter.GetCustomAttributes(typeof(ParameterAttribute), true).Cast<ParameterAttribute>();
+
+				foreach (var attribute in parameterAttributes)
 				{
-					var paramterNameQuery = commandInfo.Parameters.Where(x => "-" + x.Name.ToLower() == arg.ToLower());
-					var count = paramterNameQuery.Count();
-
-					if (count == 1)
+					var parameterInfo = new ParameterInfo(attribute) { SetMethod = parameter.GetSetMethod(), DataType = parameter.PropertyType };
+					if (String.IsNullOrEmpty(attribute.ParameterSet))
 					{
-						if (i + 1 < args.Count)
-						{
-							var parameterInfo = paramterNameQuery.First();
-							string valueStr = args[++i];
-							object value = parseValue(valueStr, parameterInfo.DataType);
-							parameterInfo.SetMethod.Invoke(commandInstance, new object[] { value });
-
-							processedArgs[i - 1] = true;
-							processedArgs[i] = true;
-
-							setParameters.Add(parameterInfo);
-						}
-						else
-						{
-							throw new CommandParserException("Parameter {0} has been declared without value", arg);
-						}
+						parametersWithoutSet.Add(parameterInfo);
 					}
-					else if (count > 1)
+					else
 					{
-						throw new CommandParserException("Parameter {0} has been declaed more than once", paramterNameQuery.First().Name);
+						var key = attribute.ParameterSet.ToLower();
+						if (!parameterSets.ContainsKey(key))
+						{
+							var set = new ParameterSet() { Name = attribute.ParameterSet};
+							parameterSets.Add(key, set);
+						}
+						parameterSets[key].AddParameter(parameterInfo);
 					}
 				}
 			}
-		}
-
-		/// <summary>
-		/// Helper method for setPositionalParameters(). Build a list of all possible parameter-combinatin for the paramters not already set
-		/// </summary>
-		private List<CommandParameterInfo>[] getPostionalParamterCombinations(CommandInfo commandInfo, HashSet<CommandParameterInfo> setParameters)
-		{
-			//build a list of all possible combinations of parameters
-			var unsetParameters = commandInfo.Parameters.Where(x => !setParameters.Contains(x))
-											 .Where(x => x.Position > 0)
-											 .OrderBy(x => x.Position)
-											 .ToArray<CommandParameterInfo>();
-
-			var optionalParameterCount = unsetParameters.Count(x => x.IsOptional);
-			List<CommandParameterInfo>[] possibleCombinations = new List<CommandParameterInfo>[(int)Math.Pow(2, optionalParameterCount)];
 
 
-			if (optionalParameterCount == 0)
+			if (parameterSets.Any())
 			{
-				possibleCombinations[0] = unsetParameters.ToList();
+				result.ParameterSets = parameterSets.Values.ToList();
 			}
 			else
 			{
+				result.ParameterSets = new List<ParameterSet>() {new ParameterSet("", parametersWithoutSet)};
+			}			
+			
 
-				for (int i = 0; i < possibleCombinations.Length; i++)
-				{
-					possibleCombinations[i] = new List<CommandParameterInfo>();
-
-					int bitNumber = 0;
-					for (int p = 0; p < unsetParameters.Length; p++)
-					{
-						if (!unsetParameters[p].IsOptional)
-						{
-							possibleCombinations[i].Add(unsetParameters[p]);
-						}
-						else
-						{
-							if (((i >> bitNumber) & 1) != 0)
-							{
-								possibleCombinations[i].Add(unsetParameters[p]);
-							}
-							bitNumber++;
-						}
-					}
-				}
-			}
-
-			return possibleCombinations;
-
-		}
-
-		/// <summary>
-		/// Helper method for GetCommand(). Tries to determine the right combination of paramters for the args that have not already been processed based on their positon
-		/// </summary>
-		private void setPositionalParameters(List<string> args, CommandInfo commandInfo, CommandBase<T> commandInstance, 
-			bool[] processedArgs, HashSet<CommandParameterInfo> setParameters)
-		{
-			//first, build a list of all possible combinations
-			var possibleCombinations = getPostionalParamterCombinations(commandInfo, setParameters);
-
-
-			//we now have a list of all possible combinations of optional parameters that have not already been set
-			//we now have to determine which possibility mathes our actual parmeters
-
-
-			//first, remove all combinations that have a different parameter count
-			var unprocessedArgsCount = processedArgs.Count(x => !x);
-			possibleCombinations = possibleCombinations.Where(c => c.Count == unprocessedArgsCount).ToArray<List<CommandParameterInfo>>();
-
-
-			var unprocessedArgs = args.Where(x => !processedArgs[args.IndexOf(x)]).ToArray<string>();
-
-
-			//check every of the remaining possible combinations
-			for (int i = 0; i < possibleCombinations.Length; i++)
-			{
-				for (int a = 0; a < unprocessedArgs.Length; a++)
-				{
-					if (!canParse(unprocessedArgs[a], possibleCombinations[i][a].DataType))
-					{
-						possibleCombinations[i] = null;
-						break;
-					}
-				}
-			}
-
-			possibleCombinations = possibleCombinations.Where(x => x != null).ToArray<List<CommandParameterInfo>>();
-
-
-			if (possibleCombinations.Length == 0)
-			{
-				throw new CommandParserException("No applicabale combination of positional parameters could be found");
-			}
-			else if (possibleCombinations.Length == 1)
-			{
-				var combination = possibleCombinations.First();
-				int lastSetIndex = 0;
-
-				for (int a = 0; a < unprocessedArgs.Length; a++)
-				{
-					object value = parseValue(unprocessedArgs[a], combination[a].DataType, true);
-					combination[a].SetMethod.Invoke(commandInstance, new object[] { value });
-
-					//update set parameters and processed args lists
-					int index = args.IndexOf(unprocessedArgs[a], lastSetIndex);
-					lastSetIndex = index;
-					processedArgs[index] = true;
-					setParameters.Add(combination[a]);
-				}
-			}
-			if (possibleCombinations.Length > 1)
-			{
-				throw new CommandParserException("Could not determine parameters based on their position, there are multiple possible combinations");
-			}
-
-		}
-
-		/// <summary>
-		/// Determines whether a new instace of the specified type can be created
-		/// </summary>
-		private bool canCreateInstance(Type type)
-		{
-			try
-			{
-				object test = Activator.CreateInstance(type);
-			}
-			catch (MissingMethodException)
-			{
-				return false;
-			}
-			return true;
-		}
-
-
-		/// <summary>
-		/// Checks whether the specified string can be parsed into a object of the specified type
-		/// </summary>
-		/// <param name="value">The string to be parsed</param>
-		/// <param name="toType">The type of the object to parse the string into</param>
-		/// <returns>Returns true if the string can be parsed, otherwise returns false</returns>
-		private bool canParse(string value, Type toType)
-		{
-			if (parameterParsers.ContainsKey(toType))
-			{
-				var parser = parameterParsers[toType];
-
-				return parser.CanParse(value);                
-			}
-
-			throw new CommandParserException("No parser found for type {0}", toType.Name);
+			return result;
 		}
 
 		/// <summary>
@@ -531,9 +438,9 @@ namespace CommandLineParser.CommandParser
 		/// </summary>
 		/// <param name="commandType">The command to load parameters from</param>
 		/// <returns>Returns a list of all of the command's parameters</returns>
-		private List<CommandParameterInfo> loadParamters(Type commandType)
+		private List<ParameterInfo> loadParameters(Type commandType)
 		{
-			var result = new List<CommandParameterInfo>();
+			var result = new List<ParameterInfo>();
 
 			//iterate over all of the command's properties
 			foreach (var property in commandType.GetProperties())
@@ -542,21 +449,134 @@ namespace CommandLineParser.CommandParser
 
 				if (attributes.Any())
 				{
-					var paramInfo = new CommandParameterInfo(attributes.First() as ParameterAttribute);
+					var paramInfo = new ParameterInfo(attributes.First() as ParameterAttribute);
 					paramInfo.DataType = property.PropertyType;
 					paramInfo.SetMethod = property.GetSetMethod();
 					result.Add(paramInfo);
 				}
 			}
 
-			//check for duplicate paramters
+			//check for duplicate parameters
 			if (result.GroupBy(x => x.Name.ToLower()).Count() != result.Count)
 			{
-				throw new CommandParserException("Could not load paramters because of duplicate parameter names");
+				throw new CommandParserException("Could not load parameters because of duplicate parameter names");
 			}
 
 			return result;
 		}
+
+
+
+
+
+		private class ParameterArgumentMapping
+		{
+			public static Dictionary<Type, IParameterParser> ParameterParsers;
+			
+			private Dictionary<ParameterInfo, string> _parameterArgumentMapping = new Dictionary<ParameterInfo,string>();
+
+		
+			public string[] Args { get; private set; }
+
+			public bool[] ProcessedArgs { get; private set; }
+
+
+			public ParameterSet ParameterSet { get; private set; }
+
+			public Dictionary<ParameterInfo, string> Mapping
+			{
+				get 
+				{
+					return _parameterArgumentMapping;
+				}
+			}
+
+
+
+			public ParameterArgumentMapping(string[] args, bool[] processedArgs, 
+				ParameterSet parameterSet)
+			{                
+				this.Args = args;
+
+				//copy the processedArgs array
+				this.ProcessedArgs = processedArgs.ToArray<bool>();
+				this.ParameterSet = parameterSet;
+
+				assignNamedParameters();
+				assignPositionalParameters();
+			}
+
+
+			private void assignNamedParameters()
+			{                 
+				for (int i = 0; i < Args.Length - 1; i++)
+				{
+					if(ProcessedArgs[i])
+					{
+						continue;
+					}
+
+					if (Args[i].StartsWith("-") && Args[i].Length > 1)
+					{
+						var query = this.ParameterSet.Parameters.Where(x =>
+										!_parameterArgumentMapping.ContainsKey(x) &&
+										x.Name.ToLower() == Args[i].Substring(1).ToLower() &&
+										CanParse(Args[i + 1], x.DataType));
+						if (query.Any())
+						{
+							_parameterArgumentMapping.Add(query.First(), Args[i + 1]);
+
+							ProcessedArgs[i] = true;
+							ProcessedArgs[i + 1] = true;
+
+							i += 1;
+						}
+					}
+				}
+			}
+
+			private void assignPositionalParameters()
+			{
+				var positionalParameters = this.ParameterSet.Parameters.Where(x => !_parameterArgumentMapping.ContainsKey(x) && x.Position > 0)
+											   .OrderBy(x => x.Position)
+											   .ToList();
+				
+				int parameterIndex = 0;
+				for (int i = 0; i < Args.Length && parameterIndex < positionalParameters.Count; i++)
+				{
+					if(ProcessedArgs[i])
+					{
+						continue;
+					}
+
+					if(CanParse(Args[i], positionalParameters[parameterIndex].DataType))
+					{
+						_parameterArgumentMapping.Add(positionalParameters[parameterIndex], Args[i]);
+						ProcessedArgs[i] = true;
+
+						parameterIndex++;
+					}
+					else if(!positionalParameters[parameterIndex].IsOptional)
+					{
+						break;                        
+					}                    
+				}
+			}
+
+			public static bool CanParse(string value, Type toType)
+			{
+				if (ParameterParsers.ContainsKey(toType))
+				{
+					var parser = ParameterParsers[toType];
+
+					return parser.CanParse(value);                
+				}
+
+				throw new CommandParserException("No parser found for type {0}", toType.Name);
+			}
+
+		}
+
 
 	}
 }

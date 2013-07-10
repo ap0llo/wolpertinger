@@ -36,11 +36,13 @@ namespace Wolpertinger.Manager.CLI.Commands.Connection
     [Command(CommandVerb.Authenticate, "User", "Connection")]
     class AuthenticateUserCommand : ConnectionDependentCommand
     {
-
-        [Parameter("Username", IsOptional= false, Position =2)]
+        [Parameter("Username", IsOptional = false, Position = 2, ParameterSet = "ExplicitConnection")]
+        [Parameter("Username", IsOptional = false, Position = 1, ParameterSet = "ImplicitConnection")]
         public string Username { get; set; }
 
-        [Parameter("Password", IsOptional=false, Position =3)]
+
+        [Parameter("Password", IsOptional = false, Position = 3, ParameterSet = "ExplicitConnection")]
+        [Parameter("Password", IsOptional = false, Position = 2, ParameterSet = "ImplicitConnection")]
         public SecureString Password { get; set; }
 
         public override void Execute()

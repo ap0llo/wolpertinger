@@ -53,6 +53,7 @@
     <Compile Include="Extensions\IntExtensions.cs" />
     <Compile Include="Extensions\SecureStringExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
+    <Compile Include="Extensions\TypeExtensions.cs" />
     <Compile Include="IO\ExtendedPath.cs" />
     <Compile Include="IO\IOHelper.cs" />
     <Compile Include="ObjectEventArgs.cs" />

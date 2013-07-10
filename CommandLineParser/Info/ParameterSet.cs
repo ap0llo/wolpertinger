@@ -20,24 +20,55 @@ SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRU
 STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
-using CommandLineParser.CommandParser;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace CommandLineParser.Interfaces
+namespace CommandLineParser.Info
 {
-	/// <summary>
-	/// Interface that needs to be implemented by a command context
-	/// </summary>
-	/// <typeparam name="T">The type of the command context implementation</typeparam>
-	public interface ICommandContext<T> where T : ICommandContext<T>
+	public class ParameterSet
 	{
-		/// <summary>
-		/// The CommandParser in the current context (property will be set by CommandParser)
-		/// </summary>
-		ICommandParser<T> CommandParser { get; set; }
+
+		private HashSet<ParameterInfo> _parameters = new HashSet<ParameterInfo>();
+
+
+		public string Name { get; set; }
+
+		public IEnumerable<ParameterInfo> Parameters 
+		{
+			get
+			{
+				return _parameters.OrderBy(x => x.Position);
+			}
+		}
+		
+
+
+        public ParameterSet()
+        {
+
+        }
+
+        public ParameterSet(string name)
+        {
+            this.Name = name;
+        }
+
+        public ParameterSet(string name, IEnumerable<ParameterInfo> parameters)
+        {
+            this.Name = name;
+            this._parameters = new HashSet<ParameterInfo>(parameters);
+        }
+
+
+		public void AddParameter(ParameterInfo parameter)
+		{
+			if (!_parameters.Contains(parameter))
+			{
+				_parameters.Add(parameter);
+			}
+		}
 
 	}
 }

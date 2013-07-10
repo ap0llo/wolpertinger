@@ -29,6 +29,9 @@ namespace CommandLineParser.CommandParser
 {    
     public abstract class CommandBase<T>
     {
+
+        public string ParameterSetName { get; set; }
+
         public T Context { get; set; }
 
 

@@ -49,6 +49,7 @@
     <Compile Include="Info\CommandParameterInfo.cs" />
     <Compile Include="CommandParser\CommandParser.cs" />
     <Compile Include="CommandParser\CommandParserException.cs" />
+    <Compile Include="Info\ParameterSet.cs" />
     <Compile Include="Interfaces\ICommandContext.cs" />
     <Compile Include="Interfaces\ICommandParser.cs" />
     <Compile Include="ParameterParsers\BoolParser.cs" />

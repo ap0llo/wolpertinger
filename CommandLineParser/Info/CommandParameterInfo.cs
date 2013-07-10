@@ -30,7 +30,7 @@ using System.Text;
 
 namespace CommandLineParser.Info
 {
-    public class CommandParameterInfo
+    public class ParameterInfo
     {
         public string Name { get; set; }
 
@@ -43,12 +43,12 @@ namespace CommandLineParser.Info
         public MethodInfo SetMethod { get; set; }
 
 
-        public CommandParameterInfo()
+        public ParameterInfo()
         {
 
         }
 
-        public CommandParameterInfo(ParameterAttribute attribute)
+        public ParameterInfo(ParameterAttribute attribute)
         {
             this.Name = attribute.Name;
             this.IsOptional = attribute.IsOptional;

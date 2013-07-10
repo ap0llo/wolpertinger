@@ -32,10 +32,8 @@ namespace Wolpertinger.Manager.CLI.Commands
 {
     abstract class ConnectionDependentCommand : CommandBase<CommandContext>
     {
-        [Parameter("Connection", IsOptional=true, Position=1)]
+        [Parameter("Connection", IsOptional = false, Position = 1, ParameterSet = "ExplicitConnection")]             
         public IClientConnection Connection { get; set; }
-
-
 
 
 
@@ -56,4 +54,31 @@ namespace Wolpertinger.Manager.CLI.Commands
         }
 
     }
+
+
+    abstract class SingleParameterConnectionDependentCommand : CommandBase<CommandContext>
+    {
+        [Parameter("Connection", Position = 1, IsOptional = true)]
+        public IClientConnection Connection { get; set; }
+
+
+
+        protected IClientConnection getClientConnection()
+        {
+            if (Connection != null)
+            {
+                return Connection;
+            }
+            else if (this.Context.ActiveConnection != null)
+            {
+                return this.Context.ActiveConnection;
+            }
+            else
+            {
+                throw new CommandExecutionException("No active connection and no connection specified");
+            }
+        }
+
+    }
+
 }

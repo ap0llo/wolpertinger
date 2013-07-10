@@ -30,6 +30,7 @@ namespace CommandLineParser.Attributes
 	/// <summary>
 	/// Attribute to identify a command's property as parameter
 	/// </summary>
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
 	public class ParameterAttribute : Attribute
 	{
 		/// <summary>
@@ -46,6 +47,10 @@ namespace CommandLineParser.Attributes
 		/// The parameter's position if it can be used as positional parameter
 		/// </summary>
 		public int Position { get; set; }
+
+
+		public string ParameterSet { get; set; }
+
 
 		/// <summary>
 		/// Initializes a new instance of ParameterAttribute

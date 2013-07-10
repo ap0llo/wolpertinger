@@ -31,7 +31,7 @@ using CommandLineParser.CommandParser;
 namespace Wolpertinger.Manager.CLI.Commands.Connection
 {
     [Command(CommandVerb.Start, "Connection", "Connection")]
-    class StartConnectionCommand : ConnectionDependentCommand
+    class StartConnectionCommand : SingleParameterConnectionDependentCommand
     {
 
         public override void Execute()
