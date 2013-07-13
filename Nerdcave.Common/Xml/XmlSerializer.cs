@@ -31,8 +31,7 @@ namespace Nerdcave.Common.Xml
 {
 	public static class XmlSerializer
 	{
-		//list that mappes type-names to primitive (treating string as primitive type) types
-
+		//list that maps type-names to primitive (treating string as primitive type) types
 		private const string xmlNamespace = "http://nerdcave.eu/wolpertinger";
 
 		private static Dictionary<string, Type> knownTypes = new Dictionary<string, Type>() 
@@ -160,7 +159,7 @@ namespace Nerdcave.Common.Xml
 		/// Deserializes a object's XML representation into a object
 		/// </summary>
 		/// <param name="xml">The XML to deserialize</param>
-		/// <returns>Retunrs a object deserailzed from XML</returns>
+		/// <returns>Returns a object deserialized from XML</returns>
 		/// <exception cref="TypeNotSupportedException">The specified XML is a unknown type and could not be deserialized</exception>
 		public static object Deserialize(XElement xml)
 		{
@@ -243,7 +242,7 @@ namespace Nerdcave.Common.Xml
 			}
 			else
 			{
-				throw new TypeNotSupportedException("{0} is not suppoerted by XmlSerializer", typeof(T).Name);
+				throw new TypeNotSupportedException("{0} is not supported by XmlSerializer", typeof(T).Name);
 			}
 		}
 
@@ -422,7 +421,7 @@ namespace Nerdcave.Common.Xml
 	}
 
 	/// <summary>
-	/// Exception that will be thrown by methods of <see cref="XmlSerializer"/> if a unsupported type is encoutnerd
+	/// Exception that will be thrown by methods of <see cref="XmlSerializer"/> if a unsupported type is encountered
 	/// </summary>
 	public class TypeNotSupportedException: Exception
 	{

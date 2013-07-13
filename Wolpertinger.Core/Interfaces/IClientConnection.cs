@@ -40,7 +40,7 @@ namespace Wolpertinger.Core
         event EventHandler ConnectionReset;
 
         /// <summary>
-        /// Event that will be raised if a remote error shoud has received
+        /// Event that will be raised if a remote error should has received
         /// </summary>
         event EventHandler<ObjectEventArgs<RemoteError>> RemoteErrorOccurred;
 
@@ -53,7 +53,7 @@ namespace Wolpertinger.Core
         bool AcceptConnections { get; set; }
 
         /// <summary>
-        /// The adress of the target-client
+        /// The address of the target-client
         /// </summary>
         string Target { get; set; }
 
@@ -74,7 +74,7 @@ namespace Wolpertinger.Core
 
         /// <summary>
         /// Gets (or sets) The ConnectionManager that hosts the ClientConnection. 
-        /// Will be set automatically by ConnectionManager. Should be accessed readonly otherwise.
+        /// Will be set automatically by ConnectionManager. Should be accessed read-only otherwise.
         /// </summary>
         IConnectionManager ConnectionManager { get; set; }
 
@@ -86,19 +86,11 @@ namespace Wolpertinger.Core
         /// <summary>
         /// Gets or sets the ComponentFactory used by the ClientConnection to instantiate new components
         /// </summary>
-        IComponentFactory ComponentFactory { get; set; }
-        
-
-
-        ///// <summary>
-        ///// Send a message to the target client
-        ///// </summary>
-        ///// <param name="msg">The message to process and send</param>
-        //void SendMessage(RpcMessage msg);
+        IComponentFactory ComponentFactory { get; set; }      
         
 
         /// <summary>
-        /// Gets a <see cref="Wolpertinger.Core.ClientInfo"/> abouts the connection's target client
+        /// Gets a <see cref="Wolpertinger.Core.ClientInfo"/> about the connection's target client
         /// </summary>
         /// <returns>Returns a new ClientInfo object with information about the target client</returns>
         ClientInfo GetClientInfo();
@@ -113,15 +105,6 @@ namespace Wolpertinger.Core
         /// </summary>
         /// <param name="sendNotice">Indicates whether the target client should be notified about the connection reset</param>
         void ResetConnection(bool sendNotice = false);
-
-
-
-        ///// <summary>
-        ///// Gets the connection's client component that matches the given name
-        ///// </summary>
-        ///// <param name="name">The component-name to look for</param>
-        ///// <returns>Returns the matching client component or null if component could not be found</returns>
-        //IComponent GetClientComponent(string name);
 
         /// <summary>
         /// Gets the connection's server component that matches the given name

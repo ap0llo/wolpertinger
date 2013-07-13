@@ -12,7 +12,7 @@ using System.Xml;
 namespace Wolpertinger.Core
 {
     /// <summary>
-    /// Abstarct class implementing ISerializable offering useful functionality for classes
+    /// Abstract class implementing ISerializable offering useful functionality for classes
     /// (so this functionality doesn't need to be implemented in every class that offers serialization)
     /// </summary>
     [Serializable]

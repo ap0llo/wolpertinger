@@ -98,7 +98,7 @@ namespace Nerdcave.Common.Xml
                 return;
             }
 
-            //serialzie the item and add a 'key' attribute
+            //serialize the item and add a 'key' attribute
             XElement xmlItem = XmlSerializer.Serialize(value, XmlNames.XmlNamespace);
             xmlItem.Add(new XAttribute("key", key));
 
@@ -125,7 +125,7 @@ namespace Nerdcave.Common.Xml
         /// </summary>
         /// <typeparam name="T">The type of the item</typeparam>
         /// <param name="key">The item's key</param>
-        /// <returns>Retunrs the item from the key-value-store or default(T) if the item could not be found</returns>
+        /// <returns>Returns the item from the key-value-store or default(T) if the item could not be found</returns>
         public T GetItem<T>(string key)
         {
             //check if there are any items stored in the file
@@ -146,7 +146,7 @@ namespace Nerdcave.Common.Xml
             object oItem = XmlSerializer.Deserialize(item);
             Type type = oItem.GetType();
 
-            //return item if it could be derserialized to the specified type, otherwise return default value
+            //return item if it could be deserialized to the specified type, otherwise return default value
             if (oItem is T)
                 return (T)oItem;
             else

@@ -55,7 +55,7 @@ namespace Nerdcave.Common.Extensions
         }
 
         /// <summary>
-        /// Performs bytewise comparison of two secure strings.
+        /// Performs byte-wise comparison of two secure strings.
         /// </summary>
         /// <param name="value"></param>
         /// <param name="other"></param>

@@ -217,9 +217,9 @@ namespace Nerdcave.Common
         }
 
         /// <summary>
-        /// Prompts the user to enter a password. The password in the console window will be marked with asterisks. After the usser pressed enter, the entire password-line will be removed from the Console window
+        /// Prompts the user to enter a password. The password in the console window will be marked with asterisks. After the user pressed enter, the entire password-line will be removed from the Console window
         /// </summary>
-        /// <returns>Returns the string the user enterd.</returns>
+        /// <returns>Returns the string the user entered.</returns>
         public static string GetPassword(string message)
         {
             Console.Write("{0}: ", message);

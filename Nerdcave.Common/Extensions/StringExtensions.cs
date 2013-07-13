@@ -45,10 +45,10 @@ namespace Nerdcave.Common.Extensions
         #region Public Methods
         
         /// <summary>
-        /// Splits the indicated string at space characters. Elemtens will be kept together if they are put in quotes.
+        /// Splits the indicated string at space characters. Elements will be kept together if they are put in quotes.
         /// The Quotes will be removed.
         /// </summary>
-        /// <param name="inputString">The string that is to be splitted.</param>
+        /// <param name="inputString">The string that is to be split.</param>
         /// <returns>Returns a list of strings containing the result of the splitting.</returns>
         [DebuggerStepThrough()]
         public static List<string> SpaceSplitString(this string inputString)
@@ -80,7 +80,7 @@ namespace Nerdcave.Common.Extensions
         }
 
         /// <summary>
-        /// Splits the string into the indicated amount of fragments (chunck sizes will be approximately the same)
+        /// Splits the string into the indicated amount of fragments (chunk sizes will be approximately the same)
         /// </summary>
         /// <param name="str"></param>
         /// <param name="fragmentsCount"></param>
@@ -219,7 +219,7 @@ namespace Nerdcave.Common.Extensions
         /// Gets the byte-array from a base64-string
         /// </summary>
         /// <param name="text">The base64 string</param>
-        /// <returns>Returns the bytes taht were encoded in the source string or null if the string was invalid.</returns>
+        /// <returns>Returns the bytes that were encoded in the source string or null if the string was invalid.</returns>
         public static byte[] GetBytesBase64(this string text)
         {
             //return null if text is empty

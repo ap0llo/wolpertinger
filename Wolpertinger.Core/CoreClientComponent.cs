@@ -58,7 +58,7 @@ namespace Wolpertinger.Core
 
 
         /// <summary>
-        /// Asynchronously calls the Hearbeat RemoteMethod on the target client
+        /// Asynchronously calls the Heartbeat RemoteMethod on the target client
         /// </summary>
         public Task HeartbeatAsync()
         {
@@ -77,7 +77,7 @@ namespace Wolpertinger.Core
         }
 
         /// <summary>
-        /// Asnychronously calls the SendResetNotice in the target client
+        /// Asynchronously calls the SendResetNotice in the target client
         /// </summary>
         public Task SendResetNoticeAsync()
         {

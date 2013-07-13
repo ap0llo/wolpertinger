@@ -25,7 +25,7 @@ namespace Wolpertinger.Core
 {
     /// <summary>
     /// Interface for both client and server components.
-    /// For use in combination with the default component factory, all impelmentations should have a parameterless constructor
+    /// For use in combination with the default component factory, all implementations should have a parameter-less constructor
     /// </summary>
     public interface IComponent
     {

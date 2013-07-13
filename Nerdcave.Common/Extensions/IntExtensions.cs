@@ -25,7 +25,7 @@ namespace Nerdcave.Common.Extensions
 {
 
     /// <summary>
-    /// Class that contains extensins methods for int
+    /// Class that contains extensions methods for int
     /// </summary>
     public static class IntExtensions
     {

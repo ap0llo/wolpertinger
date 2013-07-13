@@ -28,7 +28,7 @@ namespace Wolpertinger.Core
     public class RpcMessage : Serializable
     {
         /// <summary>
-        /// The name of the component the message is adressed to
+        /// The name of the component the message is addressed to
         /// </summary>
         public string ComponentName { get; set; }
 

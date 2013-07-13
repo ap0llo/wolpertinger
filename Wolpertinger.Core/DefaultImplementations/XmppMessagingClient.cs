@@ -72,7 +72,7 @@ namespace Wolpertinger.Core
         }
 
         /// <summary>
-        /// Indicates whether the client is connected to the backend service and can recive and send messages
+        /// Indicates whether the client is connected to the backend service and can receive and send messages
         /// </summary>
         public bool Connected 
         {
@@ -238,7 +238,7 @@ namespace Wolpertinger.Core
                     //if messages bounced and sender is this client itself, ignore the message
                     if (messageSender.ToLower() == myaddress.ToLower())
                     {
-                        logger.Warn("Bounced message revceived. Ignoring");
+                        logger.Warn("Bounced message received. Ignoring");
                         return;
                     }
 

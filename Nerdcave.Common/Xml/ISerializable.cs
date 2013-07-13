@@ -24,16 +24,16 @@ using System.Xml.Linq;
 namespace Nerdcave.Common.Xml
 {
     /// <summary>
-    /// Interface that must be implemented by classes to be (de-)seraialized by XmlSerializer
+    /// Interface that must be implemented by classes to be (de-)serialized by XmlSerializer
     /// </summary>
     public interface ISerializable
     {
 
         /// <summary>
-        /// Validates a piece of XML and determines wheter it can be deserialized
+        /// Validates a piece of XML and determines whether it can be deserialized
         /// </summary>
         /// <param name="xml">The XML to be validated</param>
-        /// <returns>Returns true when the specified xml is valid and can be deserialzed into a object. Otherwise returns false</returns>
+        /// <returns>Returns true when the specified xml is valid and can be deserialized into a object. Otherwise returns false</returns>
         bool Validate(XElement xml);
 
 

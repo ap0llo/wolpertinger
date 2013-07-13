@@ -26,7 +26,7 @@ namespace Wolpertinger.Core
 {
     /// <summary>
     /// Abstract implementation of ILogger. 
-    /// Will take all log-messages, build a single line string from it and pass it to the corresponding abstact method.
+    /// Will take all log-messages, build a single line string from it and pass it to the corresponding abstract method.
     /// </summary>
     public abstract class CustomLogger : ILogger
     {
@@ -61,7 +61,7 @@ namespace Wolpertinger.Core
         protected abstract void error(string message);
 
         /// <summary>
-        /// Handler fpr Fatal-Messages
+        /// Handler for Fatal-Messages
         /// </summary>
         /// <param name="message">The message to write to the log</param>
         protected abstract void fatal(string message);

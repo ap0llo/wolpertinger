@@ -108,7 +108,7 @@ namespace Wolpertinger.Core
             this.ComponentName = xmlData.Element(XmlNames.ComponentName).Value;
             this.CallId = XmlSerializer.DeserializeAs<Guid>(xmlData.Element(XmlNames.CallId));
 
-            //deserialze the reponse value
+            //deserialize the response value
             if (xmlData.Element(XmlNames.ResponseValue).Elements().Any())
             {
                 this.ResponseValue = XmlSerializer.Deserialize(xmlData.Element(XmlNames.ResponseValue).Elements().First());                    

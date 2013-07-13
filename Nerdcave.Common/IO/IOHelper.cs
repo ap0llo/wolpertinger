@@ -52,7 +52,7 @@ namespace Nerdcave.Common.IO
         }
 
         /// <summary>
-        /// Determines whether the specified path os a ReparsePoint
+        /// Determines whether the specified path is a ReparsePoint
         /// </summary>
         /// <param name="path">The path to check</param>
         public static bool IsReparsePoint(string path)
@@ -88,7 +88,7 @@ namespace Nerdcave.Common.IO
         }
 
         /// <summary>
-        /// Gets the target of a Symbloic Link or Junction Point
+        /// Gets the target of a symbolic Link or Junction Point
         /// </summary>
         /// <param name="path">The path of the Symbolic link or Junction Point</param>
         /// <returns>Returns the path the Reparse Point points to</returns>

@@ -23,12 +23,12 @@ using System.Text;
 namespace Wolpertinger.Core
 {
     /// <summary>
-    /// A exception that may be thrown when a RemoteError is encounted
+    /// A exception that may be thrown when a RemoteError is encountered
     /// </summary>
     public class RemoteErrorException : Exception
     {
         /// <summary>
-        /// The RemoteError that has occured
+        /// The RemoteError that has occurred
         /// </summary>
         public RemoteError Error { get; set; }
 
@@ -43,7 +43,7 @@ namespace Wolpertinger.Core
         /// <summary>
         /// Initializes a new instance of RemoteErrorException with the specified RemoteError
         /// </summary>
-        /// <param name="error">The RemoteError that has occured</param>
+        /// <param name="error">The RemoteError that has occurred</param>
         public RemoteErrorException(RemoteError error)
         {
             this.Error = error;

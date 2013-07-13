@@ -62,12 +62,12 @@ namespace Wolpertinger.Core
         public int TrustLevel { get; set; }
 
         /// <summary>
-        /// The most-recent supported version of the Wolpteringer protocol supported by the client
+        /// The most-recent supported version of the wolpertinger protocol supported by the client
         /// </summary>
         public int ProtocolVersion { get; set; }
 
         /// <summary>
-        /// Initializes a new instace of ClientInfo
+        /// Initializes a new instance of ClientInfo
         /// </summary>
         [DebuggerStepThrough]
         public ClientInfo()

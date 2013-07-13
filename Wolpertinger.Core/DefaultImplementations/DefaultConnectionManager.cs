@@ -163,7 +163,7 @@ namespace Wolpertinger.Core
 
 
         /// <summary>
-        /// The key required to join a cluser
+        /// The key required to join a cluster
         /// </summary>
         public byte[] ClusterKey
         {
@@ -205,7 +205,7 @@ namespace Wolpertinger.Core
                                     .Cast<ClientInfo>()
                                     .ToDictionary(x => x.JId);
 
-                logger.Info("Sucessfully loaded settings");
+                logger.Info("Successfully loaded settings");
             }
         }
 
@@ -266,7 +266,7 @@ namespace Wolpertinger.Core
         }
 
         /// <summary>
-        /// Gets the ClientConnection for the specified targt
+        /// Gets the ClientConnection for the specified target
         /// </summary>
         /// <param name="target">The target of the connection</param>
         /// <returns>
@@ -321,7 +321,7 @@ namespace Wolpertinger.Core
         }
 
         /// <summary>
-        /// Resets and cloeses all of the ConnectionManager's ClientConnections
+        /// Resets and closes all of the ConnectionManager's ClientConnections
         /// </summary>
         public void RemoveAllClientConnections()
         {
@@ -337,11 +337,11 @@ namespace Wolpertinger.Core
         /// Gets a list of call other known clients
         /// </summary>
         /// <returns>
-        /// Returns a list of ClientInfos containing information about the knwon clients
+        /// Returns a list of ClientInfos containing information about the known clients
         /// </returns>
         public IEnumerable<ClientInfo> GetKnownClients()
         {
-            //return knwon clients from the cache, if connection is still active, get ClientInfo from active connection
+            //return known clients from the cache, if connection is still active, get ClientInfo from active connection
             return knownClientsCache.Values
                     .Select(x => clientConnections.ContainsKey(x.JId) ? clientConnections[x.JId].GetClientInfo() : x)
                     .ToList<ClientInfo>();
@@ -355,7 +355,7 @@ namespace Wolpertinger.Core
         /// <summary>
         /// Raises the ClientConnectionAdded event with the specified IClientConnection
         /// </summary>
-        /// <param name="newConnection">The connetion that has been added</param>
+        /// <param name="newConnection">The connection that has been added</param>
         protected virtual void onClientConnectionAdded(IClientConnection newConnection)
         {
             logger.Info("Client-Connection added: {0}", newConnection.Target);
@@ -401,7 +401,7 @@ namespace Wolpertinger.Core
 
         /// <summary>
         /// Handles the MessageReceived event of the MessagingClient and instantiates a new
-        /// IClientConnection if no connection responsibel for the message's sender exists
+        /// IClientConnection if no connection responsible for the message's sender exists
         /// </summary>
         protected virtual void messagingClient_MessageReceived(object sender, ObjectEventArgs<Message> e)
         {

@@ -40,7 +40,7 @@ namespace Wolpertinger.Core
         public string MethodName { get; set; }
 
         /// <summary>
-        /// The Paramters for the invoked method
+        /// The Parameters for the invoked method
         /// </summary>
         public List<object> Parameters { get;  set; }
 

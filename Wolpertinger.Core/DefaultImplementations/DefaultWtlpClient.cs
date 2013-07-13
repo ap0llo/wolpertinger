@@ -272,7 +272,7 @@ namespace Wolpertinger.Core
             //base64-encode the message's payload as string
             string payloadStr = payload.ToStringBase64();
 
-            //split the message's payload into multplie parts if necessary
+            //split the message's payload into multiple parts if necessary
             //the number of fragments the message will be split in (if length limit is not exceeded, it's 1, so message will not be split)
             int fragmentsCount = (payloadStr.Length > MESSAGELENGTHLIMIT) ? ((payloadStr.Length / MESSAGELENGTHLIMIT) + 1) : 1;
 
@@ -294,7 +294,7 @@ namespace Wolpertinger.Core
             //Semaphore used to wait for until a delivery confirmation is received for the sent message
             Semaphore sem = new Semaphore(0, 1);
 
-            //Register the semaphore so it is triggerd when the confirmation for the message is received
+            //Register the semaphore so it is triggered when the confirmation for the message is received
             lock (this)
             {
                 waitingThreads.Add(messageId, sem);
@@ -306,7 +306,7 @@ namespace Wolpertinger.Core
                 this.MessagingClient.SendMessage(this.Recipient, item);                
             }
 
-            //Set up a timer that relases the semaphor after the timeout interval to prevent the thread from blocking indefinitely
+            //Set up a timer that releases the semaphore after the timeout interval to prevent the thread from blocking indefinitely
             object objectLock = this;
             System.Timers.Timer timeoutTimer = new System.Timers.Timer(TIMEOUTINTERVAL * fragmentsCount);
             timeoutTimer.Elapsed += (s,e) => 
@@ -330,12 +330,12 @@ namespace Wolpertinger.Core
             timeoutTimer.Start();
 
 
-            logger.Info("Sending Message, Id {0} and waiting for delivery confimation", messageId);
+            logger.Info("Sending Message, Id {0} and waiting for delivery confirmation", messageId);
 
             //Wait for the message transmission to complete
             sem.WaitOne();
 
-            //check whether the message was sent sucessfully, otherwise throw a exception with the error
+            //check whether the message was sent successfully, otherwise throw a exception with the error
             Result result = messageResults[messageId];
 
             if (result == Result.Success)
@@ -366,7 +366,7 @@ namespace Wolpertinger.Core
         }
 
         /// <summary>
-        /// Verfies a message's format is valid.
+        /// Verifies a message's format is valid.
         /// </summary>
         /// <param name="message">The message to be validates</param>
         /// <returns>Returns true if the message is valid and can be parsed. Otherwise returns false</returns>
@@ -484,7 +484,7 @@ namespace Wolpertinger.Core
                         else
                             messageResults[messageId] = deliveryResult;
 
-                        //relese threads waiting for the result
+                        //release threads waiting for the result
                         waitingThreads[messageId].Release();
                     }                    
                 }
@@ -493,17 +493,17 @@ namespace Wolpertinger.Core
             }
 
 
-            //check for splitted messages            
+            //check for split messages            
             var fragmentIndexQuery = metadata.Where(x => x.Item1 == Key.Fragment_Index);
             var fragmentCountQuery = metadata.Where(x => x.Item1 == Key.Fragment_Count);
 
             if (fragmentCountQuery.Any() || fragmentIndexQuery.Any())
             {
-                logger.Info("Received splitted message");
+                logger.Info("Received split message");
                 
                 if (!(fragmentIndexQuery.Any() && fragmentIndexQuery.Any()))
                 {
-                    logger.Error("Missing metadata information for splitted message");                    
+                    logger.Error("Missing metadata information for split message");                    
                     return;
                 }
 
@@ -562,7 +562,7 @@ namespace Wolpertinger.Core
 
             if (encryptedMetadate != null)
             {
-                //check if encryption algorith is supported
+                //check if encryption algorithm is supported
                 if (encryptedMetadate.Item2.ToLower() != "aes")
                 {
                     logger.Warn("Encryption algorithm not supported");
@@ -594,7 +594,7 @@ namespace Wolpertinger.Core
 
             result.Payload = payload;
 
-            //everything went okay => send delivery notifiaction
+            //everything went okay => send delivery notification
             sendresult(Result.Success, messageId);
 
             onMessageReceived(result);

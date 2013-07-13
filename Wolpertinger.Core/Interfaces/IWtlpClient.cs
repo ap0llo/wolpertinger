@@ -88,7 +88,7 @@ namespace Wolpertinger.Core
         public bool WasEncrypted { get; set; }
 
         /// <summary>
-        /// Indicates wheter the message was sent compressed
+        /// Indicates whether the message was sent compressed
         /// </summary>
         public bool WasCompressed { get; set; }
 

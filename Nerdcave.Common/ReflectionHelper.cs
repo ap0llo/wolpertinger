@@ -13,7 +13,7 @@ namespace Nerdcave.Common
         /// Gets method that will , when invoked raise the event.
         /// </summary>
         /// <remarks>
-        /// May not work in all cases, esspecially when working with Windows Forms.
+        /// May not work in all cases, especially when working with Windows Forms.
         /// Originally found here http://stackoverflow.com/questions/5113013/raise-an-event-via-reflection-in-c-sharp
         /// </remarks>
         /// <param name="obj">Object that contains the event.</param>
@@ -24,7 +24,7 @@ namespace Nerdcave.Common
             // prepare current processing type
             Type currentType = obj.GetType();
 
-            // try to get special event decleration
+            // try to get special event declaration
             while (true)
             {
                 FieldInfo fieldInfo = currentType.GetField(eventName, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.GetField);

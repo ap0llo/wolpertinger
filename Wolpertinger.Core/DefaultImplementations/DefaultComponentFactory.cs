@@ -30,7 +30,7 @@ namespace Wolpertinger.Core
     /// </summary>
     public class DefaultComponentFactory : IComponentFactory
     {
-        //Dictionay to store types of server-components
+        //Dictionary to store types of server-components
         private Dictionary<string, Type> serverComponents = new Dictionary<string, Type>();
         
 

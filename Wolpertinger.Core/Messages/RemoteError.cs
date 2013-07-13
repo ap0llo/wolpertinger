@@ -26,9 +26,9 @@ using Nerdcave.Common.Xml;
 
 namespace Wolpertinger.Core
 {
-    /// <summary>
-    /// A error-message exchanged between clients
-    /// </summary>
+	/// <summary>
+	/// A error-message exchanged between clients
+	/// </summary>
 	public class RemoteError : RpcMessage
 	{
 
@@ -47,19 +47,19 @@ namespace Wolpertinger.Core
 		}
 
 
-        /// <summary>
-        /// Initializes a new instance of RemoteError
-        /// </summary>
+		/// <summary>
+		/// Initializes a new instance of RemoteError
+		/// </summary>
 		public RemoteError() : this(RemoteErrorCode.UnspecifiedError) 
 		{ }
 
-        /// <summary>
-        /// Initializes a new instance of RemoteError
-        /// </summary>
-        /// <param name="errorCode">The error that occured</param>
+		/// <summary>
+		/// Initializes a new instance of RemoteError
+		/// </summary>
+		/// <param name="errorCode">The error that occurred</param>
 		public RemoteError(RemoteErrorCode errorCode)
 		{
-            XmlNames.Init(xmlNamespace);
+			XmlNames.Init(xmlNamespace);
 
 			this.CallId = Guid.Empty;
 			this.ErrorCode = errorCode;
@@ -68,41 +68,41 @@ namespace Wolpertinger.Core
 
 		#region ISerializable Members
 
-        private static class XmlNames
-        {
-            public static bool initialized = false;
+		private static class XmlNames
+		{
+			public static bool initialized = false;
 
-            public static XName RemoteError;
-            public static XName ComponentName;
-            public static XName ErrorCode;
-            public static XName CallId;
+			public static XName RemoteError;
+			public static XName ComponentName;
+			public static XName ErrorCode;
+			public static XName CallId;
 
 
-            public static void Init(string xmlNamespace)
-            {
-                if (initialized)
-                {
-                    return;
-                }
+			public static void Init(string xmlNamespace)
+			{
+				if (initialized)
+				{
+					return;
+				}
 
-                RemoteError = XName.Get("RemoteError", xmlNamespace);
-                ComponentName = XName.Get("ComponentName", xmlNamespace);
-                ErrorCode = XName.Get("ErrorCode", xmlNamespace);
-                CallId = XName.Get("CallId", xmlNamespace);
+				RemoteError = XName.Get("RemoteError", xmlNamespace);
+				ComponentName = XName.Get("ComponentName", xmlNamespace);
+				ErrorCode = XName.Get("ErrorCode", xmlNamespace);
+				CallId = XName.Get("CallId", xmlNamespace);
 
-                initialized = true;
-            }
-        }
+				initialized = true;
+			}
+		}
 
-        protected override string schemaTypeName
-        {
-            get { return "remoteError"; }
-        }
+		protected override string schemaTypeName
+		{
+			get { return "remoteError"; }
+		}
 
-        protected override string rootElementName
-        {
-            get { return "RemoteError"; }
-        }
+		protected override string rootElementName
+		{
+			get { return "RemoteError"; }
+		}
 
 
 		public override XElement Serialize()
@@ -111,10 +111,10 @@ namespace Wolpertinger.Core
 			root.Add(new XElement(XmlNames.ComponentName,  this.ComponentName));
 			root.Add(new XElement(XmlNames.ErrorCode, ((int)this.ErrorCode).ToString()));
 
-            if (this.CallId != Guid.Empty)
-            {
+			if (this.CallId != Guid.Empty)
+			{
 				root.Add(new XElement(XmlNames.CallId, this.CallId.ToString()));
-            }
+			}
 
 			return root;
 		}
@@ -123,7 +123,7 @@ namespace Wolpertinger.Core
 		{
 			ComponentName = xmlData.Element(XmlNames.ComponentName).Value;
 			
-            try
+			try
 			{
 				ErrorCode = (RemoteErrorCode)Int32.Parse(xmlData.Element(XmlNames.ErrorCode).Value);				
 			}
@@ -133,9 +133,9 @@ namespace Wolpertinger.Core
 				ErrorCode = 0;
 			}
 			
-            if(xmlData.Elements(XmlNames.CallId).Any())
+			if(xmlData.Elements(XmlNames.CallId).Any())
 			{
-                CallId = XmlSerializer.DeserializeAs<Guid>(xmlData.Element(XmlNames.CallId));
+				CallId = XmlSerializer.DeserializeAs<Guid>(xmlData.Element(XmlNames.CallId));
 			}		
 		}
 
@@ -143,9 +143,9 @@ namespace Wolpertinger.Core
 	}
 
 
-    /// <summary>
-    /// List of possible errors that can be sent as RemoteError
-    /// </summary>
+	/// <summary>
+	/// List of possible errors that can be sent as RemoteError
+	/// </summary>
 	public enum RemoteErrorCode
 	{
 		//General Errors

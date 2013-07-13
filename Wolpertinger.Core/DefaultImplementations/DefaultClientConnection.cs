@@ -78,7 +78,7 @@ namespace Wolpertinger.Core
 
 
         /// <summary>
-        /// The adress of the target-client
+        /// The address of the target-client
         /// </summary>
         public string Target { get; set; }
 
@@ -236,7 +236,7 @@ namespace Wolpertinger.Core
 
 
         /// <summary>
-        /// Gets a <see cref="Wolpertinger.Core.ClientInfo" /> abouts the connection's target client
+        /// Gets a <see cref="Wolpertinger.Core.ClientInfo" /> about the connection's target client
         /// </summary>
         /// <returns>
         /// Returns a new ClientInfo object with information about the target client
@@ -298,7 +298,7 @@ namespace Wolpertinger.Core
 
         private void timeoutTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
-            //do nothing if no respones are expected
+            //do nothing if no responses are expected
             if (expectedResponseCount == 0)
             {
                 return;
@@ -306,7 +306,7 @@ namespace Wolpertinger.Core
 
             timeoutTimer.Stop();
             //release all threads waiting for a response (they probably won't get one)
-            //the "response value" is a TimeoutException (will cause the "GetReponseValueBlocking" meethod to throw that exception
+            //the "response value" is a TimeoutException (will cause the "GetReponseValueBlocking" method to throw that exception
             foreach (Guid item in synchronousCalls_WaitHandles.Keys)
             {
                 synchonousCalls_ValueCache.Add(item, new TimeoutException());
@@ -432,13 +432,13 @@ namespace Wolpertinger.Core
                 if (ex.Error == Result.Timeout)
                     throw new TimeoutException();
                 else
-                    throw new RemoteErrorException();
+                   throw new RemoteErrorException();
             }
         }
 
 
         /// <summary>
-        /// Processes an incoming message (using the MessageProcessor for deserialization)
+        /// Processes an incoming message (using the MessageProcessor for de-serialization)
         /// </summary>
         /// <param name="message">The message to be processed</param>
         private void processMessage(ParsingResult message)
@@ -552,20 +552,20 @@ namespace Wolpertinger.Core
             }
             else
             {
-                logger.Error("ProcessMessage() encoutered an unknown type of Message");
+                logger.Error("ProcessMessage() encountered an unknown type of Message");
                 sendMessage(new RemoteError(RemoteErrorCode.UnknownMessage));
             }
         }
 
         /// <summary>
-        /// Tries to retrive a <see cref="CallResult"/> from the specified component for the speicified RemoteMethodCall using Reflection
+        /// Tries to retrieve a <see cref="CallResult"/> from the specified component for the specified RemoteMethodCall using Reflection
         /// </summary>
         /// <param name="call">The RemoteMethodCall that needs to be answered</param>
         /// <param name="component">The component the RemoteMethodCall targeted</param>
         /// <returns>Returns the <see cref="CallResult"/> for the specified RemoteMethodCall</returns>
         protected virtual CallResult getCallResult(RemoteMethodCall call, IComponent component)
         {
-            //search the component for a method taht can handle the call
+            //search the component for a method that can handle the call
             Dictionary<string, MethodInfo> callHandlers = new Dictionary<string, MethodInfo>();
             foreach (MethodInfo mi in component.GetType().GetMethods(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public))
             {
@@ -589,7 +589,7 @@ namespace Wolpertinger.Core
                 if (attributes.Any())                
                     trustLevel = (TrustLevelAttribute)attributes.First();
                 else                
-                    //if no attribute could be found, fall back to the default (highest possible trustlevel)
+                    //if no attribute could be found, fall back to the default (highest possible trust-level)
                     trustLevel = TrustLevelAttribute.MAX;
 
                 //check if the sender is authorized to make that method call
@@ -696,11 +696,11 @@ namespace Wolpertinger.Core
                 //remove call from unreplied calls
                 unrepliedCalls.Remove(response.CallId);
 
-                //decrease the number of repsonses expected from the target client (connection will not time out when no responses are expected
+                //decrease the number of responses expected from the target client (connection will not time out when no responses are expected
                 if (call.ResponseExpected)
                     this.expectedResponseCount--;
 
-                //if there are still call taht are unreplied, restart the timeout-timer
+                //if there are still call that are unreplied, restart the timeout-timer
                 if (unrepliedCalls.Any())
                 {
                     timeoutTimer.Start();

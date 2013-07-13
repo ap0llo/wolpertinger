@@ -43,7 +43,7 @@ namespace Wolpertinger.Core
         IConnectionFactory ConnectionFactory { get; set; }
 
         /// <summary>
-        /// Gets or sets whether new incoming connection are to be accepted for all ClientConnections hostes by the ConnectionManager
+        /// Gets or sets whether new incoming connection are to be accepted for all ClientConnections hosted by the ConnectionManager
         /// </summary>
         bool AcceptIncomingConnections { get; set; }
 
@@ -64,7 +64,7 @@ namespace Wolpertinger.Core
         SecureString WolpertingerPassword { get; set; }
 
         /// <summary>
-        /// The key required to join a cluser
+        /// The key required to join a cluster
         /// </summary>
         byte[] ClusterKey { get; }
 
@@ -86,7 +86,7 @@ namespace Wolpertinger.Core
         IClientConnection AddClientConnection(string target);
 
         /// <summary>
-        /// Gets the ClientConnection for the specified targt
+        /// Gets the ClientConnection for the specified target
         /// </summary>
         /// <param name="target">The target of the connection</param>
         /// <returns>Returns the ConnectionManager's ClientConnection for the target or null, if connection could not be found</returns>
@@ -110,14 +110,14 @@ namespace Wolpertinger.Core
         void RemoveClientConnection(string target);
 
         /// <summary>
-        /// Resets and cloeses all of the ConnectionManager's ClientConnections
+        /// Resets and closes all of the ConnectionManager's ClientConnections
         /// </summary>
         void RemoveAllClientConnections();
 
         /// <summary>
         /// Gets a list of call other known clients 
         /// </summary>
-        /// <returns>Returns a list of ClientInfos containing information about the knwon clients</returns>
+        /// <returns>Returns a list of ClientInfos containing information about the known clients</returns>
         IEnumerable<ClientInfo> GetKnownClients();
 
     }

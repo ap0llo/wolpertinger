@@ -109,7 +109,7 @@ namespace Wolpertinger.Core
         }
 
         /// <summary>
-        /// Specifies the minimum log-levl of a message that will be written to the log
+        /// Specifies the minimum log-level of a message that will be written to the log
         /// </summary>
         public static LogLevel LogLevel 
         { 
@@ -158,7 +158,7 @@ namespace Wolpertinger.Core
 
 
         /// <summary>
-        /// Loads the logger's settings from the config file
+        /// Loads the logger's settings from the configuration file
         /// </summary>
         public static void LoadSettings()
         {

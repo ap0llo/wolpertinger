@@ -66,7 +66,7 @@ namespace Wolpertinger.Core
         string Password { get; set; }
 
         /// <summary>
-        /// Indicates whether the client is connected to the backend service and can recive and send messages
+        /// Indicates whether the client is connected to the backend service and can receive and send messages
         /// </summary>
         bool Connected { get; }
 
@@ -107,7 +107,7 @@ namespace Wolpertinger.Core
 
 
     /// <summary>
-    /// Encapsulates a message sent or reveived bz the IMessageingClient 
+    /// Encapsulates a message sent or received by the IMessageingClient 
     /// </summary>
     public struct Message
     {

@@ -18,7 +18,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 namespace Wolpertinger.Core
 {
     /// <summary>
-    /// Names of buildt-in Components 
+    /// Names of built-in Components 
     /// </summary>
     public static partial class ComponentNames
     {

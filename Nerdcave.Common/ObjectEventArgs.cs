@@ -44,7 +44,7 @@ namespace Nerdcave.Common
     }
 
     /// <summary>
-    /// Paramterized version of ObjectEventArgs
+    /// Parameterized version of ObjectEventArgs
     /// </summary>
     /// <typeparam name="T">The type of the value that is wrapped in the EventArgs object</typeparam>
     public class ObjectEventArgs<T> : EventArgs

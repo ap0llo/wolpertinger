@@ -101,7 +101,7 @@ namespace Nerdcave.Common.Extensions
         /// <param name="plainText">The data to encrypt</param>
         /// <param name="Key">The encryption key to be used</param>
         /// <param name="IV">The initialization vector to use</param>
-        /// <returns>Returns the encrtypted data in a byte-array</returns>
+        /// <returns>Returns the encrypted data in a byte-array</returns>
         /// <remarks>Base on Code from CodeProject http://www.codeproject.com/Articles/5719/Simple-encrypting-and-decrypting-data-in-C </remarks>
         [DebuggerStepThrough()]
         public static byte[] Encrypt(this byte[] plainText, byte[] Key, byte[] IV)
@@ -168,12 +168,12 @@ namespace Nerdcave.Common.Extensions
         }
 
         /// <summary>
-        /// Decrypts a byte-Array encrpyted using AES
+        /// Decrypts a byte-Array encrypted using AES
         /// </summary>
         /// <param name="cipherText">The data to be decrypted</param>
         /// <param name="Key">The encryption key to use</param>
-        /// <param name="IV">The initialisation vector used to encrypt the data</param>
-        /// <returns>Returns a byte-array contianing the decrypted data</returns>
+        /// <param name="IV">The initialization vector used to encrypt the data</param>
+        /// <returns>Returns a byte-array containing the decrypted data</returns>
         /// <remarks>Based on Code from CodeProject http://www.codeproject.com/Articles/5719/Simple-encrypting-and-decrypting-data-in-C </remarks>
         [DebuggerStepThrough()]       
         public static byte[] DecryptAES(this byte[] cipherText, byte[] Key, byte[] IV)
@@ -260,7 +260,7 @@ namespace Nerdcave.Common.Extensions
 
 
         /// <summary>
-        /// Decompresses a unicode-string compressed using String.Compress()
+        /// Decompresses a Unicode-string compressed using String.Compress()
         /// </summary>
         /// <param name="compressed">The compressed data.</param>
         /// <returns>Returns the decompressed data interpreted as Unicode-String</returns>
