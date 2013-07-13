@@ -172,7 +172,7 @@ namespace Wolpertinger.Core
         /// Gets a user-authentication token from the target.
         /// Calls the UserAuthGetToken RemoteMethod (Blocking)
         /// </summary>
-        /// <returns>Returns the token recieved from the target</returns>
+        /// <returns>Returns the token received from the target</returns>
         public Task<string> UserAuthGetTokenAsync()
         {
             return Task.Factory.StartNew<string>(delegate 
@@ -196,18 +196,7 @@ namespace Wolpertinger.Core
                 return (bool)ClientConnection.CallRemoteFunction(ComponentNamesExtended.Authentication, AuthenticationMethods.UserAuthVerify, username, authKey);
             });
         }
-
-        ///// <summary>
-        ///// Sets a new TrustLevel for the target client and notifies the target about the change.
-        ///// Asynchronously calls the AwardTrustLevel RemoteMethod.
-        ///// </summary>
-        ///// <param name="trustLevel">The level of trust to award</param>
-        //public void AwardTrustLevel(int trustLevel)
-        //{
-        //    this.ClientConnection.TrustLevel = trustLevel;
-        //    callRemoteMethodAsync(AuthenticationMethods.AwardTrustLevel, false, trustLevel);
-        //}
-
+        
 
         #endregion Client Implementation
 
@@ -224,8 +213,6 @@ namespace Wolpertinger.Core
         {
             //Check if connection is to be accepted
             bool accepted = (this.ClientConnection.AcceptConnections && ClientConnection.ConnectionManager.AcceptIncomingConnections);
-
-            //var result = new ResponseResult(accepted);
 
             if (accepted)
             {
@@ -308,7 +295,7 @@ namespace Wolpertinger.Core
             }
             else
             {
-                //check if verification key is valied
+                //check if verification key is valid
                 clusterVerified_target = checkClusterAuthKey(verificationKey, clusterAuthToken, this.ClientConnection.ConnectionManager.ClusterKey);                
 
                 //Increase trust level if target has been verified
@@ -357,7 +344,7 @@ namespace Wolpertinger.Core
         [MethodCallHandler(AuthenticationMethods.UserAuthVerify), TrustLevel(3)]
         public CallResult UserAuthVerify_server(string username, string userAuthKey)
         {
-            //check if username and authkey (derived from password) are correct
+            //check if username and auth-key (derived from password) are correct
             bool verified = ((username.ToLower() == this.ClientConnection.ConnectionManager.WolpertingerUsername.ToLower()) 
                                 && checkUserAuthKey(userAuthKey, userAuthToken, this.ClientConnection.ConnectionManager.WolpertingerPassword));
             
@@ -367,7 +354,7 @@ namespace Wolpertinger.Core
 
             ResponseResult result = new ResponseResult();
 
-            //increase Trust level if credentilas were correct
+            //increase Trust level if credentials were correct
             if (verified)
             {
                 this.ClientConnection.TrustLevel = 4;
@@ -407,7 +394,7 @@ namespace Wolpertinger.Core
         /// <summary>
         /// Initializes a new Instance of ECDiffieHellmanCng and sets the default values for use for the key-exchange
         /// </summary>
-        /// <returns>Retunrs the initialized instance of ECDiffieHellmanCng</returns>
+        /// <returns>Returns the initialized instance of ECDiffieHellmanCng</returns>
         protected static ECDiffieHellmanCng getNewKeyProvider()
         {
             ECDiffieHellmanCng keyProvider = new ECDiffieHellmanCng();
@@ -423,7 +410,7 @@ namespace Wolpertinger.Core
         /// </summary>
         /// <param name="authToken">The authentication token for calculating the authentication key</param>
         /// <param name="clusterKey">The cluster-key for calculating the authentication key</param>
-        /// <returns>Retunrs a cluster authentication key based on the specified token and cluster-key</returns>
+        /// <returns>Returns a cluster authentication key based on the specified token and cluster-key</returns>
         protected static string calculateClusterAuthKey(string authToken, byte[] clusterKey)
         {
             byte[] salt = authToken.GetBytesBase64();
@@ -441,11 +428,11 @@ namespace Wolpertinger.Core
         }
 
         /// <summary>
-        /// Checks if the given authentication key is valid for the specified token and cluser-key
+        /// Checks if the given authentication key is valid for the specified token and cluster-key
         /// </summary>
         /// <param name="authKey">The authentication key to be checked</param>
         /// <param name="issuedAuthToken">The authentication token used to calculate the key</param>
-        /// <param name="clusterKey">The cluser-key to calculate the key</param>
+        /// <param name="clusterKey">The cluster-key to calculate the key</param>
         /// <returns>Returns whether the specified authentication key was correct for the given token and cluster-key</returns>
         protected static bool checkClusterAuthKey(string authKey, string issuedAuthToken, byte[] clusterKey)
         {
@@ -462,7 +449,7 @@ namespace Wolpertinger.Core
         }
 
         /// <summary>
-        /// Generates a new authentication token to be used with cluser- or user-authentication.
+        /// Generates a new authentication token to be used with cluster- or user-authentication.
         /// </summary>
         /// <returns>Returns the generated token. The token actually is a 32-byte value base64-encoded as string</returns>
         protected static string getNewAuthToken()
@@ -485,7 +472,7 @@ namespace Wolpertinger.Core
             //get the salt as bytes from the token
             byte[] salt = authToken.GetBytesBase64();
 
-            //check if salt ans password have valid values
+            //check if salt and password have valid values
             if (salt == null || password.IsNullOrEmpty())
             {
                 return "";
@@ -528,7 +515,7 @@ namespace Wolpertinger.Core
         /// <returns>Returns a hash of the specified value as base64-encoded string</returns>
         protected static string getSaltedHashString(string value, byte[] salt)
         {
-            //initialize new instace of Rfc2898DeriveBytes (implements salted hashing using PBKDF2) 
+            //initialize new instance of Rfc2898DeriveBytes (implements salted hashing using PBKDF2) 
             Rfc2898DeriveBytes hashProvider = new Rfc2898DeriveBytes(value, salt);
             //get the first 64 bytes of the salted hash
             return hashProvider.GetBytes(64).ToStringBase64();       

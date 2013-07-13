@@ -90,14 +90,14 @@ namespace Wolpertinger.Fileserver
                 Directory.CreateDirectory(folder);
             }
 
-            //Set up databasefolder
+            //Set up database-folder
             if (!Directory.Exists(DatabaseFolder))
             {
                 Directory.CreateDirectory(DatabaseFolder);
             }
 
    
-            //Initalize ConnectionManager
+            //Initialize ConnectionManager
             //TODO manager.AddProfile(Profile.FileServer);
             //manager.AddComponent(typeof(ClientInfoProvider), typeof(XmppLoggingConfigurator), typeof(FileShare));
 

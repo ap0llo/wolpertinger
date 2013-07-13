@@ -80,10 +80,10 @@ namespace Wolpertinger.Fileserver
 
 
 		/// <summary>
-		/// Gets the key used to store the hash in the database for the speicified filename
+		/// Gets the key used to store the hash in the database for the specified filename
 		/// </summary>
-		/// <param name="fileName">Name of the file to genereate the key for</param>
-		/// <returns>Returns a key for the speicified filename</returns>
+		/// <param name="fileName">Name of the file to generate the key for</param>
+		/// <returns>Returns a key for the specified filename</returns>
 		private string getKey(string fileName)
 		{
 			return BinaryRage.Key.GenerateMD5Hash(fileName.ToLower().Trim());
@@ -160,7 +160,7 @@ namespace Wolpertinger.Fileserver
 		/// </summary>
 		/// <param name="filename">The name of the file that has been hashed</param>
 		/// <param name="hash">The file's hash</param>
-		/// <returns>Returns a new instance of HashInfo containing information avout the specified file. On error returns null</returns>
+		/// <returns>Returns a new instance of HashInfo containing information about the specified file. On error returns null</returns>
 		private HashInfo getHashInfo(string filename, string hash)
 		{            
 			//check if file exists and hash is valid
@@ -183,7 +183,7 @@ namespace Wolpertinger.Fileserver
 
 		/// <summary>
 		/// Runs in an infinite loop and calculates hashes for all files that have been queued.
-		/// If the queue is empty, waits until new items are enqueued
+		/// If the queue is empty, waits until new items are queued
 		/// </summary>
 		private void processQueuedFiles()
 		{
@@ -218,7 +218,7 @@ namespace Wolpertinger.Fileserver
 						}
 						catch (IOException)
 						{
-							//error calculating hash, re-enqueue file and try again later
+							//error calculating hash, re-queue file and try again later
 							Thread.Sleep(1000);
 							queue.Add(file, Priority.Low);
 						}
@@ -263,10 +263,10 @@ namespace Wolpertinger.Fileserver
 		public event EventHandler<GetHashEventArgs> GetHashAsyncCompleted;
 
 		/// <summary>
-		/// Queues the specified file for hashing and returns immediatelly
+		/// Queues the specified file for hashing and returns immediately
 		/// </summary>
 		/// <param name="filename">The name of the file to be hashed</param>
-		/// <returns>Returns the file's hash. On errror returns null</returns>
+		/// <returns>Returns the file's hash. On error returns null</returns>
 		public string GetHash(string filename, Priority priority)
 		{
 			if (!File.Exists(filename))
@@ -302,7 +302,7 @@ namespace Wolpertinger.Fileserver
 		/// <summary>
 		/// Queues the specified file for hashing and waits for the hash to be finished
 		/// </summary>
-		/// <param name="filename">The name of the file nto be hashed</param>
+		/// <param name="filename">The name of the file to be hashed</param>
 		/// <returns>Returns the hash of the file's contents as string (base64-encoded)</returns>
 		public void GetHashAsync(string filename, Priority priority)
 		{

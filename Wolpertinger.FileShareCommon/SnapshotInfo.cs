@@ -51,7 +51,7 @@ namespace Wolpertinger.FileShareCommon
 
         
         /// <summary>
-        /// Initializes a new instace of SnapshotInfo
+        /// Initializes a new instance of SnapshotInfo
         /// </summary>
         public SnapshotInfo()
         {

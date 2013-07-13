@@ -194,12 +194,12 @@ namespace Wolpertinger.Fileserver
 		/// Server implementation of the GetDirectoryInfo RemoteMethod
 		/// </summary>
 		/// <param name="virtualPath">The virtual path of the directory to get info on</param>
-		/// <param name="depth">Specifies how many hierarchy-levels of the file-system to include in the repsonse</param>
+		/// <param name="depth">Specifies how many hierarchy-levels of the file-system to include in the response</param>
 		[TrustLevel(3)]
 		[MethodCallHandler(FileShareMethods.GetDirectoryInfo)]
 		public CallResult GetDirectoryInfo(string virtualPath, int depth, Guid snapshotId)
 		{
-            //check for preivous mount-errors
+            //check for previous mount-errors
             if (mountErrorOccurred)
             {
                 logger.Error("Mount error found");
@@ -372,7 +372,7 @@ namespace Wolpertinger.Fileserver
 		/// <summary>
 		/// Server implementation of the GetPermission RemoteMethod
 		/// </summary>
-		/// <param name="path">The path to checks the calling client's permission rights fory</param>
+		/// <param name="path">The path to checks the calling client's permission rights for</param>
 		[TrustLevel(3)]
 		[MethodCallHandler(FileShareMethods.GetPermission)]
 		public CallResult GetPermission(string path)
@@ -412,14 +412,14 @@ namespace Wolpertinger.Fileserver
 			}
 			else
 			{
-				logger.Error("No explicit permission founrd");
+				logger.Error("No explicit permission found");
 				//send error, if permission could not be found
 				return new ErrorResult(RemoteErrorCode.ItemNotFoundError);
 			}
 		}
 
 		/// <summary>
-		/// Server implemenation of the SetRootDirectoryPath RemoteMethod
+		/// Server implementation of the SetRootDirectoryPath RemoteMethod
 		/// </summary>
 		/// <param name="localPath">The path on the local machine to be used as root-directory</param>
 		[TrustLevel(4)]

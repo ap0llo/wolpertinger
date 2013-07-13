@@ -61,7 +61,7 @@ namespace Wolpertinger.Core
         }
 
         /// <summary>
-        /// Asynchrounously calls the GetEnable RemoteMethod on the target client and
+        /// Asynchronously calls the GetEnable RemoteMethod on the target client and
         /// raises the GetEnableCompleted event when a response is received.
         /// </summary>
         public Task<bool> GetEnableAsync()
@@ -240,7 +240,7 @@ namespace Wolpertinger.Core
         /// <summary>
         /// Server implementation of the SetLogLevel RemoteMethod
         /// </summary>
-        /// <param name="loglevel">The new loglevel to be set</param>
+        /// <param name="loglevel">The new log-level to be set</param>
         [MethodCallHandler(XmppLoggingConfiguratorMethods.SetLogLevel), TrustLevel(4)]
         protected CallResult SetLogLevel_server(string loglevel)
         {
@@ -258,7 +258,7 @@ namespace Wolpertinger.Core
         }
 
         /// <summary>
-        /// Server implemenation of the GetLogLevel RemoteMethod
+        /// Server implementation of the GetLogLevel RemoteMethod
         /// </summary>
         [MethodCallHandler(XmppLoggingConfiguratorMethods.GetLogLevel), TrustLevel(4)]
         protected CallResult GetLogLevel_server()

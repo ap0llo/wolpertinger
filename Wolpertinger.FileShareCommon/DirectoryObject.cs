@@ -123,7 +123,7 @@ namespace Wolpertinger.FileShareCommon
         }
 
         /// <summary>
-        /// Removes all directiories
+        /// Removes all directories
         /// </summary>
         public void ClearDirectories()
         {

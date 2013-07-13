@@ -59,7 +59,7 @@ namespace Wolpertinger.FileShareCommon
             var dirsMissingRight = dirsLeft.Where(l => !dirsRight.ContainsKey(l.Key)).Select(x => x.Value);
 
 
-            //determine file confilcts
+            //determine file conflicts
             var filesLeftAndRight = filesLeft.Where(r => filesRight.ContainsKey(r.Key)).Select(x => x.Value);
             var conflictedFiles = filesLeftAndRight.Where(x => !fileObjectsEqual(left.GetFile(x), right.GetFile(x)));
 

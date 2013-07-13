@@ -36,13 +36,13 @@ namespace Wolpertinger.FileShareCommon
         /// <summary>
         /// Queues the specified file for hashing and waits for the hash to be finished
         /// </summary>
-        /// <param name="filename">The name of the file nto be hashed</param>
+        /// <param name="filename">The name of the file to be hashed</param>
         /// <returns>Returns the hash of the file's contents as string (base64-encoded)</returns>
-        /// <returns>Returns the file's hash. On errror returns null</returns>
+        /// <returns>Returns the file's hash. On error returns null</returns>
         string GetHash(string filename, Priority priority);
 
         /// <summary>
-        /// Queues the specified file for hashing and returns immediatelly
+        /// Queues the specified file for hashing and returns immediately
         /// </summary>
         /// <param name="filename">The name of the file to be hashed</param>
         void GetHashAsync(string filename, Priority priority);
