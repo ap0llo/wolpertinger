@@ -32,14 +32,17 @@ namespace Wolpertinger.Core
     {
         //Dictionary to store types of server-components
         private Dictionary<string, Type> serverComponents = new Dictionary<string, Type>();
-        
+
+
+        private static HashSet<Assembly> componentAssemblies = new HashSet<Assembly>();
+
 
         /// <summary>
         /// Initializes a new instance of <see cref="DefaultComponentFactory" />
         /// </summary>
         public DefaultComponentFactory()
         {
-            loadTypes();        
+            loadTypes();
         }
 
 
@@ -47,6 +50,7 @@ namespace Wolpertinger.Core
 
         #region IComponentFactory Members
 
+        
 
         /// <summary>
         /// Gets a new instance of the IServerComponent that matches the specified component name.
@@ -69,19 +73,28 @@ namespace Wolpertinger.Core
         #endregion IComponentFactory Members
 
 
-
+        public static void RegisterComponentAssembly(Assembly assembly)
+        {
+            if (!componentAssemblies.Contains(assembly))
+            {
+                componentAssemblies.Add(assembly);
+            }
+        }
 
         private void loadTypes()
         {
-            //Get a list of all assemblies referenced by the entry assembly and add the entry-assembly itself to the list as well
-            IEnumerable<Assembly> assemblies =  Assembly.GetEntryAssembly()
-                                                    .GetReferencedAssemblies().Select(x => Assembly.Load(x)).Where(x=> !x.FullName.Contains("Raven"))
-                                                    .Union(new Assembly[]{ Assembly.GetEntryAssembly()})
-                                                .ToList<Assembly>();
+            //var entryassembly = Assembly.GetEntryAssembly();
+            //var referencedAsseblies = entryassembly.GetReferencedAssemblies();
+
+            ////Get a list of all assemblies referenced by the entry assembly and add the entry-assembly itself to the list as well
+            //IEnumerable<Assembly> assemblies =  Assembly.GetEntryAssembly()
+            //                                        .GetReferencedAssemblies().Select(x => Assembly.Load(x)).Where(x=> !x.FullName.Contains("Raven"))
+            //                                        .Union(new Assembly[]{ Assembly.GetEntryAssembly()})
+            //                                    .ToList<Assembly>();
             
 
             //load all types from all assemblies that implement IComponent and cache them in dictionaries to make Get*Component() faster
-            foreach (Assembly a in assemblies)
+            foreach (Assembly a in componentAssemblies)
             {
                 Type[] types = a.GetTypes();
                 foreach (Type t in types)

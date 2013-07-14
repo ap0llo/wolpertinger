@@ -76,6 +76,10 @@ namespace Wolpertinger.Manager.CLI
 			XmlSerializer.RegisterType(typeof(RemoteError), "remoteError");
 
 
+            DefaultComponentFactory.RegisterComponentAssembly(Assembly.GetAssembly(typeof(AuthenticationComponent)));
+            DefaultComponentFactory.RegisterComponentAssembly(Assembly.GetExecutingAssembly());
+
+
 			string profileFolderArg = args.Any(x => x.ToLower().StartsWith("profilefolder=")) ? args.First(x => x.ToLower().StartsWith("profilefolder=")): null;
 			profileFolderArg = (profileFolderArg == null) ? null : profileFolderArg.Replace("profilefolder=", "");
 			profileFolderArg = (Directory.Exists(profileFolderArg)) ? profileFolderArg : null;

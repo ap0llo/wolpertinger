@@ -69,6 +69,9 @@ namespace Wolpertinger.Fileserver
             XmlSerializer.RegisterType(typeof(RemoteError), "remoteError");
 
 
+            DefaultComponentFactory.RegisterComponentAssembly(Assembly.GetAssembly(typeof(AuthenticationComponent)));
+            DefaultComponentFactory.RegisterComponentAssembly(Assembly.GetExecutingAssembly());
+
             //Set up logger            
             LoggerService.SetLogger(new CompositeLogger(new Wolpertinger.Core.ConsoleLogger(), new XmppLogger()));
             logger = LoggerService.GetLogger("Wolpertinger.Fileserver");
