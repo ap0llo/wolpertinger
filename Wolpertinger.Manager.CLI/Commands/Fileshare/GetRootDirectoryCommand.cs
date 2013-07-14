@@ -30,20 +30,11 @@ using CommandLineParser.CommandParser;
 namespace Wolpertinger.Manager.CLI.Commands.Fileshare
 {
     [Command(CommandVerb.Get, "RootDirectory", "FileShare")]
-    class GetRootDirectoryCommand : FileShareCommand
+    class GetRootDirectoryCommand : SingleParameterConnectionDependentCommand
     {
         public override void Execute()
         {
-            var connection = getClientConnection();
-
-            if (connection == null)
-            {
-                Context.WriteError("No active connection");
-                return;
-            }
-
-
-            var client = getFileShareComponent();
+            var client = new FileShareClientComponent() { ClientConnection = getClientConnection() };
 
             var root = client.GetRootDirectoryPathAsync().Result;
 

@@ -20,6 +20,7 @@ SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRU
 STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
+using CommandLineParser.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,13 +28,14 @@ using System.Text;
 
 namespace CommandLineParser.CommandParser
 {    
-    public abstract class CommandBase<T>
+    public abstract class CommandBase<T> where T : ICommandContext
     {
 
         public string ParameterSetName { get; set; }
 
         public T Context { get; set; }
 
+        public CommandParser<T> CommandParser { get; set; }
 
         public abstract void Execute();
 

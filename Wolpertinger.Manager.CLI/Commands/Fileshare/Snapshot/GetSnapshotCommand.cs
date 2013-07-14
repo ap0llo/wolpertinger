@@ -31,18 +31,56 @@ using CommandLineParser.CommandParser;
 namespace Wolpertinger.Manager.CLI.Commands.Fileshare.Snapshot
 {
     [Command(CommandVerb.Get, "Snapshot", "FileShare")]
-    class GetSnapshotCommand : FileShareCommand
+    class GetSnapshotCommand : ConnectionDependentCommand
     {
         private const string SNAPSHOTFORMATSTRING = "{0, -36} | {1, -30}";
 
 
-        public override void Execute()
-        {           
-            var client = getFileShareComponent();
 
+
+
+        #region Parameters
+
+        [Parameter("SnapshotId", Position = 1, IsOptional = true, ParameterSet = "ImplicitConnection")]
+        [Parameter("SnapshotId", Position = 2, IsOptional = true, ParameterSet = "ExplicitConnection")]
+        public Guid SnapshotId { get; set; }
+
+
+
+        #endregion
+
+
+
+
+
+
+
+        public override void Execute()
+        {
+            var client = new FileShareClientComponent() { ClientConnection = getClientConnection() };                                
+            
             var snapshots = client.GetSnapshotsAsync().Result;
 
-            printSnapshots(snapshots);
+
+            if (SnapshotId == default(Guid))
+            {
+                printSnapshots(snapshots);
+            }
+            else
+            {
+                var snapshotsQuery = snapshots.Where(x => x.Id == this.SnapshotId);
+
+                if (!snapshotsQuery.Any())
+                {
+                    throw new CommandExecutionException("SnapshotId not found");
+                }
+                else
+                {
+                    printSnapshots(snapshotsQuery);
+                }
+            }
+
+            
         }
 
 

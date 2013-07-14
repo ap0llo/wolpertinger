@@ -92,7 +92,7 @@ namespace Wolpertinger.Testing
 
             Assert.IsNotNull(roundTrip);
             Assert.AreEqual<Guid>(testObject.Id, roundTrip.Id);
-            Assert.AreEqual<DateTime>(testObject.Time, roundTrip.Time.ToLocalTime());
+            Assert.AreEqual<DateTime>(testObject.Time, roundTrip.Time);
         }
 
         [TestMethod]

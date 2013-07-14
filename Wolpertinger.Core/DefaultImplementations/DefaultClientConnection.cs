@@ -193,6 +193,7 @@ namespace Wolpertinger.Core
             WtlpClient.Detach();
             WtlpClient = null;
 
+            expectedResponseCount = 0;
 
             Connected = false;            
 

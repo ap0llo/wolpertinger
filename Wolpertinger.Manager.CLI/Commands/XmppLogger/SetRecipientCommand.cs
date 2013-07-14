@@ -31,9 +31,10 @@ using CommandLineParser.CommandParser;
 namespace Wolpertinger.Manager.CLI.Commands.XmppLogger
 {
     [Command(CommandVerb.Set, "Recipient", "XmppLogger")]
-    class SetRecipientCommand : LoggerCommand
+    class SetRecipientCommand : LoggerSetCommand
     {
-        [Parameter("Value", IsOptional = false, Position = 1)]
+        [Parameter("Value", IsOptional = false, Position = 2, ParameterSet = "ExplicitConnection")]
+        [Parameter("Value", IsOptional = false, Position = 1, ParameterSet = "ImplicitConnection")]
         public string Value { get; set; }
 
         public override void Execute()

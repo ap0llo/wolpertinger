@@ -32,18 +32,13 @@ using CommandLineParser.CommandParser;
 
 namespace Wolpertinger.Manager.CLI
 {
-	public class CommandContext : ICommandContext<CommandContext>
+	public class CommandContext : ICommandContext
 	{
 
 		public IConnectionManager ConnectionManager { get; set; }
 
 
 		public IClientConnection ActiveConnection { get; set; }
-
-
-		public ICommandParser<CommandContext> CommandParser { get; set; }
-
-
 
 
 		public void WriteError(string message)

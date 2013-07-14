@@ -20,20 +20,22 @@ SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRU
 STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
+using CommandLineParser.Attributes;
+using CommandLineParser.CommandParser;
+using Nerdcave.Common.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Nerdcave.Common.Extensions;
-using CommandLineParser.Attributes;
-using CommandLineParser.CommandParser;
+using Wolpertinger.FileShareCommon;
 
 namespace Wolpertinger.Manager.CLI.Commands.Fileshare
 {
     [Command(CommandVerb.Set, "RootDirectory", "FileShare")]
-    class SetRootDirectoryCommand : FileShareCommand
+    class SetRootDirectoryCommand : ConnectionDependentCommand
     {
-        [Parameter("Path", Position = 2)]
+        [Parameter("Path", Position = 1, ParameterSet = "ImplicitConnection")]
+        [Parameter("Path", Position = 2, ParameterSet = "ExplicitConnection")]
         public string Path { get; set; }
 
 
@@ -44,7 +46,7 @@ namespace Wolpertinger.Manager.CLI.Commands.Fileshare
                 throw new CommandExecutionException("Path may not be null or empty");
             }                       
 
-            var client = getFileShareComponent();
+            var client = new FileShareClientComponent() { ClientConnection = getClientConnection()};
 
             client.SetRootDirectoryPathAsync(Path);            
         }

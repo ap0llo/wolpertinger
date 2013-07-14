@@ -93,7 +93,7 @@ namespace Wolpertinger.Manager.CLI
         
         /// <summary>
         /// Asynchronously calls the "GetFileInfo" remoteMethod on the target client
-        /// and raises the "GetFileInfoCompleted" event when a response is reqceived.
+        /// and raises the "GetFileInfoCompleted" event when a response is received.
         /// </summary>
         public Task<FileObject> GetFileInfoAsync(string virtualPath)
         {

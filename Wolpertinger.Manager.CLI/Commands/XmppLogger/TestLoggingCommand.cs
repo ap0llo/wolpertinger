@@ -30,9 +30,10 @@ using CommandLineParser.CommandParser;
 namespace Wolpertinger.Manager.CLI.Commands.XmppLogger
 {
 	[Command(CommandVerb.Test, "Logging", "XmppLogger")]
-	class TestLoggingCommand : LoggerCommand
+	class TestLoggingCommand : LoggerSetCommand
 	{
-		[Parameter("LogLevel", IsOptional = false, Position = 1)]
+		[Parameter("LogLevel", IsOptional = false, Position = 2, ParameterSet = "ExplicitConnection")]
+		[Parameter("LogLevel", IsOptional = false, Position = 1, ParameterSet = "ImplicitConnection")]
 		public Core.LogLevel LogLevel { get; set; }
 
 

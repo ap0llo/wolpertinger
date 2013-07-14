@@ -31,12 +31,14 @@ using CommandLineParser.CommandParser;
 namespace Wolpertinger.Manager.CLI.Commands.Fileshare
 {
     [Command(CommandVerb.New, "Permission", "FileShare")]
-    class AddPermissionCommand : FileShareCommand
+    class NewPermissionCommand : ConnectionDependentCommand
     {
-        [Parameter("VirtualPath", IsOptional=false, Position=2)]
+        [Parameter("VirtualPath", IsOptional = false, Position = 1, ParameterSet = "ImplicitConnection")]
+        [Parameter("VirtualPath", IsOptional = false, Position = 2, ParameterSet = "ExplicitConnection")]
         public string VirtualPath { get; set; }
 
-        [Parameter("Clients", IsOptional = false, Position = 3)]
+        [Parameter("Clients", IsOptional = false, Position = 2, ParameterSet = "ImplicitConnection")]
+        [Parameter("Clients", IsOptional = false, Position = 3, ParameterSet = "ExplicitConnection")]
         public string Clients { get; set; }
 
 
@@ -44,7 +46,7 @@ namespace Wolpertinger.Manager.CLI.Commands.Fileshare
 
         public override void Execute()
         {
-            var client = getFileShareComponent();
+            var client = new FileShareClientComponent() { ClientConnection = getClientConnection() };
 
             var permission = new Permission() { Path = VirtualPath, PermittedClients = Clients.Split(';').ToList<string>() };
 

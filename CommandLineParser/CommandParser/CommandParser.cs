@@ -35,7 +35,7 @@ using CommandLineParser.Interfaces;
 
 namespace CommandLineParser.CommandParser
 {
-	public class CommandParser<T> : ICommandParser<T> where T: ICommandContext<T>
+	public class CommandParser<T> : ICommandParser<T> where T: ICommandContext
 	{
 		#region Fields
 
@@ -68,7 +68,6 @@ namespace CommandLineParser.CommandParser
 		public CommandParser(T context)
 		{
 			this.context = context;
-			context.CommandParser = this;   
 		 
 			ParameterArgumentMapping.ParameterParsers = this.parameterParsers;
 		}
@@ -81,7 +80,7 @@ namespace CommandLineParser.CommandParser
 		{
 			foreach (var type in assembly.GetTypes())
 			{
-				if (type.IsSubclassOf(typeof(CommandBase<T>))
+				if (type.IsSubclassOf(typeof(CommandBase<T>))    
 					|| typeof(IParameterParser).IsAssignableFrom(type))
 				{
 					//check if instances of the type can be created
@@ -93,7 +92,7 @@ namespace CommandLineParser.CommandParser
 
 
 				//check if type is derived from CommandBase
-				if (type.IsSubclassOf(typeof(CommandBase<T>)))
+                if (type.IsSubclassOf(typeof(CommandBase<T>)))
 				{
 					commands.Add(loadCommandInfo(type));
 				}
@@ -137,6 +136,7 @@ namespace CommandLineParser.CommandParser
 			var commandInfo =  getCommandInfo(args);
 			var commandInstance = (CommandBase<T>)Activator.CreateInstance(commandInfo.Type);
 			commandInstance.Context = this.context;
+            commandInstance.CommandParser = this;
 
 			//array that stores a bool for each element of args that indicates whether that parameter is done
 			bool[] processedArgs = new bool[args.Count];     
@@ -192,9 +192,13 @@ namespace CommandLineParser.CommandParser
 				else
 				{
 					var unsetRequierdParametersCounts = parameterArgumentMappings.Select(m => m.ParameterSet.Parameters.Count(p => !p.IsOptional && !m.Mapping.ContainsKey(p)));
-					var min = unsetRequierdParametersCounts.Min();
 
-					parameterArgumentMappings = parameterArgumentMappings.Where(m => m.ParameterSet.Parameters.Count(p => !p.IsOptional && !m.Mapping.ContainsKey(p)) == min).ToList();
+					if (unsetRequierdParametersCounts.Any())
+					{
+						var min = unsetRequierdParametersCounts.Min();
+						parameterArgumentMappings = parameterArgumentMappings.Where(m => m.ParameterSet.Parameters.Count(p => !p.IsOptional && !m.Mapping.ContainsKey(p)) == min).ToList();
+					}
+
 
 					if (parameterArgumentMappings.Count() == 1)
 					{
@@ -204,8 +208,11 @@ namespace CommandLineParser.CommandParser
 					{
 
 						var unsetParametersCount = parameterArgumentMappings.Select(m => m.ParameterSet.Parameters.Count(p=> !m.Mapping.ContainsKey(p)));
-						var min2 = unsetParametersCount.Min();
-						parameterArgumentMappings = parameterArgumentMappings.Where(m => m.ParameterSet.Parameters.Count(p=> !m.Mapping.ContainsKey(p)) == min).ToList();
+						if (unsetParametersCount.Any())
+						{
+							var min2 = unsetParametersCount.Min();
+							parameterArgumentMappings = parameterArgumentMappings.Where(m => m.ParameterSet.Parameters.Count(p=> !m.Mapping.ContainsKey(p)) == min2).ToList();
+						}
 
 						if (parameterArgumentMappings.Count() == 1)
 						{
@@ -247,7 +254,7 @@ namespace CommandLineParser.CommandParser
 				item.Key.SetMethod.Invoke(commandInstance, new object[] { value });
 			}
 
-            commandInstance.ParameterSetName = mapping.ParameterSet.Name;
+			commandInstance.ParameterSetName = mapping.ParameterSet.Name;
 
 
 			//get values for unset required parameters 

@@ -38,7 +38,7 @@ namespace Wolpertinger.Testing.XmlSerialization
         public void TestSnapshotInfoSerialization_Valid()
         {
             var snapshotInfo = new SnapshotInfo();
-            snapshotInfo.Time = DateTime.Now.ToUniversalTime();
+            snapshotInfo.Time = DateTime.Now;
 
             var xml = snapshotInfo.Serialize();
            

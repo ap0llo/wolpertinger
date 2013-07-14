@@ -30,15 +30,16 @@ using CommandLineParser.CommandParser;
 namespace Wolpertinger.Manager.CLI.Commands.Fileshare
 {
     [Command(CommandVerb.Remove, "Mount", "FileShare")]
-    class RemoveMountCommand : FileShareCommand
+    class RemoveMountCommand : ConnectionDependentCommand
     {
-        [Parameter("VirtualPath", Position=2)]
+        [Parameter("VirtualPath", Position = 2, ParameterSet = "ExplicitConnection")]
+        [Parameter("VirtualPath", Position = 1, ParameterSet = "ImplicitConnection")]
         public string VirtualPath { get; set; }
 
 
         public override void Execute()
         {
-            var client = getFileShareComponent();
+            var client = new FileShareClientComponent() { ClientConnection = getClientConnection() };
 
             client.RemoveSharedDirectoryAsync(VirtualPath);
         }

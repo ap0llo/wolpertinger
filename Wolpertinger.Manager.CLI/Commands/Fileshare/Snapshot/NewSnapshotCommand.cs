@@ -30,11 +30,11 @@ using CommandLineParser.CommandParser;
 namespace Wolpertinger.Manager.CLI.Commands.Fileshare.Snapshot
 {
     [Command(CommandVerb.New, "Snapshot", "FileShare")]    
-    class NewSnapshotCommand : FileShareCommand
+    class NewSnapshotCommand : SingleParameterConnectionDependentCommand
     {
         public override void Execute()
         {
-            var client = getFileShareComponent();
+            var client = new FileShareClientComponent() { ClientConnection = getClientConnection() };
 
             Context.WriteInfo("Creating Snapshot");
             var task = client.CreateSnapshotAsync();

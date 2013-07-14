@@ -7,10 +7,10 @@ All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 
-    Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-    Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer 
+	Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+	Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer 
 	in the documentation and/or other materials provided with the distribution.
-    Neither the name of the Wolpertinger project nor the names of its contributors may be used to endorse or promote products 
+	Neither the name of the Wolpertinger project nor the names of its contributors may be used to endorse or promote products 
 	derived from this software without specific prior written permission.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
@@ -30,63 +30,63 @@ using System.Collections;
 
 namespace Wolpertinger.Testing.XmlSerialization
 {
-    [TestClass]
-    public class XmlSerializerTest
-    {
-        [TestInitialize]
-        public void Initialize()
-        {
-            XmlSerializer.RegisterType(typeof(SnapshotInfo), "snapshotInfo");
-        }
+	[TestClass]
+	public class XmlSerializerTest
+	{
+		[TestInitialize]
+		public void Initialize()
+		{
+			XmlSerializer.RegisterType(typeof(SnapshotInfo), "snapshotInfo");
+		}
 
-        [TestMethod]
-        public void TestXmlSerializer_knownType()
-        {
-            int value = new Random().Next();
+		[TestMethod]
+		public void TestXmlSerializer_knownType()
+		{
+			int value = new Random().Next();
 
-            var xml = XmlSerializer.Serialize(value);
+			var xml = XmlSerializer.Serialize(value);
 
-            var roundTrip = (int)XmlSerializer.Deserialize(xml);
+			var roundTrip = (int)XmlSerializer.Deserialize(xml);
 
-            Assert.AreEqual<int>(value, roundTrip);
-        }
-
-
-        [TestMethod]
-        public void TestXmlSerializer_ISerializable()
-        {
-            var value = new SnapshotInfo() { Time = DateTime.Now.ToUniversalTime() };
-
-            var xml = XmlSerializer.Serialize(value);
-
-            var roundtrip = (SnapshotInfo)XmlSerializer.Deserialize(xml);
-
-            Assert.IsNotNull(roundtrip);
-            Assert.AreEqual<Guid>(value.Id, roundtrip.Id);
-            Assert.AreEqual<DateTime>(value.Time, roundtrip.Time);
-
-        }
+			Assert.AreEqual<int>(value, roundTrip);
+		}
 
 
-        [TestMethod]
-        public void TestXmlSerializer_IEnumerable()
-        {
-            IEnumerable<int> list = new List<int>() { 1, 2, 3, 4 };
+		[TestMethod]
+		public void TestXmlSerializer_ISerializable()
+		{
+			var value = new SnapshotInfo() { Time = DateTime.Now };
+
+			var xml = XmlSerializer.Serialize(value);
+
+			var roundtrip = (SnapshotInfo)XmlSerializer.Deserialize(xml);
+
+			Assert.IsNotNull(roundtrip);
+			Assert.AreEqual<Guid>(value.Id, roundtrip.Id);
+			Assert.AreEqual<DateTime>(value.Time, roundtrip.Time);
+
+		}
 
 
-            var xml = XmlSerializer.Serialize(list);
+		[TestMethod]
+		public void TestXmlSerializer_IEnumerable()
+		{
+			IEnumerable<int> list = new List<int>() { 1, 2, 3, 4 };
 
-            var roundTrip = (XmlSerializer.Deserialize(xml) as IEnumerable).Cast<int>();
+
+			var xml = XmlSerializer.Serialize(list);
+
+			var roundTrip = (XmlSerializer.Deserialize(xml) as IEnumerable).Cast<int>();
 
 
-           
-            Assert.IsNotNull(roundTrip);
-            Assert.AreEqual<int>(list.Count(), roundTrip.Count());
-            int count = list.Count();
-            for (int i = 0; i < count; i++)
-            {
-                Assert.AreEqual<int>(list.Skip(i).First(), roundTrip.Skip(i).First());
-            }
-        }
-    }
+		   
+			Assert.IsNotNull(roundTrip);
+			Assert.AreEqual<int>(list.Count(), roundTrip.Count());
+			int count = list.Count();
+			for (int i = 0; i < count; i++)
+			{
+				Assert.AreEqual<int>(list.Skip(i).First(), roundTrip.Skip(i).First());
+			}
+		}
+	}
 }

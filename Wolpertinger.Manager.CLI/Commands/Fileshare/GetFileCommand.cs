@@ -32,27 +32,21 @@ using CommandLineParser.CommandParser;
 namespace Wolpertinger.Manager.CLI.Commands.Fileshare
 {
     [Command(CommandVerb.Get, "File", "FileShare")]
-    class GetFileCommand : FileShareCommand
+    class GetFileCommand : ConnectionDependentCommand
     {
-        [Parameter("Path", IsOptional = false, Position = 2)]
+        [Parameter("Path", IsOptional = false, Position = 1, ParameterSet = "ImplicitConnection")]
+        [Parameter("Path", IsOptional = false, Position = 2, ParameterSet = "ExplicitConnection")]
         public string Path { get; set; }
 
         public override void Execute()
         {
-            var connection = getClientConnection();
-            if (connection == null)
-            {
-                Context.WriteError("No active connection");
-                return;
-            }
 
-
-            var client = getFileShareComponent();
+            var client = new FileShareClientComponent() { ClientConnection = getClientConnection() };
 
             try
             {
                 FileObject file = client.GetFileInfoAsync(Path).Result;
-                printFileObject(file);
+                FileShareCommadHelpers.PrintFileObject(file, this.Context);
             }
             catch (TimeoutException)
             {

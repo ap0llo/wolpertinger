@@ -32,27 +32,20 @@ using CommandLineParser.CommandParser;
 namespace Wolpertinger.Manager.CLI.Commands.Fileshare
 {
     [Command(CommandVerb.Get, "Directory", "FileShare")]
-    class GetDirectoryCommand : FileShareCommand
+    class GetDirectoryCommand : ConnectionDependentCommand
     {
-        [Parameter("Path", IsOptional=false, Position=2)]
+        [Parameter("Path", IsOptional = false, Position = 1, ParameterSet = "ImplicitConnection")]
+        [Parameter("Path", IsOptional = false, Position = 2, ParameterSet = "ExplicitConnection")]
         public string Path { get; set; }
 
-        [Parameter("SnapshotId", IsOptional = true, Position = 3)]
+        [Parameter("SnapshotId", IsOptional = true, Position = 2, ParameterSet = "ImplicitConnection")]
+        [Parameter("SnapshotId", IsOptional = true, Position = 3, ParameterSet = "ExplicitConnection")]
         public Guid SnapshotId { get; set; }
 
 
         public override void Execute()
         {
-            var connection = getClientConnection();
-            if(connection == null)
-            {
-                Context.WriteError("No active conncetion");
-                return;
-            }
-
-
-            var client = getFileShareComponent();
-
+            var client = new FileShareClientComponent() { ClientConnection = getClientConnection() };
 
             if (SnapshotId == default(Guid))
             {
@@ -62,7 +55,7 @@ namespace Wolpertinger.Manager.CLI.Commands.Fileshare
             try
             {
                 DirectoryObject dir = client.GetDirectoryInfoAsync(Path, 1, SnapshotId).Result;
-                printDirectoryObject(dir);
+                FileShareCommadHelpers.PrintDirectoryObject(dir,  this.Context);
             }
             catch (TimeoutException)
             {

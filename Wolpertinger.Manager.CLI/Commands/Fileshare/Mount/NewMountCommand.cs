@@ -30,18 +30,20 @@ using CommandLineParser.CommandParser;
 namespace Wolpertinger.Manager.CLI.Commands.Fileshare
 {
     [Command(CommandVerb.New, "Mount", "FileShare")]
-    class NewMount : FileShareCommand
+    class NewMount : ConnectionDependentCommand
     {
-        [Parameter("LocalPath", Position=2)]
+        [Parameter("LocalPath", Position = 2, ParameterSet = "ExplicitConnection")]
+        [Parameter("LocalPath", Position = 1, ParameterSet = "ImplicitConnection")]
         public string LocalPath { get; set; }
 
-        [Parameter("VirtualPath", Position=3)]
+        [Parameter("VirtualPath", Position = 3, ParameterSet = "ExplicitConnection")]
+        [Parameter("VirtualPath", Position = 2, ParameterSet = "ImplicitConnection")]
         public string VirtualPath { get; set; }
 
 
         public override void Execute()
         {
-            var client = getFileShareComponent();
+            var client = new FileShareClientComponent() { ClientConnection = getClientConnection() };
 
             client.AddSharedDirectoryAsync(LocalPath, VirtualPath);
         }

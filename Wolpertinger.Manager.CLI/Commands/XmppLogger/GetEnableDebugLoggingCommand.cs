@@ -32,7 +32,7 @@ using CommandLineParser.CommandParser;
 namespace Wolpertinger.Manager.CLI.Commands.XmppLogger
 {
     [Command(CommandVerb.Get, "EnableDebugLogging", "XmppLogger")]
-    class GetEnableDebugLoggingCommand : LoggerCommand
+    class GetEnableDebugLoggingCommand : LoggerGetCommand
     {
         public override void Execute()
         {

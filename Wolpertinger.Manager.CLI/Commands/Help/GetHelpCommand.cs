@@ -43,7 +43,7 @@ namespace Wolpertinger.Manager.CLI.Commands.Help
 		public override void Execute()
 		{
 			//Get a list of all commands known to the CommandParser
-			var allCommands = Context.CommandParser.KnownCommands.OrderBy(x => getCommandName(x));
+			var allCommands = CommandParser.KnownCommands.OrderBy(x => getCommandName(x));
 
 			//if CommandName has not been specified, print a list of all available command
 			if (CommandName == null)

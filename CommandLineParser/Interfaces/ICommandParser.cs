@@ -28,7 +28,7 @@ using System.Reflection;
 
 namespace CommandLineParser.Interfaces
 {
-	public interface ICommandParser<T> where T : ICommandContext<T>
+	public interface ICommandParser<T> where T : ICommandContext
 	{
 		IEnumerable<CommandInfo> KnownCommands { get; }
 

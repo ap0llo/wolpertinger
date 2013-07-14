@@ -31,11 +31,11 @@ using CommandLineParser.CommandParser;
 namespace Wolpertinger.Manager.CLI.Commands.Fileshare
 {
     [Command(CommandVerb.Get, "Mount", "FileShare")]
-    class GetMountCommand : FileShareCommand
+    class GetMountCommand : SingleParameterConnectionDependentCommand
     {
         public override void Execute()
         {
-            var client = getFileShareComponent();
+            var client = new FileShareClientComponent() { ClientConnection = getClientConnection() };
 
             var mounts = client.GetMountsAsync().Result;
 

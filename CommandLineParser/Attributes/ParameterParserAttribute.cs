@@ -30,6 +30,7 @@ namespace CommandLineParser.Attributes
 	/// <summary>
 	/// Identifies a class as parameter parser
 	/// </summary>
+	[AttributeUsage(AttributeTargets.Class)]
 	public class ParameterParserAttribute : Attribute
 	{
 		/// <summary>

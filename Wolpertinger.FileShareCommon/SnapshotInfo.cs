@@ -97,7 +97,7 @@ namespace Wolpertinger.FileShareCommon
         public override void Deserialize(XElement xmlData)
         {
             this.Id = Guid.Parse(xmlData.Element(XmlNames.Id).Value);
-            this.Time = DateTime.Parse(xmlData.Element(XmlNames.Time).Value).ToUniversalTime();
+            this.Time = DateTime.Parse(xmlData.Element(XmlNames.Time).Value).ToLocalTime();
         }
         
         #endregion

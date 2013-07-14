@@ -30,7 +30,7 @@ using CommandLineParser.CommandParser;
 
 namespace Wolpertinger.Manager.CLI.Commands.XmppLogger
 {
-    abstract class LoggerCommand : CommandBase<CommandContext>
+    abstract class LoggerGetCommand : SingleParameterConnectionDependentCommand
     {
 
         protected XmppLoggingConfiguratorComponent getLoggerComponent()
@@ -38,17 +38,29 @@ namespace Wolpertinger.Manager.CLI.Commands.XmppLogger
             return new XmppLoggingConfiguratorComponent() { ClientConnection = getClientConnection() };
         }
 
-        protected IClientConnection getClientConnection()
+
+
+        protected static Core.LogLevel? getLogLevel(string str)
         {
-            if (Context.ActiveConnection == null)
-            {
-                throw new CommandExecutionException("No active connection");
-            }
+            Core.LogLevel lvl;
+
+            if (Enum.TryParse<Core.LogLevel>(str, true, out lvl))
+                return lvl;
             else
-            {
-                return Context.ActiveConnection;
-            }
+                return null;
         }
+
+    }
+
+
+    abstract class LoggerSetCommand : ConnectionDependentCommand
+    {
+
+        protected XmppLoggingConfiguratorComponent getLoggerComponent()
+        {
+            return new XmppLoggingConfiguratorComponent() { ClientConnection = getClientConnection() };
+        }
+
 
 
         protected static Core.LogLevel? getLogLevel(string str)

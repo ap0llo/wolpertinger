@@ -30,14 +30,15 @@ using CommandLineParser.CommandParser;
 namespace Wolpertinger.Manager.CLI.Commands.Fileshare.Snapshot
 {
     [Command(CommandVerb.Remove, "Snapshot", "FileShare")]
-    class RemoveSnapshotCommand : FileShareCommand
+    class RemoveSnapshotCommand : ConnectionDependentCommand
     {
-        [Parameter("SnapshotId", Position = 2)]
+        [Parameter("SnapshotId", Position = 1, ParameterSet = "ImplicitConnection")]
+        [Parameter("SnapshotId", Position = 2, ParameterSet = "ExplicitConnection")]
         public Guid SnapshotId { get; set; }
 
         public override void Execute()
         {
-            var client = getFileShareComponent();
+            var client = new FileShareClientComponent() { ClientConnection = getClientConnection() };
 
             if (SnapshotId == Guid.Empty)
             {

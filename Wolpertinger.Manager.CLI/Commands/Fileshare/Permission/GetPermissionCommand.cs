@@ -31,12 +31,12 @@ using CommandLineParser.CommandParser;
 namespace Wolpertinger.Manager.CLI.Commands.Fileshare
 {
     [Command(CommandVerb.Get, "Permission", "FileShare")]
-    class GetPermissionCommand : FileShareCommand
+    class GetPermissionCommand : SingleParameterConnectionDependentCommand
     {
 
         public override void Execute()
         {
-            var client = getFileShareComponent();
+            var client = new FileShareClientComponent() { ClientConnection = getClientConnection() };
 
             IEnumerable<Permission> permissions = client.GetAddedPermissionsAsync().Result;
 

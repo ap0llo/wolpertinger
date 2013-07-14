@@ -71,8 +71,8 @@
     <Compile Include="Commands\Connection\GetConnectionCommand.cs" />
     <Compile Include="Commands\Connection\NewConnectionCommand.cs" />
     <Compile Include="Commands\Connection\StartConnectionCommand.cs" />
-    <Compile Include="Commands\Fileshare\Permission\AddPermissionCommand.cs" />
-    <Compile Include="Commands\Fileshare\FileShareCommand.cs" />
+    <Compile Include="Commands\Fileshare\Permission\NewPermissionCommand.cs" />
+    <Compile Include="Commands\Fileshare\FileShareCommadHelpers.cs" />
     <Compile Include="Commands\Fileshare\GetDirectoryCommand.cs" />
     <Compile Include="Commands\Fileshare\GetFileCommand.cs" />
     <Compile Include="Commands\Fileshare\Mount\GetMountCommand.cs" />

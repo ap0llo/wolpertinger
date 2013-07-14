@@ -30,7 +30,7 @@ using CommandLineParser.CommandParser;
 namespace Wolpertinger.Manager.CLI.Commands.XmppLogger
 {
     [Command(CommandVerb.Get, "Recipient", "XmppLogger")]
-    class GetRecipientCommand : LoggerCommand
+    class GetRecipientCommand : LoggerGetCommand
     {
         public override void Execute()
         {

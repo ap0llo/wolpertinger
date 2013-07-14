@@ -30,16 +30,16 @@ using CommandLineParser.CommandParser;
 namespace Wolpertinger.Manager.CLI.Commands.Fileshare
 {
     [Command(CommandVerb.Remove, "Permission", "FileShare")]
-    class RemovePermissionCommand : FileShareCommand
+    class RemovePermissionCommand : ConnectionDependentCommand
     {
-        [Parameter("Path", Position=2)]
+        [Parameter("Path", Position = 2, ParameterSet = "ExplicitConnection")]
+        [Parameter("Path", Position = 1, ParameterSet = "ImplicitConnection")]
         public string Path { get; set; }
 
 
         public override void Execute()
         {
-            var client = getFileShareComponent();
-
+            var client = new FileShareClientComponent() { ClientConnection = getClientConnection() };
 
             client.RemovePermissionAsync(Path);
         }

@@ -527,7 +527,7 @@ namespace Wolpertinger.Fileserver
 			}
 
 			
-			snapshot.Info.Time = DateTime.Now.ToUniversalTime();
+			snapshot.Info.Time = DateTime.Now;
 
 			//Get list of all snapshots from the database
 			List<Guid> snapshotIndex;

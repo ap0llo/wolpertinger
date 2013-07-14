@@ -32,12 +32,8 @@ namespace CommandLineParser.Interfaces
 	/// Interface that needs to be implemented by a command context
 	/// </summary>
 	/// <typeparam name="T">The type of the command context implementation</typeparam>
-	public interface ICommandContext<T> where T : ICommandContext<T>
+	public interface ICommandContext
 	{
-		/// <summary>
-		/// The CommandParser in the current context (property will be set by CommandParser)
-		/// </summary>
-		ICommandParser<T> CommandParser { get; set; }
-
+		
 	}
 }
