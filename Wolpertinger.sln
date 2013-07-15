@@ -24,6 +24,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{1D16DA
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommandLineParser", "CommandLineParser\CommandLineParser.csproj", "{7C9A7177-9DDE-4107-A3DD-7D718ABCCAAB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wolpertinger.Powershell", "Wolpertinger.Powershell\Wolpertinger.Powershell.csproj", "{D751272D-B3D4-452C-A549-240DCA10552A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -62,6 +64,10 @@ Global
 		{7C9A7177-9DDE-4107-A3DD-7D718ABCCAAB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7C9A7177-9DDE-4107-A3DD-7D718ABCCAAB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7C9A7177-9DDE-4107-A3DD-7D718ABCCAAB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D751272D-B3D4-452C-A549-240DCA10552A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D751272D-B3D4-452C-A549-240DCA10552A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D751272D-B3D4-452C-A549-240DCA10552A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D751272D-B3D4-452C-A549-240DCA10552A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

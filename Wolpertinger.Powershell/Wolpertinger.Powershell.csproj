@@ -1,0 +1,118 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Version;Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{D751272D-B3D4-452C-A549-240DCA10552A}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Wolpertinger.Powershell</RootNamespace>
+    <AssemblyName>Wolpertinger.Powershell</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="SLF, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\dependencies\SLF.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Management.Automation" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Cmdlets\ClientInfo\GetClientInfoCmdlet.cs" />
+    <Compile Include="Cmdlets\CmdletBase.cs" />
+    <Compile Include="Cmdlets\Connection\AuthenticateUserCmdlet.cs" />
+    <Compile Include="Cmdlets\Connection\CloseConnectionCmdlet.cs" />
+    <Compile Include="Cmdlets\Connection\NewConnectionCmdlet.cs" />
+    <Compile Include="Cmdlets\Connection\StartConnectionCmdlet.cs" />
+    <Compile Include="Cmdlets\Fileshare\GetDirectoryCmdlet.cs" />
+    <Compile Include="Cmdlets\Fileshare\GetFileCmdlet.cs" />
+    <Compile Include="Cmdlets\Fileshare\GetRootDirectoryCmdlet.cs" />
+    <Compile Include="Cmdlets\Fileshare\Mount\GetMountCmdlet.cs" />
+    <Compile Include="Cmdlets\Fileshare\Mount\NewMountCmdlet.cs" />
+    <Compile Include="Cmdlets\Fileshare\Mount\RemoveMountCmdlet.cs" />
+    <Compile Include="Cmdlets\Fileshare\Permission\GetPermissionCmdlet.cs" />
+    <Compile Include="Cmdlets\Fileshare\Permission\NewPermissionCmdlet.cs" />
+    <Compile Include="Cmdlets\Fileshare\Permission\RemovePermissionCmdlet.cs" />
+    <Compile Include="Cmdlets\Fileshare\Permission\TestPermissionCmdlet.cs" />
+    <Compile Include="Cmdlets\Fileshare\SetRootDirectoryCmdlet.cs" />
+    <Compile Include="Cmdlets\Fileshare\Snapshot\CompareSnapshotCommand.cs" />
+    <Compile Include="Cmdlets\Fileshare\Snapshot\GetSnapshotCmdlet.cs" />
+    <Compile Include="Cmdlets\Fileshare\Snapshot\NewSnapshotCmdlet.cs" />
+    <Compile Include="Cmdlets\Fileshare\Snapshot\RemoveSnapshotCmdlet.cs" />
+    <Compile Include="Cmdlets\GetWolpertingerVersionCmdlet.cs" />
+    <Compile Include="Cmdlets\XmppLogger\GetEnabledCmdlet.cs" />
+    <Compile Include="Cmdlets\XmppLogger\GetEnableDebugLoggingCmdlet.cs" />
+    <Compile Include="Cmdlets\XmppLogger\GetLogLevelCmdlet.cs" />
+    <Compile Include="Cmdlets\XmppLogger\GetRecipientCmdlet.cs" />
+    <Compile Include="Cmdlets\XmppLogger\LoggerCmdletBase.cs" />
+    <Compile Include="Cmdlets\XmppLogger\EnableDisableXmppLoggerCmdlet.cs" />
+    <Compile Include="Cmdlets\XmppLogger\EnableDisableDebugLoggingCmdlet.cs" />
+    <Compile Include="Cmdlets\XmppLogger\SetLogLevelCommand.cs" />
+    <Compile Include="Cmdlets\XmppLogger\SetRecipientCommand.cs" />
+    <Compile Include="Cmdlets\XmppLogger\TestLoggingCommand.cs" />
+    <Compile Include="FileShareClientComponent.cs" />
+    <Compile Include="Init\AppDataInit.cs" />
+    <Compile Include="Init\ComponentFactoryInit.cs" />
+    <Compile Include="Init\XmlSerializerInit.cs" />
+    <Compile Include="Init\XmppLoggerInit.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Nerdcave.Common\Nerdcave.Common.csproj">
+      <Project>{b7fa3f58-fdf8-4aad-ae7c-ef1a80ccf069}</Project>
+      <Name>Nerdcave.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Wolpertinger.CoreComponents\Wolpertinger.CoreComponents.csproj">
+      <Project>{58effe36-cf9f-42c7-b2cf-d721b06683bf}</Project>
+      <Name>Wolpertinger.CoreComponents</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Wolpertinger.Core\Wolpertinger.Core.csproj">
+      <Project>{42bf5ac0-a438-49fb-8049-9549da556898}</Project>
+      <Name>Wolpertinger.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Wolpertinger.Fileserver\Wolpertinger.Fileserver.csproj">
+      <Project>{a50d96e9-e687-4264-b53b-b91cd708f86e}</Project>
+      <Name>Wolpertinger.Fileserver</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Wolpertinger.FileShareCommon\Wolpertinger.FileShareCommon.csproj">
+      <Project>{a7cfb891-5b66-43ee-8033-bd2e668a3680}</Project>
+      <Name>Wolpertinger.FileShareCommon</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(SolutionDir)\.build\Wolpertinger.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

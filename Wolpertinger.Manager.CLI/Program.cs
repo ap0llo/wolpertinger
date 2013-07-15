@@ -76,8 +76,8 @@ namespace Wolpertinger.Manager.CLI
 			XmlSerializer.RegisterType(typeof(RemoteError), "remoteError");
 
 
-            DefaultComponentFactory.RegisterComponentAssembly(Assembly.GetAssembly(typeof(AuthenticationComponent)));
-            DefaultComponentFactory.RegisterComponentAssembly(Assembly.GetExecutingAssembly());
+			DefaultComponentFactory.RegisterComponentAssembly(Assembly.GetAssembly(typeof(AuthenticationComponent)));
+			DefaultComponentFactory.RegisterComponentAssembly(Assembly.GetExecutingAssembly());
 
 
 			string profileFolderArg = args.Any(x => x.ToLower().StartsWith("profilefolder=")) ? args.First(x => x.ToLower().StartsWith("profilefolder=")): null;
@@ -140,34 +140,34 @@ namespace Wolpertinger.Manager.CLI
 						waiting = false;
 					}
 
-                    try
-                    {
-                        var command = commandParser.GetCommand(input);
-                        command.Execute();
-                    }
-                    catch (AggregateException ex)
-                    {
-                        handleException(ex);
-                    }
-                    catch (TimeoutException ex)
-                    {
-                        ErrorLine("Connection timed out");
-                    }
-                    catch (CommandExecutionException ex)
-                    {
-                        ErrorLine(ex.Message);
-                    }
-                    catch (CommandParserException ex)
-                    {
-                        ErrorLine(ex.Message);
-                    }
-                    catch (RemoteErrorException ex)
-                    {
-                        ErrorLine(ex.Error.ErrorCode.ToString());
-                    }
+					try
+					{
+						var command = commandParser.GetCommand(input);
+						command.Execute();
+					}
+					catch (AggregateException ex)
+					{
+						handleException(ex);
+					}
+					catch (TimeoutException ex)
+					{
+						ErrorLine("Connection timed out");
+					}
+					catch (CommandExecutionException ex)
+					{
+						ErrorLine(ex.Message);
+					}
+					catch (CommandParserException ex)
+					{
+						ErrorLine(ex.Message);
+					}
+					catch (RemoteErrorException ex)
+					{
+						ErrorLine(ex.Error.ErrorCode.ToString());
+					}
 
 
-                
+				
 
 
 				}
