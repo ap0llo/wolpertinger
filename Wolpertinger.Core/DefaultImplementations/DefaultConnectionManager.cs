@@ -303,6 +303,12 @@ namespace Wolpertinger.Core
         public void RemoveClientConnection(string target)
         {
             target = target.ToLower();
+
+            if (target.Contains("/"))
+            {
+                target = target.Substring(0,target.IndexOf("/"));
+            }
+
             if (clientConnections.ContainsKey(target))
             {
                 //before removing a ClientConnection, save it as known client

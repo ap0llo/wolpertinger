@@ -81,9 +81,7 @@ namespace Wolpertinger.Core
         /// </summary>
         public Task SendResetNoticeAsync()
         {
-            var task = new Task(delegate { ClientConnection.CallRemoteAction(ComponentNames.Core, CoreMethods.SendResetNotice); });
-            task.Start();
-            return task;
+            return Task.Factory.StartNew(() => ClientConnection.CallRemoteAction(ComponentNames.Core, CoreMethods.SendResetNotice));          
         }
  
 
