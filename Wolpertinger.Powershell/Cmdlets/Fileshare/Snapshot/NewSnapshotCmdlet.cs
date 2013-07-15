@@ -29,7 +29,7 @@ using System.Text;
 
 namespace Wolpertinger.Powershell.Cmdlets
 {
-	[Cmdlet(VerbsCommon.New, "Snapshot")]    
+	[Cmdlet(VerbsCommon.New, Nouns.Snapshot)]    
 	public class NewSnapshotCommand 
 		: CmdletBase
 	{

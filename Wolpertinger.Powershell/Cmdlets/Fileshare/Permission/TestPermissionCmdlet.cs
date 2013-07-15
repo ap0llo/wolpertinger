@@ -29,7 +29,7 @@ using System.Text;
 
 namespace Wolpertinger.Powershell.Cmdlets
 {
-	[Cmdlet(VerbsDiagnostic.Test, "Permission")]
+	[Cmdlet(VerbsDiagnostic.Test, Nouns.Permission)]
 	public class TestPermissionCmdlet
 		: CmdletBase
 	{

@@ -28,7 +28,7 @@ using System.Management.Automation;
 
 namespace Wolpertinger.Powershell.Cmdlets
 {
-	[Cmdlet(VerbsCommon.Remove, "Mount")]
+	[Cmdlet(VerbsCommon.Remove, Nouns.Mount)]
 	public class RemoveMountCmdlet
 		: CmdletBase
 	{

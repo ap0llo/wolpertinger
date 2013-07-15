@@ -29,7 +29,7 @@ using System.Text;
 
 namespace Wolpertinger.Powershell.Cmdlets
 {
-	[Cmdlet(VerbsCommon.Remove, "Permission")]
+	[Cmdlet(VerbsCommon.Remove, Nouns.Permission)]
 	public class RemovePermissionCmdlet
 		: CmdletBase
 	{

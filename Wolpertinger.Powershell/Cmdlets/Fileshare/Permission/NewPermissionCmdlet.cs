@@ -29,7 +29,7 @@ using System.Management.Automation;
 
 namespace Wolpertinger.Powershell.Cmdlets
 {
-	[Cmdlet(VerbsCommon.New, "Permission")]
+	[Cmdlet(VerbsCommon.New, Nouns.Permission)]
 	public class NewPermissionCmdlet 
 		: CmdletBase
 	{

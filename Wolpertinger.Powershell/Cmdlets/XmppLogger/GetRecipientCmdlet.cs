@@ -28,7 +28,7 @@ using System.Text;
 
 namespace Wolpertinger.Powershell.Cmdlets
 {
-	[Cmdlet(VerbsCommon.Get, "XmppLoggerRecipient")]
+    [Cmdlet(VerbsCommon.Get, Nouns.XmppLoggerRecipient)]
 	public class GetRecipientCmdlet 
 		: LoggerCmdletBase
 	{

@@ -31,7 +31,7 @@ using Wolpertinger.FileShareCommon;
 
 namespace Wolpertinger.Powershell.Cmdlets
 {
-	[Cmdlet(VerbsCommon.Get, "Directory")]
+	[Cmdlet(VerbsCommon.Get, Nouns.Directory)]
 	public class GetDirectoryCmdlet
 		: CmdletBase
 	{

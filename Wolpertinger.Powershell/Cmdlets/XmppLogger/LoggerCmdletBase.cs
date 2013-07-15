@@ -9,13 +9,9 @@ using Wolpertinger.Core;
 namespace Wolpertinger.Powershell.Cmdlets
 {
     public class LoggerCmdletBase
-        : PSCmdlet
+        : CmdletBase
     {
-        [Parameter(Mandatory = true, Position = 1)]
-        public IClientConnection Connection { get; set; }
-
-
-
+      
 
 
         protected XmppLoggingConfiguratorComponent getLoggerComponent()
@@ -25,15 +21,6 @@ namespace Wolpertinger.Powershell.Cmdlets
 
 
 
-        protected static Core.LogLevel? getLogLevel(string str)
-        {
-            Core.LogLevel lvl;
-
-            if (Enum.TryParse<Core.LogLevel>(str, true, out lvl))
-                return lvl;
-            else
-                return null;
-        }
-
+       
     }
 }

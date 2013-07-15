@@ -28,7 +28,7 @@ using System.Management.Automation;
 
 namespace Wolpertinger.Powershell.Cmdlets
 {
-	[Cmdlet(VerbsCommon.New, "Mount")]
+	[Cmdlet(VerbsCommon.New, Nouns.Mount)]
 	public class NewMountCmdlet 
 		: CmdletBase
 	{

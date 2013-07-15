@@ -33,7 +33,7 @@ using System.Management.Automation;
 namespace Wolpertinger.Powershell.Cmdlets.Connection
 
 {
-    [Cmdlet("Authenticate", "User")]
+    [Cmdlet("Authenticate", Nouns.User)]
     public class AuthenticateUserCmdlet : PSCmdlet
     {
         [Parameter(Mandatory = true, Position = 1)]

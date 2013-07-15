@@ -25,11 +25,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Management.Automation;
 using System.Text;
+using Wolpertinger.Core;
 
 
 namespace Wolpertinger.Powershell.Cmdlets.Connection
 {
-	[Cmdlet(VerbsCommon.New, "Connection")]
+	[Cmdlet(VerbsCommon.New, Nouns.Connection)]
 	public class NewConnectionCmdlet : PSCmdlet
 	{
 
@@ -47,8 +48,54 @@ namespace Wolpertinger.Powershell.Cmdlets.Connection
 			}
 			else
 			{
-				var connection = Program.ConnectionManager.AddClientConnection(this.Target);				
+				var connection = Program.ConnectionManager.AddClientConnection(this.Target);
+				connect(connection);
 				WriteObject(connection);
+			}
+		}
+
+
+
+		private void connect(IClientConnection connection)
+		{
+			connection.WtlpClient.MessagingClient.Connect();
+
+			var authComponent = new AuthenticationComponent() { ClientConnection = connection };
+
+			connection.WtlpClient.MessagingClient.MyResource = "Wolpertinger_Main";
+
+			if (authComponent.EstablishConnectionAsync().Result)
+			{
+				WriteVerbose("Exchanging keys");
+
+				authComponent.KeyExchangeAsync().Wait();
+
+				WriteVerbose("Key exchange completed");
+				WriteVerbose("Initiating Cluster Authentication");
+
+				string token = authComponent.ClusterAuthGetTokenAsync().Result;
+
+				if (authComponent.ClusterAuthVerifyAsync(token).Result)
+				{
+					WriteVerbose("Verified my Cluster Membership");
+					if (authComponent.ClusterAuthRequestVerificationAsync().Result)
+					{
+						WriteVerbose("Verified Cluster Membership of target client");
+
+						//we're finished
+						WriteVerbose("Successfully connected to target");
+
+					}
+					else
+					{
+						WriteVerbose("Cluster Authentication of target client failed");
+					}
+				}
+				else
+				{
+					WriteVerbose("Cluster Authentication failed");
+				}
+
 			}
 		}
 

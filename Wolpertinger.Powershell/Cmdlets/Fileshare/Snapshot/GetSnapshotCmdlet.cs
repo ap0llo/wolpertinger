@@ -29,7 +29,7 @@ using Wolpertinger.FileShareCommon;
 
 namespace Wolpertinger.Powershell.Cmdlets
 {
-	[Cmdlet(VerbsCommon.Get, "Snapshot")]
+	[Cmdlet(VerbsCommon.Get, Nouns.Snapshot)]
 	public class GetSnapshotCmdlet 
 		: CmdletBase
 	{

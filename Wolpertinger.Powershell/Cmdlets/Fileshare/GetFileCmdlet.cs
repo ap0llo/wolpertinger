@@ -30,7 +30,7 @@ using Wolpertinger.FileShareCommon;
 
 namespace Wolpertinger.Powershell.Cmdlets
 {
-	[Cmdlet(VerbsCommon.Get, "File")]
+	[Cmdlet(VerbsCommon.Get, Nouns.File)]
 	public class GetFileCmdlet 
 		: CmdletBase
 	{

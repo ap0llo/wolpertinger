@@ -180,7 +180,8 @@ namespace Wolpertinger.Core
             //if specified, notify the target client that the connection has been reset
             if (sendNotice)
             {
-                (new CoreClientComponent() { ClientConnection = this }).SendResetNoticeAsync();                
+                var task = (new CoreClientComponent() { ClientConnection = this }).SendResetNoticeAsync();
+                task.Wait();
             }
 
             //reset TrustLevel and encryption keys

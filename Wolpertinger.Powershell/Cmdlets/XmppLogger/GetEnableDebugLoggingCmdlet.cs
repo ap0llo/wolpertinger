@@ -30,7 +30,7 @@ using System.Management.Automation;
 
 namespace Wolpertinger.Powershell.Cmdlets
 {
-	[Cmdlet(VerbsCommon.Get,  "XmppLoggerDebugLoggingIsEnabled")]
+	[Cmdlet(VerbsCommon.Get, Nouns.XmppLoggerDebugLoggingIsEnabled)]
 	public class GetEnableDebugLoggingCmdlet 
 		: LoggerCmdletBase
 	{

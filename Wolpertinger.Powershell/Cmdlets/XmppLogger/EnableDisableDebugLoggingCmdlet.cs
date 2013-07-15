@@ -46,7 +46,7 @@ namespace Wolpertinger.Powershell.Cmdlets
 
 
 
-	[Cmdlet(VerbsLifecycle.Enable, "XmppLoggerDebugLogging")]
+	[Cmdlet(VerbsLifecycle.Enable, Nouns.XmppLoggerDebugLogging)]
 	public class EnableDebugLoggingCmdlet
 		: EnableDisableDebugLoggingCmdlet
 	{
@@ -56,7 +56,7 @@ namespace Wolpertinger.Powershell.Cmdlets
 		}
 	}
 
-	[Cmdlet(VerbsLifecycle.Disable, "XmppLoggerDebugLogging")]
+	[Cmdlet(VerbsLifecycle.Disable, Nouns.XmppLoggerDebugLogging)]
 	public class DisableDebugLoggingCmdlet 
 		: EnableDisableDebugLoggingCmdlet
 	{

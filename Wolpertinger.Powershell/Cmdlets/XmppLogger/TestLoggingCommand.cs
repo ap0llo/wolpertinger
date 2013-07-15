@@ -28,7 +28,7 @@ using System.Text;
 
 namespace Wolpertinger.Powershell.Cmdlets
 {
-    [Cmdlet(VerbsDiagnostic.Test, "XmppLogger")]
+    [Cmdlet(VerbsDiagnostic.Test, Nouns.XmppLogger)]
     public class TestLoggingCommand 
         : LoggerCmdletBase
     {

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Wolpertinger.Powershell.Cmdlets
 {
-    [Cmdlet(VerbsCommon.Get, "WolpertingerVersion")]
+    [Cmdlet(VerbsCommon.Get, Nouns.WolpertingerVersion)]
     public class GetWolpertingerVersionCmdlet 
         : PSCmdlet
     {

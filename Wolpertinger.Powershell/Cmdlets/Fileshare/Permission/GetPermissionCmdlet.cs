@@ -29,7 +29,7 @@ using Wolpertinger.FileShareCommon;
 
 namespace Wolpertinger.Powershell.Cmdlets
 {
-	[Cmdlet(VerbsCommon.Get, "Permission")]
+	[Cmdlet(VerbsCommon.Get, Nouns.Permission)]
 	public class GetPermissionCmdlet : 
 		CmdletBase
 	{

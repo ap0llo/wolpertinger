@@ -29,7 +29,7 @@ using Wolpertinger.Core;
 
 namespace Wolpertinger.Powershell.Cmdlets.Connection
 {
-	[Cmdlet(VerbsCommon.Get, "ClientInfo")]
+	[Cmdlet(VerbsCommon.Get, Nouns.ClientInfo)]
 	public class GetClientInfoCommand : PSCmdlet
 	{
 

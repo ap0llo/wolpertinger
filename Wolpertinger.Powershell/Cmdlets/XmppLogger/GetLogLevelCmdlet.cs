@@ -29,7 +29,7 @@ using System.Text;
 
 namespace Wolpertinger.Powershell.Cmdlets
 {
-	[Cmdlet(VerbsCommon.Get, "XmppLoggerLogLevel")]
+    [Cmdlet(VerbsCommon.Get, Nouns.XmppLoggerLogLevel)]
 	public class GetLogLevelCmdlet
 		: LoggerCmdletBase
 	{

@@ -29,7 +29,7 @@ using System.Text;
 
 namespace Wolpertinger.Powershell.Cmdlets
 {
-	[Cmdlet(VerbsCommon.Remove, "Snapshot")]
+	[Cmdlet(VerbsCommon.Remove, Nouns.Snapshot)]
 	public class RemoveSnapshotCmdlet 
 		: CmdletBase
 	{

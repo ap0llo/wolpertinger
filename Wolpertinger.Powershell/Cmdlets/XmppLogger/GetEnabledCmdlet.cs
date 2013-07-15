@@ -29,7 +29,7 @@ using Wolpertinger.Core;
 
 namespace Wolpertinger.Powershell.Cmdlets
 {
-	[Cmdlet(VerbsCommon.Get, "XmppLoggerIsEnabled")]
+	[Cmdlet(VerbsCommon.Get, Nouns.XmppLoggerIsEnabled)]
 	public class GetEnabledCmdlet 
 		: LoggerCmdletBase
 	{

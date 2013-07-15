@@ -29,7 +29,7 @@ using Wolpertinger.Core;
 
 namespace Wolpertinger.Powershell.Cmdlets
 {
-	[Cmdlet(VerbsCommon.Set, "XmppLoggerRecipient")]
+	[Cmdlet(VerbsCommon.Set, Nouns.XmppLoggerRecipient)]
 	public class SetRecipientCommand 
 		: LoggerCmdletBase
 	{

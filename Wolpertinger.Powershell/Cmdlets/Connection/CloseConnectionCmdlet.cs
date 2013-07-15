@@ -29,7 +29,7 @@ using Wolpertinger.Core;
 
 namespace Wolpertinger.Powershell.Cmdlets.Connection
 {
-	[Cmdlet(VerbsCommon.Close, "Connection")]
+	[Cmdlet(VerbsCommon.Close, Nouns.Connection)]
 	public class CloseConnectionCommand : PSCmdlet
 	{
 		[Parameter(Mandatory=true, Position=1)]
