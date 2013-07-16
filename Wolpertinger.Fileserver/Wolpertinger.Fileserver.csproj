@@ -61,7 +61,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FileShareServerComponent.cs" />
+    <Compile Include="FileShareServerComponent\FileShareServerComponent_Mounts.cs" />
+    <Compile Include="FileShareServerComponent\FileShareServerComponent_Permission.cs" />
+    <Compile Include="FileShareServerComponent\FileShareServerComponent_Snapshot.cs" />
+    <Compile Include="FileShareServerComponent\FileShareServerComponent.cs" />
     <Compile Include="HashingService.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -90,6 +93,7 @@
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
+    <None Include="Wolpertinger.Fileserver.licenseheader" />
   </ItemGroup>
   <!--Copy Xml Schema files to Output directory-->
   <ItemGroup>

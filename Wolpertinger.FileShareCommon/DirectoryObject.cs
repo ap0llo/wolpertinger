@@ -194,6 +194,12 @@ namespace Wolpertinger.FileShareCommon
             this.LastEdited = info.LastWriteTimeUtc;
 
 
+
+            if (depth == 0)
+            {
+                return;
+            }
+
             //  ##  Update files    ##
             try
             {
@@ -241,10 +247,7 @@ namespace Wolpertinger.FileShareCommon
                             newDir.Name = dirName;
                             newDir.LocalPath = item;
 
-                            if (depth > 1 || depth < 0)
-                            {
                                 newDir.LoadFromDisk(depth - 1);
-                            }
 
                             AddDirectory(newDir);
                         }
