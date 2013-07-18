@@ -20,33 +20,57 @@ SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRU
 STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
+using Nerdcave.Common.Extensions;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Management.Automation;
 using System.Text;
-
+using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace Wolpertinger.Powershell.Cmdlets
 {
-	[Cmdlet(VerbsCommon.Remove, Nouns.Snapshot)]
-	public class RemoveSnapshotCmdlet 
+	public class OutFileCmdlet
 		: CmdletBase
 	{
+		[Parameter(Mandatory = false)]
+		public string OutFile{ get; set; }
 
-        [Parameter(Position = 2, Mandatory = true, ParameterSetName = ParameterSets.FromConnection)]
-		public Guid SnapshotId { get; set; }
 
-		protected override void ProcessRecord()
+
+
+		protected void writeOutFile(XElement content)
 		{
-			var client = new FileShareClientComponent() { ClientConnection = this.Connection };
-
-			if (SnapshotId == Guid.Empty)
+			if (OutFile.IsNullOrEmpty())
 			{
-				ThrowTerminatingError(new ErrorRecord(new ArgumentException("Invalid snapshot id"), "InvalidSnapshotId", ErrorCategory.InvalidArgument, null));
+				return;
 			}
 
-			client.DelteSnapshotAsync(SnapshotId);
+			var path = getFullPath(OutFile);
+
+			using (var writer = new StreamWriter(File.Open(path, FileMode.Create, FileAccess.ReadWrite, FileShare.None)))
+			{
+				var document = new XDocument(content);
+				document.Save(writer);
+			}
 		}
+
+
+
+
+		private string getFullPath(string path)
+		{
+			if (Path.IsPathRooted(path))
+			{
+				return path;
+			}
+			else
+			{
+				return Path.GetFullPath(Path.Combine(this.SessionState.Path.CurrentLocation.Path, path));
+			}
+		}
+
 	}
 }

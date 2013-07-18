@@ -1,4 +1,5 @@
-﻿/*
+﻿using Nerdcave.Common.Xml;
+/*
 
 Licensed under the new BSD-License
  
@@ -33,26 +34,48 @@ namespace Wolpertinger.Powershell.Cmdlets
 {
 	[Cmdlet(VerbsCommon.Get, Nouns.Directory)]
 	public class GetDirectoryCmdlet
-		: CmdletBase
+		: OutFileCmdlet
 	{
-		[Parameter(Mandatory = true, Position = 2)]
+		[Parameter(Mandatory = true, Position = 1, ParameterSetName = ParameterSets.FromDirectoryObject)]
+		public DirectoryObject Directory { get; set; }
+
+
+		[Parameter(Mandatory = true, Position = 2, ParameterSetName = ParameterSets.FromConnection)]
+		[Parameter(Mandatory = true, Position = 2, ParameterSetName = ParameterSets.FromDirectoryObject)]
 		public string Path { get; set; }
 
-		[Parameter(Mandatory = false, Position = 3)]
+		[Parameter(Mandatory = false, Position = 3, ParameterSetName = ParameterSets.FromConnection)]
 		public Guid SnapshotId { get; set; }
+
+		[Parameter(Mandatory = false, Position = 4, ParameterSetName= ParameterSets.FromConnection)]
+		public int? Depth { get; set; }
 
 
 
 		protected override void BeginProcessing()
 		{
-			var client = new FileShareClientComponent() { ClientConnection = this.Connection };
 
-			if (SnapshotId == default(Guid))
+			DirectoryObject dir = null;
+
+			if (this.ParameterSetName == ParameterSets.FromConnection)
 			{
-				SnapshotId = Guid.Empty;
+				var client = new FileShareClientComponent() { ClientConnection = this.Connection };
+
+				if (SnapshotId == default(Guid))
+				{
+					SnapshotId = Guid.Empty;
+				}
+
+				var depth = Depth == null ? 1 : Depth.Value;				
+
+				dir = client.GetDirectoryInfoAsync(Path, depth, SnapshotId).Result;                
+			}
+			else if (this.ParameterSetName == ParameterSets.FromDirectoryObject)
+			{
+				dir = Directory.GetDirectory(Path);                
 			}
 
-			DirectoryObject dir = client.GetDirectoryInfoAsync(Path, 1, SnapshotId).Result;
+			writeOutFile(XmlSerializer.Serialize(dir, "http://nerdcave.eu/wolpertinger"));
 			WriteObject(dir);
 		}
 

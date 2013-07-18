@@ -38,7 +38,7 @@ namespace Wolpertinger.Core
             schemaSet = new XmlSchemaSet();
 
             XmlSchema schema;
-            using (var reader = new FileStream(schemaFile, FileMode.Open))
+            using (var reader = File.Open(schemaFile, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
                 schema = XmlSchema.Read(reader, null);
             }

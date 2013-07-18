@@ -33,10 +33,10 @@ namespace Wolpertinger.Powershell.Cmdlets
 	public class NewPermissionCmdlet 
 		: CmdletBase
 	{
-		[Parameter(Mandatory= true, Position = 2)]
+        [Parameter(Mandatory = true, Position = 2, ParameterSetName = ParameterSets.FromConnection)]
 		public string VirtualPath { get; set; }
 
-		[Parameter( Mandatory = true, Position = 3)]
+        [Parameter(Mandatory = true, Position = 3, ParameterSetName = ParameterSets.FromConnection)]
 		public string Clients { get; set; }
 
 

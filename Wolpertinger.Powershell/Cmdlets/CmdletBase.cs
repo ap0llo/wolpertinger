@@ -11,7 +11,7 @@ namespace Wolpertinger.Powershell.Cmdlets
     public abstract class CmdletBase
         : PSCmdlet
     {
-        [Parameter(Position = 1, Mandatory = true)]
+        [Parameter(Position = 1, Mandatory = true, ParameterSetName = ParameterSets.FromConnection)]
         public IClientConnection Connection{ get; set; }
 
     }

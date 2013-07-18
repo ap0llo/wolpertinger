@@ -65,7 +65,8 @@
     <Compile Include="Cmdlets\Fileshare\Snapshot\NewSnapshotCmdlet.cs" />
     <Compile Include="Cmdlets\Fileshare\Snapshot\RemoveSnapshotCmdlet.cs" />
     <Compile Include="Cmdlets\GetWolpertingerVersionCmdlet.cs" />
-    <Compile Include="Cmdlets\Nouns.cs" />
+    <Compile Include="Cmdlets\Constants.cs" />
+    <Compile Include="Cmdlets\OutFileCmdlet.cs" />
     <Compile Include="Cmdlets\XmppLogger\GetEnabledCmdlet.cs" />
     <Compile Include="Cmdlets\XmppLogger\GetEnableDebugLoggingCmdlet.cs" />
     <Compile Include="Cmdlets\XmppLogger\GetLogLevelCmdlet.cs" />

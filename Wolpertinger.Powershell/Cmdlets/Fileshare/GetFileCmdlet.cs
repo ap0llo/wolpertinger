@@ -1,4 +1,5 @@
-﻿/*
+﻿using Nerdcave.Common.Xml;
+/*
 
 Licensed under the new BSD-License
  
@@ -32,19 +33,33 @@ namespace Wolpertinger.Powershell.Cmdlets
 {
 	[Cmdlet(VerbsCommon.Get, Nouns.File)]
 	public class GetFileCmdlet 
-		: CmdletBase
+		: OutFileCmdlet
 	{
 
-		[Parameter(Mandatory = true, Position = 2)]
+        [Parameter(Mandatory = true, Position = 1, ParameterSetName = ParameterSets.FromDirectoryObject)]    
+        public DirectoryObject Directory { get; set; }
+
+        [Parameter(Mandatory = true, Position = 2, ParameterSetName = ParameterSets.FromConnection)]
+        [Parameter(Mandatory = true, Position = 2, ParameterSetName = ParameterSets.FromDirectoryObject)]
 		public string Path { get; set; }
 
 
 		protected override void ProcessRecord()
 		{
-			var client = new FileShareClientComponent() { ClientConnection = this.Connection };
+            FileObject file = null;
 
-			FileObject file = client.GetFileInfoAsync(Path).Result;
 
+            if (this.ParameterSetName == ParameterSets.FromConnection)
+            {
+                var client = new FileShareClientComponent() { ClientConnection = this.Connection };
+                file = client.GetFileInfoAsync(Path).Result;
+            }
+            else if (this.ParameterSetName == ParameterSets.FromDirectoryObject)
+            {
+                file = Directory.GetFile(Path);
+            }
+
+            writeOutFile(XmlSerializer.Serialize(file, "http://nerdcave.eu/wolpertinger"));
 			WriteObject(file);
 		}
 

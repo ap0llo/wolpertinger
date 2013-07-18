@@ -33,7 +33,7 @@ namespace Wolpertinger.Powershell.Cmdlets
 	public class RemovePermissionCmdlet
 		: CmdletBase
 	{
-		[Parameter(Mandatory = true, Position = 2)]
+        [Parameter(Mandatory = true, Position = 2, ParameterSetName = ParameterSets.FromConnection)]
 		public string Path { get; set; }
 
 

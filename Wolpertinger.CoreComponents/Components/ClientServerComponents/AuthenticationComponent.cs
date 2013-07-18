@@ -137,6 +137,11 @@ namespace Wolpertinger.Core
                     calculateClusterAuthKey(authToken, this.ClientConnection.ConnectionManager.ClusterKey)
                 );
 
+                if (clusterVerified_me)
+                {
+                    this.ClientConnection.MyTrustLevel = 3;
+                }
+
                 return clusterVerified_me;
             });
         }
@@ -300,9 +305,16 @@ namespace Wolpertinger.Core
 
                 //Increase trust level if target has been verified
                 if (clusterVerified_target)
+                {
+
                     this.ClientConnection.TrustLevel = 3;
+                    
+                }
                 else
+                {
                     this.ClientConnection.ResetConnection();
+
+                }
                 
                 return new ResponseResult(clusterVerified_target);
             }

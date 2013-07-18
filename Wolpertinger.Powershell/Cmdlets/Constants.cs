@@ -29,4 +29,14 @@ namespace Wolpertinger.Powershell.Cmdlets
         public const string XmppLoggerLogLevel = "XmppLoggerLogLevel";
         public const string XmppLoggerRecipient = "XmppLoggerRecipient";
     }
+
+
+
+    static class ParameterSets
+    {
+
+        public const string FromConnection = "FromConnection";
+        public const string FromDirectoryObject = "FromDirectoryObject";
+
+    }
 }

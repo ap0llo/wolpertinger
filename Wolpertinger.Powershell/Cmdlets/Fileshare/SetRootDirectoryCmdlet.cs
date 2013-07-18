@@ -36,8 +36,8 @@ namespace Wolpertinger.Powershell.Cmdlets
 		: CmdletBase
 	{
 
-		
-		[Parameter( Position = 2, Mandatory  = true)]
+
+        [Parameter(Position = 2, Mandatory = true, ParameterSetName = ParameterSets.FromConnection)]
 		public string Path { get; set; }
 
 

@@ -32,7 +32,7 @@ namespace Wolpertinger.Powershell.Cmdlets
 	public class RemoveMountCmdlet
 		: CmdletBase
 	{
-		[Parameter( Mandatory = true, Position = 2)]
+        [Parameter(Mandatory = true, Position = 2, ParameterSetName = ParameterSets.FromConnection)]
 		public string VirtualPath { get; set; }
 
 

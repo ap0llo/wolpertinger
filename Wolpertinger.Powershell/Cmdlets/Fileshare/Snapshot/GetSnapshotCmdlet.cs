@@ -36,7 +36,7 @@ namespace Wolpertinger.Powershell.Cmdlets
 		
 		#region Parameters
 
-		[Parameter(Position = 2, Mandatory= false)]
+        [Parameter(Position = 2, Mandatory = false, ParameterSetName = ParameterSets.FromConnection)]
 		public Guid SnapshotId { get; set; }
 
 
