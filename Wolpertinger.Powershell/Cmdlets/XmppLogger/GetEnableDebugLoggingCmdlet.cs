@@ -35,7 +35,7 @@ namespace Wolpertinger.Powershell.Cmdlets
 		: LoggerCmdletBase
 	{
 
-		protected override void ProcessRecord()
+		protected override void processRecordImplementation()
 		{
 			var logger = getLoggerComponent();
 

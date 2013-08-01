@@ -28,11 +28,11 @@ using System.Text;
 
 namespace Wolpertinger.Powershell.Cmdlets
 {
-    [Cmdlet(VerbsCommon.Get, Nouns.XmppLoggerRecipient)]
+	[Cmdlet(VerbsCommon.Get, Nouns.XmppLoggerRecipient)]
 	public class GetRecipientCmdlet 
 		: LoggerCmdletBase
 	{
-		protected override void ProcessRecord()
+		protected override void processRecordImplementation()
 		{
 			var logger = getLoggerComponent();
 

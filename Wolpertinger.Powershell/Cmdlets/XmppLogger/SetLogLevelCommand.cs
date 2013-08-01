@@ -36,7 +36,7 @@ namespace Wolpertinger.Powershell.Cmdlets
 		[Parameter(Position = 2, Mandatory = true)]
 		public LogLevel Value { get; set; }
 
-		protected override void BeginProcessing()
+		protected override void processRecordImplementation()
 		{
 			var logger = getLoggerComponent();
 			logger.SetLogLevelAsync(Value);

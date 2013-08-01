@@ -36,7 +36,7 @@ namespace Wolpertinger.Powershell.Cmdlets
 		
 		#region Parameters
 
-        [Parameter(Position = 2, Mandatory = false, ParameterSetName = ParameterSets.FromConnection)]
+		[Parameter(Position = 2, Mandatory = false, ParameterSetName = ParameterSets.FromConnection)]
 		public Guid SnapshotId { get; set; }
 
 
@@ -45,7 +45,7 @@ namespace Wolpertinger.Powershell.Cmdlets
 
 
 
-		protected override void ProcessRecord()
+		protected override void processRecordImplementation()
 		{
 			var client = new FileShareClientComponent() { ClientConnection = this.Connection };
 

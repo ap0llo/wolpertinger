@@ -33,11 +33,11 @@ namespace Wolpertinger.Powershell.Cmdlets
 	public class TestPermissionCmdlet
 		: CmdletBase
 	{
-        [Parameter(Mandatory = true, Position = 2, ParameterSetName = ParameterSets.FromConnection)]
+		[Parameter(Mandatory = true, Position = 2, ParameterSetName = ParameterSets.FromConnection)]
 		public string Path{ get; set; }
 
 
-		protected override void ProcessRecord()
+		protected override void processRecordImplementation()
 		{
 			var client = new FileShareClientComponent() { ClientConnection = this.Connection };
 

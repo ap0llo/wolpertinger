@@ -36,7 +36,7 @@ namespace Wolpertinger.Powershell.Cmdlets
 
 		protected abstract bool value { get; }
 
-		protected override void ProcessRecord()
+		protected override void processRecordImplementation()
 		{
 			var logger = getLoggerComponent();
 

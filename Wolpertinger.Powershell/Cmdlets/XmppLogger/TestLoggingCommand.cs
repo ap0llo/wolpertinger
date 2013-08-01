@@ -37,7 +37,7 @@ namespace Wolpertinger.Powershell.Cmdlets
         public Core.LogLevel LogLevel { get; set; }
 
 
-        protected override void ProcessRecord()
+        protected override void processRecordImplementation()
         {
             var logger = getLoggerComponent();
 

@@ -34,7 +34,7 @@ namespace Wolpertinger.Powershell.Cmdlets
 		CmdletBase
 	{
 
-		protected override void ProcessRecord()
+		protected override void processRecordImplementation()
 		{
 			var client = new FileShareClientComponent() { ClientConnection = this.Connection };
 

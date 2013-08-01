@@ -33,7 +33,7 @@ namespace Wolpertinger.Powershell.Cmdlets
 	public class NewSnapshotCommand 
 		: CmdletBase
 	{
-		protected override void ProcessRecord()
+		protected override void processRecordImplementation()
 		{
 			var client = new FileShareClientComponent() { ClientConnection = this.Connection};
 			

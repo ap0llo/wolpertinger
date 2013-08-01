@@ -38,7 +38,7 @@ namespace Wolpertinger.Powershell.Cmdlets
 		public string Recipient { get; set; }
 
 
-		protected override void ProcessRecord()
+		protected override void processRecordImplementation()
 		{
 			var logger = getLoggerComponent();
 			logger.SetRecipientAsync(Recipient);

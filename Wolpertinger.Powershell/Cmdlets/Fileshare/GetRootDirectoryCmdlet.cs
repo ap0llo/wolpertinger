@@ -33,9 +33,9 @@ namespace Wolpertinger.Powershell.Cmdlets
 	public class GetRootDirectoryCmdlet 
 		: CmdletBase
 	{
-		
 
-		protected override void ProcessRecord()
+
+		protected override void processRecordImplementation()
 		{            
 			var client = new FileShareClientComponent() { ClientConnection = Connection};
 			var root = client.GetRootDirectoryPathAsync().Result;

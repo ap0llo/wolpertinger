@@ -30,21 +30,18 @@ using Wolpertinger.Core;
 namespace Wolpertinger.Powershell.Cmdlets.Connection
 {
 	[Cmdlet(VerbsCommon.Get, Nouns.ClientInfo)]
-	public class GetClientInfoCommand : PSCmdlet
+	public class GetClientInfoCommand
+		: CmdletBase
 	{
+		
 
-        [Parameter(Position=1, Mandatory = true)]
-        public IClientConnection Connection { get; set; }
+		protected override void processRecordImplementation()
+		{
+			var clientInfoComponent = new ClientInfoClientComponent() { ClientConnection = Connection };
 
-
-
-        protected override void ProcessRecord()
-        {
-            var clientInfoComponent = new ClientInfoClientComponent() { ClientConnection = Connection };
-
-            var result = clientInfoComponent.GetClientInfoAsync().Result;
-            WriteObject(result);
-        }
+			var result = clientInfoComponent.GetClientInfoAsync().Result;
+			WriteObject(result);
+		}
 
 
 

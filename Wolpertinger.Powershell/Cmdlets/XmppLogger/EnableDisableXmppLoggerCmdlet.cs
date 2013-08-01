@@ -35,7 +35,7 @@ namespace Wolpertinger.Powershell.Cmdlets
 	{
 		protected abstract bool value { get; }
 
-		protected override void BeginProcessing()
+		protected override void processRecordImplementation()
 		{
 			var logger = getLoggerComponent();
 			logger.SetEnableAsync(value);

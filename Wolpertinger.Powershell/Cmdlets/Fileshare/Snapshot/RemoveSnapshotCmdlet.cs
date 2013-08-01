@@ -34,10 +34,10 @@ namespace Wolpertinger.Powershell.Cmdlets
 		: CmdletBase
 	{
 
-        [Parameter(Position = 2, Mandatory = true, ParameterSetName = ParameterSets.FromConnection)]
+		[Parameter(Position = 2, Mandatory = true, ParameterSetName = ParameterSets.FromConnection)]
 		public Guid SnapshotId { get; set; }
 
-		protected override void ProcessRecord()
+		protected override void processRecordImplementation()
 		{
 			var client = new FileShareClientComponent() { ClientConnection = this.Connection };
 

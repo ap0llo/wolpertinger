@@ -37,12 +37,12 @@ namespace Wolpertinger.Powershell.Cmdlets
 	{
 
 
-        [Parameter(Position = 2, Mandatory = true, ParameterSetName = ParameterSets.FromConnection)]
+		[Parameter(Position = 2, Mandatory = true, ParameterSetName = ParameterSets.FromConnection)]
 		public string Path { get; set; }
 
 
 
-		protected override void ProcessRecord()
+		protected override void processRecordImplementation()
 		{
 			if (Path.IsNullOrEmpty())
 			{

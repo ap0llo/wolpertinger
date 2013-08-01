@@ -52,7 +52,7 @@ namespace Wolpertinger.Powershell.Cmdlets
 
 
 
-		protected override void BeginProcessing()
+		protected override void processRecordImplementation()
 		{
 
 			DirectoryObject dir = null;
