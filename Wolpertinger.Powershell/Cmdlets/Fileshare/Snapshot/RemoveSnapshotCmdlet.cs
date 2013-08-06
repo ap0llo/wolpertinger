@@ -43,7 +43,8 @@ namespace Wolpertinger.Powershell.Cmdlets
 
 			if (SnapshotId == Guid.Empty)
 			{
-				ThrowTerminatingError(new ErrorRecord(new ArgumentException("Invalid snapshot id"), "InvalidSnapshotId", ErrorCategory.InvalidArgument, null));
+				WriteError(new ErrorRecord(new ArgumentException("Invalid snapshot id"), "InvalidSnapshotId", ErrorCategory.InvalidArgument, null));
+				return;
 			}
 
 			client.DelteSnapshotAsync(SnapshotId);

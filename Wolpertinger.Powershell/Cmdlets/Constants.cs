@@ -34,9 +34,8 @@ namespace Wolpertinger.Powershell.Cmdlets
 
     static class ParameterSets
     {
-
         public const string FromConnection = "FromConnection";
         public const string FromDirectoryObject = "FromDirectoryObject";
-
+        public const string FromOutFile = "FromOutFile";        
     }
 }

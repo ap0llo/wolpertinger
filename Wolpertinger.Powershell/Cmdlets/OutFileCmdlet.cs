@@ -35,9 +35,17 @@ namespace Wolpertinger.Powershell.Cmdlets
 	public class OutFileCmdlet
 		: CmdletBase
 	{
+
+		protected const string XMLNAMESPACE = "http://nerdcave.eu/wolpertinger";
+
+
+
 		[Parameter(Mandatory = false)]
 		public string OutFile{ get; set; }
 
+
+		[Parameter(Position = 1, Mandatory = true, ParameterSetName = ParameterSets.FromOutFile)]
+		public string FilePath { get; set; }
 
 
 
@@ -57,10 +65,7 @@ namespace Wolpertinger.Powershell.Cmdlets
 			}
 		}
 
-
-
-
-		private string getFullPath(string path)
+		protected string getFullPath(string path)
 		{
 			if (Path.IsPathRooted(path))
 			{

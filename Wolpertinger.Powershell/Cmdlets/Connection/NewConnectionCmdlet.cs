@@ -44,7 +44,7 @@ namespace Wolpertinger.Powershell.Cmdlets.Connection
 			if (Program.ConnectionManager.GetClientConnection(Target) != null)
 			{
 				var errorRecord = new ErrorRecord(new ArgumentException(), "ConnectionAlreadyExists", ErrorCategory.InvalidArgument, null);
-				ThrowTerminatingError(errorRecord);
+                WriteError(errorRecord);
 			}
 			else
 			{

@@ -24,7 +24,7 @@ namespace Wolpertinger.Powershell
                 if (!_initialized)
                 {
                     _initialized = true;
-                    init();
+                    Init();
                 }
                 return _connectionManager;
             }
@@ -37,17 +37,23 @@ namespace Wolpertinger.Powershell
 
 
 
-        private static void init()
+        public static void Init()
         {
-            AppDataInit.Initialize();
-            ComponentFactoryInit.Initialize();
-            XmlSerializerInit.Initialize();
+            if (!_initialized)
+            {
+                _initialized = true;
 
-            _connectionManager = new DefaultConnectionManager();            
-            _connectionManager.AcceptIncomingConnections = false;
-            _connectionManager.LoadSettings(APPDATAFOLDER);
+                AppDataInit.Initialize();
+                ComponentFactoryInit.Initialize();
+                XmlSerializerInit.Initialize();
 
-            XmppLoggerInit.Initialze();
+                _connectionManager = new DefaultConnectionManager();
+                _connectionManager.AcceptIncomingConnections = false;
+                _connectionManager.LoadSettings(APPDATAFOLDER);
+
+                XmppLoggerInit.Initialze();
+            }
+
         }
 
 

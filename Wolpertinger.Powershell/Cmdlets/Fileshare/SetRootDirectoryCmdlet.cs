@@ -46,8 +46,9 @@ namespace Wolpertinger.Powershell.Cmdlets
 		{
 			if (Path.IsNullOrEmpty())
 			{
-				ThrowTerminatingError(new ErrorRecord(new ArgumentNullException("Path may not be null or empty"),
+				WriteError(new ErrorRecord(new ArgumentNullException("Path may not be null or empty"),
 					"InvalidPath", ErrorCategory.InvalidArgument, null));
+                return;
 			}
 
 			var client = new FileShareClientComponent() { ClientConnection = Connection };
@@ -57,3 +58,4 @@ namespace Wolpertinger.Powershell.Cmdlets
 	   
 	}
 }
+

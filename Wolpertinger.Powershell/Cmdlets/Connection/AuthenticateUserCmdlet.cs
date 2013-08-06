@@ -64,7 +64,7 @@ namespace Wolpertinger.Powershell.Cmdlets.Connection
 			}
 			else
 			{
-				ThrowTerminatingError(new ErrorRecord(new Exception("User authentication failed"), "AuthenticationFailed", ErrorCategory.AuthenticationError, null));
+				WriteError(new ErrorRecord(new Exception("User authentication failed"), "AuthenticationFailed", ErrorCategory.AuthenticationError, null));
 			}
 
 								  

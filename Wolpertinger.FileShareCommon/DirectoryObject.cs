@@ -273,10 +273,7 @@ namespace Wolpertinger.FileShareCommon
             DirectoryObject start = this;
             if(path.StartsWith("/"))
             {
-                while(start.Parent != null)
-                {
-                    start = start.Parent;
-                }
+                path = path.Replace(this.Path, "");
             }
 
 

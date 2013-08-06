@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Management.Automation;
 using System.Text;
+using System.Xml.Linq;
 using Wolpertinger.Core;
 using Wolpertinger.FileShareCommon;
 
@@ -74,8 +75,13 @@ namespace Wolpertinger.Powershell.Cmdlets
 			{
 				dir = Directory.GetDirectory(Path);                
 			}
+            else if (this.ParameterSetName == ParameterSets.FromOutFile)
+            {
+                var path = getFullPath(this.FilePath);
+                dir = (DirectoryObject) XmlSerializer.Deserialize(XDocument.Load(path).Root);
+            }
 
-			writeOutFile(XmlSerializer.Serialize(dir, "http://nerdcave.eu/wolpertinger"));
+			writeOutFile(XmlSerializer.Serialize(dir, XMLNAMESPACE));
 			WriteObject(dir);
 		}
 

@@ -37,7 +37,11 @@ namespace Wolpertinger.Powershell.Cmdlets
 		public IClientConnection Connection{ get; set; }
 
 
-
+        protected override void BeginProcessing()
+        {
+            Program.Init();
+            base.BeginProcessing();
+        }
 
 		protected override void ProcessRecord()
 		{

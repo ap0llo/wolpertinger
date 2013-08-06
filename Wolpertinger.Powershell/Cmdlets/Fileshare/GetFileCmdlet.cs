@@ -59,7 +59,7 @@ namespace Wolpertinger.Powershell.Cmdlets
 				file = Directory.GetFile(Path);
 			}
 
-			writeOutFile(XmlSerializer.Serialize(file, "http://nerdcave.eu/wolpertinger"));
+			writeOutFile(XmlSerializer.Serialize(file, XMLNAMESPACE));
 			WriteObject(file);
 		}
 
