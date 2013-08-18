@@ -64,10 +64,6 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="CommandLineParsers\BoolParserTests.cs" />
-    <Compile Include="CommandLineParsers\GuidParserTests.cs" />
-    <Compile Include="CommandLineParsers\IntParserTest.cs" />
-    <Compile Include="CommandLineParsers\LogLevelParserTest.cs" />
     <Compile Include="KeyValueStoreTests.cs" />
     <Compile Include="TestHashingService.cs" />
     <Compile Include="InteropTests.cs" />
@@ -85,10 +81,6 @@
     <Compile Include="XmlSerialization\XmlSerializerTest.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CommandLineParser\CommandLineParser.csproj">
-      <Project>{7c9a7177-9dde-4107-a3dd-7d718abccaab}</Project>
-      <Name>CommandLineParser</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Nerdcave.Common\Nerdcave.Common.csproj">
       <Project>{b7fa3f58-fdf8-4aad-ae7c-ef1a80ccf069}</Project>
       <Name>Nerdcave.Common</Name>
@@ -108,10 +100,6 @@
     <ProjectReference Include="..\Wolpertinger.FileShareCommon\Wolpertinger.FileShareCommon.csproj">
       <Project>{a7cfb891-5b66-43ee-8033-bd2e668a3680}</Project>
       <Name>Wolpertinger.FileShareCommon</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Wolpertinger.Manager.CLI\Wolpertinger.Manager.CLI.csproj">
-      <Project>{3f263993-cd7c-449d-a085-dc5d99813691}</Project>
-      <Name>Wolpertinger.Manager.CLI</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
