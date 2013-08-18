@@ -30,12 +30,20 @@ namespace Nerdcave.Common.IO
 {
     public static class IOHelper
     {
+      
+
         /// <summary>
-        /// Creates a symbolic link.
-        /// Imported Windows API call. Use with care
+        /// Creates a symbolic link
         /// </summary>
-        [DllImport("kernel32.dll")]
-        public static extern bool CreateSymbolicLink(string lpSymlinkFileName, string lpTargetFileName, int dwFlags);
+        /// <param name="linkFileName">The symbolic link to be created</param>
+        /// <param name="targetFilename">The symbolic link's target</param>
+        /// <param name="targetIsDiectory">Specifies whether the target is a direcotry or a file</param>
+        /// </param>
+        /// <returns>Retunrs whether the sybolic link was created sucessfully</returns>
+        public static bool CreateSymbolicLinke(string linkFileName, string targetFilename, bool targetIsDiectory)
+        {
+            return NativeMethods.CreateSymbolicLink(linkFileName, targetFilename, targetIsDiectory ? 1 : 0);
+        }
 
         /// <summary>
         /// Checks whether the indicated path refers to a file or a directory
@@ -98,5 +106,16 @@ namespace Nerdcave.Common.IO
             return p.Target;
         }
 
+
+
+        private static class NativeMethods
+        {
+            /// <summary>
+            /// Creates a symbolic link.
+            /// Imported Windows API call. Use with care
+            /// </summary>
+            [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
+            public static extern bool CreateSymbolicLink(string lpSymlinkFileName, string lpTargetFileName, int dwFlags);
+        }
     }
 }

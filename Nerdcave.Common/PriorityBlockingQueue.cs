@@ -24,7 +24,7 @@ using System.Threading;
 
 namespace Nerdcave.Common
 {
-    public class PriorityBlockingQueue<T>
+    public sealed class PriorityBlockingQueue<T> : IDisposable
     {
 
         private object addItemLock = new object();
@@ -115,6 +115,14 @@ namespace Nerdcave.Common
         }
 
 
+
+        public void Dispose()
+        {
+            itemWaitHandle.Dispose();
+            lowPriorityItems.Dispose();
+            normalPriorityItems.Dispose();
+            highPriorityItems.Dispose();
+        }
     }
 
 

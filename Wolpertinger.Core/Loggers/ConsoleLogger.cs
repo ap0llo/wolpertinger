@@ -60,7 +60,7 @@ namespace Wolpertinger.Core
         /// Writes a debug-level message to the log
         /// </summary>
         /// <param name="message">The message to write to the log</param>
-        protected override void debug(string message)
+        protected override void writeDebug(string message)
         {            
             send("DEBUG | " + message);            
         }
@@ -69,7 +69,7 @@ namespace Wolpertinger.Core
         /// Writes a info-level message to the log
         /// </summary>
         /// <param name="message">The message to write to the log</param>
-        protected override void info(string message)
+        protected override void writeInfo(string message)
         {            
             send("INFO | " + message);
         }
@@ -78,7 +78,7 @@ namespace Wolpertinger.Core
         /// Writes a warn-level message to the log
         /// </summary>
         /// <param name="message">The message to write to the log</param>
-        protected override void warn(string message)
+        protected override void writeWarn(string message)
         {
             send("WARN | " + message);
         }
@@ -87,7 +87,7 @@ namespace Wolpertinger.Core
         /// Writes a error-level message to the log
         /// </summary>
         /// <param name="message">The message to write to the log</param>
-        protected override void error(string message)
+        protected override void writeError(string message)
         {
             send("ERROR | " + message);
         }
@@ -96,7 +96,7 @@ namespace Wolpertinger.Core
         /// Writes a fatal-level message to the log
         /// </summary>
         /// <param name="message">The message to write to the log</param>
-        protected override void fatal(string message)
+        protected override void writeFatal(string message)
         {            
             send("FATAL | " + message);
         }

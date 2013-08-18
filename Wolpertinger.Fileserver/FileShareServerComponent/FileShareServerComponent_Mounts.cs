@@ -64,7 +64,7 @@ namespace Wolpertinger.Fileserver
 
 			mounts.Add(info);
 
-			storage.SaveItem("mounts", mounts);
+			storageFile.SaveItem("mounts", mounts);
 
 			scanDirectory(localPath);
 
@@ -100,7 +100,7 @@ namespace Wolpertinger.Fileserver
 				MountInfo mount = mounts.First(x => x.MountPoint.ToLower() == virtualPath.ToLower());
 
 				mounts.Remove(mount);
-				storage.SaveItem("mounts", mounts);
+				storageFile.SaveItem("mounts", mounts);
 
 				return new VoidResult();
 

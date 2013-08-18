@@ -96,7 +96,7 @@ namespace Wolpertinger.Core
 
         #region ISerializable Members
 
-        private class XmlNames
+        private sealed class XmlNames
         {
 
             private static bool initialized = false;

@@ -423,6 +423,7 @@ namespace Nerdcave.Common.Xml
 	/// <summary>
 	/// Exception that will be thrown by methods of <see cref="XmlSerializer"/> if a unsupported type is encountered
 	/// </summary>
+    [Serializable]
 	public class TypeNotSupportedException: Exception
 	{
 		/// <summary>

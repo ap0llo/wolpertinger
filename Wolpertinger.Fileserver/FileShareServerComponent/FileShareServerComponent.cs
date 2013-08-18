@@ -51,7 +51,7 @@ namespace Wolpertinger.Fileserver
 
 		protected static bool mountErrorOccurred = false;
 
-		protected static KeyValueStore storage = new KeyValueStore(Path.Combine(DefaultConnectionManager.SettingsFolder, "FileShare.xml"));
+		protected static KeyValueStore storageFile = new KeyValueStore(Path.Combine(DefaultConnectionManager.SettingsFolder, "FileShare.xml"));
 
 		protected static readonly string SnapshotDbFolder;
 		
@@ -83,10 +83,10 @@ namespace Wolpertinger.Fileserver
 
 				logger.Info("Initializing FileShare");
 
-				rootPath = storage.GetItem<string>("RootPath");
+				rootPath = storageFile.GetItem<string>("RootPath");
 
 				//load mounts
-				List<object> myMounts = storage.GetItem<List<object>>("mounts");
+				List<object> myMounts = storageFile.GetItem<List<object>>("mounts");
 				myMounts = (myMounts == null) ? new List<object>() : myMounts;
 				mounts = new List<MountInfo>();
 				foreach (Object item in myMounts)
@@ -102,7 +102,7 @@ namespace Wolpertinger.Fileserver
 				}
 
 				//load permissions
-				List<object> _permissions = storage.GetItem<List<object>>("permissions");
+				List<object> _permissions = storageFile.GetItem<List<object>>("permissions");
 				_permissions = (_permissions == null) ? new List<object>() : _permissions;
 
 				foreach (object item in _permissions)
@@ -293,7 +293,7 @@ namespace Wolpertinger.Fileserver
 			}
 
 			rootPath = localPath;
-			storage.SaveItem("RootPath", localPath);
+			storageFile.SaveItem("RootPath", localPath);
 			Init();
 
 			if (mountErrorOccurred)
@@ -464,10 +464,10 @@ namespace Wolpertinger.Fileserver
 
 		protected void savePermissions()
 		{
-			storage.SaveItem("permissions", permissions.Values);
+			storageFile.SaveItem("permissions", permissions.Values);
 		}
 
-		protected Permission getPermission(string path, Dictionary<string, Permission> permissions)
+		protected Permission getPermissionForPath(string path, Dictionary<string, Permission> permissions)
 		{
 			path = path.ToLower();
 			if (permissions.ContainsKey(path))
@@ -495,7 +495,7 @@ namespace Wolpertinger.Fileserver
 			}
 			else
 			{
-				Permission p = getPermission(path, permissions);
+				Permission p = getPermissionForPath(path, permissions);
 				if (p != null && p.PermittedClients.Contains(removeResource(this.ClientConnection.Target)))
 				{
 					return true;

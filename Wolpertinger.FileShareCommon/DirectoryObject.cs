@@ -43,7 +43,7 @@ namespace Wolpertinger.FileShareCommon
             public static XName Files;
             public static XName Directories;
 
-            public static void Init(string xmlNamespace)
+            public new static void Init(string xmlNamespace)
             {
                 DirectoryObject = XName.Get("DirectoryObject", xmlNamespace);
                 FileObject = XName.Get("FileObject", xmlNamespace);
@@ -58,13 +58,13 @@ namespace Wolpertinger.FileShareCommon
         [NonSerialized]
         ILogger logger = LoggerService.GetLogger("DirectoryObject");
 
-        protected Dictionary<string, FileObject> files = new Dictionary<string, FileObject>();
-        protected Dictionary<string, DirectoryObject> directories = new Dictionary<string, DirectoryObject>();       
+        protected Dictionary<string, FileObject> filesDictionary = new Dictionary<string, FileObject>();
+        protected Dictionary<string, DirectoryObject> directoryDictionary = new Dictionary<string, DirectoryObject>();       
 
 
-        public IEnumerable<FileObject> Files { get { return files.Values; } }
+        public IEnumerable<FileObject> Files { get { return filesDictionary.Values; } }
 
-        public IEnumerable<DirectoryObject> Directories { get { return directories.Values; } }
+        public IEnumerable<DirectoryObject> Directories { get { return directoryDictionary.Values; } }
 
 
         public DirectoryObject()
@@ -82,12 +82,12 @@ namespace Wolpertinger.FileShareCommon
                 {
                     _path = value;
 
-                    foreach (var item in files.Values)
+                    foreach (var item in filesDictionary.Values)
                     {
                         item.Path = System.IO.Path.Combine(value, item.Name).Replace("\\", "/");
                     }
 
-                    foreach (var item in directories.Values)
+                    foreach (var item in directoryDictionary.Values)
                     {
                         item.Path = System.IO.Path.Combine(value, item.Name).Replace("\\", "/");
                     }
@@ -101,9 +101,9 @@ namespace Wolpertinger.FileShareCommon
         /// <param name="dir"></param>
         public void AddDirectory(DirectoryObject dir)
         {
-            if (!files.ContainsKey(dir.Name.ToLower()) && !directories.ContainsKey(dir.Name.ToLower()))
+            if (!filesDictionary.ContainsKey(dir.Name.ToLower()) && !directoryDictionary.ContainsKey(dir.Name.ToLower()))
             {
-                directories.Add(dir.Name.ToLower(), dir);
+                directoryDictionary.Add(dir.Name.ToLower(), dir);
                 dir.Parent = this;
             }
         }
@@ -116,9 +116,9 @@ namespace Wolpertinger.FileShareCommon
         public void RemoveDirectory(string name)
         {
             name = name.ToLower();
-            if(directories.ContainsKey(name))
+            if(directoryDictionary.ContainsKey(name))
             {
-                directories.Remove(name);
+                directoryDictionary.Remove(name);
             }
         }
 
@@ -127,7 +127,7 @@ namespace Wolpertinger.FileShareCommon
         /// </summary>
         public void ClearDirectories()
         {
-            directories.Clear();
+            directoryDictionary.Clear();
         }
 
         /// <summary>
@@ -136,9 +136,9 @@ namespace Wolpertinger.FileShareCommon
         /// <param name="file"></param>
         public void AddFile(FileObject file)
         {
-            if (!files.ContainsKey(file.Name.ToLower()) && !directories.ContainsKey(file.Name.ToLower()))
+            if (!filesDictionary.ContainsKey(file.Name.ToLower()) && !directoryDictionary.ContainsKey(file.Name.ToLower()))
             {
-                files.Add(file.Name.ToLower(), file);
+                filesDictionary.Add(file.Name.ToLower(), file);
                 file.Parent = this;
             }
         }
@@ -150,9 +150,9 @@ namespace Wolpertinger.FileShareCommon
         public void RemoveFile(string name)
         {
             name = name.ToLower();
-            if (files.ContainsKey(name))
+            if (filesDictionary.ContainsKey(name))
             {
-                files.Remove(name);
+                filesDictionary.Remove(name);
             }
         }
 
@@ -161,7 +161,7 @@ namespace Wolpertinger.FileShareCommon
         /// </summary>
         public void ClearFiles()
         {
-            files.Clear();
+            filesDictionary.Clear();
         }
 
         public DirectoryObject GetDirectory(string path)
@@ -207,9 +207,9 @@ namespace Wolpertinger.FileShareCommon
                 {
                     string fileName = System.IO.Path.GetFileName(item);
 
-                    if (files.ContainsKey(fileName))
+                    if (filesDictionary.ContainsKey(fileName))
                     {
-                        files[fileName].LoadFromDisk();
+                        filesDictionary[fileName].LoadFromDisk();
                     }
                     else
                     {
@@ -223,13 +223,13 @@ namespace Wolpertinger.FileShareCommon
             }
             catch (DirectoryNotFoundException)
             {
-                files = new Dictionary<string, FileObject>();
+                filesDictionary = new Dictionary<string, FileObject>();
             }
                
 
 
             //TODO test if this really works!
-            files.Values.Where(x => !File.Exists(LocalPath)).Select(x => files.Remove(x.Name));
+            filesDictionary.Values.Where(x => !File.Exists(LocalPath)).Select(x => filesDictionary.Remove(x.Name));
                 
             //  ##  Update directories ##
             try
@@ -240,7 +240,7 @@ namespace Wolpertinger.FileShareCommon
                     {
                         string dirName = ExtendedPath.GetDirectoryName(item);
 
-                        if (!directories.ContainsKey(dirName))
+                        if (!directoryDictionary.ContainsKey(dirName))
                         {
                             DirectoryObject newDir = new DirectoryObject();
 
@@ -259,12 +259,12 @@ namespace Wolpertinger.FileShareCommon
             }
             catch (DirectoryNotFoundException)
             {
-                directories = new Dictionary<string, DirectoryObject>();
+                directoryDictionary = new Dictionary<string, DirectoryObject>();
             }
 
 
-            directories.Values.Where(x => !Directory.Exists(x.LocalPath)).Select(x => directories.Remove(x.Name));
-            directories.Values.Select(x => { x.LoadFromDisk(); return x; });
+            directoryDictionary.Values.Where(x => !Directory.Exists(x.LocalPath)).Select(x => directoryDictionary.Remove(x.Name));
+            directoryDictionary.Values.Select(x => { x.LoadFromDisk(); return x; });
         }
 
 
@@ -306,9 +306,9 @@ namespace Wolpertinger.FileShareCommon
             {
                 if (getDir)
                 {
-                    if (this.directories.ContainsKey(path[firstIndex].ToLower()))
+                    if (this.directoryDictionary.ContainsKey(path[firstIndex].ToLower()))
                     {
-                        return this.directories[path[firstIndex].ToLower()];
+                        return this.directoryDictionary[path[firstIndex].ToLower()];
                     }
                     else if (path[firstIndex] == ".." && Parent != null)
                     {
@@ -325,9 +325,9 @@ namespace Wolpertinger.FileShareCommon
                 }
                 else
                 {
-                    if (this.files.ContainsKey(path[firstIndex].ToLower()))
+                    if (this.filesDictionary.ContainsKey(path[firstIndex].ToLower()))
                     {
-                        return this.files[path[firstIndex].ToLower()];
+                        return this.filesDictionary[path[firstIndex].ToLower()];
                     }
                     else
                     {
@@ -338,9 +338,9 @@ namespace Wolpertinger.FileShareCommon
             }
             else
             {
-                if (this.directories.ContainsKey(path[firstIndex].ToLower()))
+                if (this.directoryDictionary.ContainsKey(path[firstIndex].ToLower()))
                 {
-                    return directories[path[firstIndex].ToLower()].getItem(path, firstIndex + 1, getDir);
+                    return directoryDictionary[path[firstIndex].ToLower()].getItem(path, firstIndex + 1, getDir);
                 }
                 else if (path[firstIndex] == ".." && Parent != null)
                 {
@@ -393,21 +393,21 @@ namespace Wolpertinger.FileShareCommon
 
             base.Deserialize(xmlData);
 
-            files = new Dictionary<string, FileObject>();
+            filesDictionary = new Dictionary<string, FileObject>();
 
             foreach (XElement item in xmlData.Element(XmlNamesExtended.Files).Elements(XmlNamesExtended.FileObject))
             {
                 FileObject newFile = new FileObject();
                 newFile.Deserialize(item);
-                files.Add(newFile.Name.ToLower(), newFile);
+                filesDictionary.Add(newFile.Name.ToLower(), newFile);
             }
 
-            directories = new Dictionary<string, DirectoryObject>();
+            directoryDictionary = new Dictionary<string, DirectoryObject>();
             foreach (XElement item in xmlData.Element(XmlNamesExtended.Directories).Elements(XmlNamesExtended.DirectoryObject))
             {
                 DirectoryObject newDir = new DirectoryObject();
                 newDir.Deserialize(item);
-                directories.Add(newDir.Name.ToLower(), newDir);
+                directoryDictionary.Add(newDir.Name.ToLower(), newDir);
             }
         }
 
@@ -443,14 +443,14 @@ namespace Wolpertinger.FileShareCommon
             //Clone all child directories
             if (depth > 0)
             {
-                foreach (DirectoryObject dir in directories.Values)
+                foreach (DirectoryObject dir in directoryDictionary.Values)
                 {
                     copy.AddDirectory(dir.Clone(depth-1));
                 }
             }
 
             //Clones files in this directory
-            foreach (FileObject file in files.Values)
+            foreach (FileObject file in filesDictionary.Values)
             {
                 copy.AddFile(file.Clone());
             }

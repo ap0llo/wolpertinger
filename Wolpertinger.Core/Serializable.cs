@@ -22,7 +22,7 @@ namespace Wolpertinger.Core
         protected XmlSchemaSet schemaSet;
 
         
-        protected virtual string xmlNamespace { get { return "http://nerdcave.eu/wolpertinger"; } }       
+        protected string xmlNamespace { get { return "http://nerdcave.eu/wolpertinger"; } }       
         protected virtual string schemaFile { get { return "complex.xsd"; } }
         
 
@@ -66,7 +66,7 @@ namespace Wolpertinger.Core
             {
                 document.Validate(schemaSet, null);
             }
-            catch (XmlSchemaValidationException ex)
+            catch (XmlSchemaValidationException)
             {
                 return false;
             }

@@ -24,7 +24,7 @@ namespace Wolpertinger.Core
 {
     /// <summary>
     /// A exception that may be thrown when a RemoteError is encountered
-    /// </summary>
+    /// </summary>   
     public class RemoteErrorException : Exception
     {
         /// <summary>

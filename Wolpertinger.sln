@@ -22,6 +22,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{1D16DA
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wolpertinger.Powershell", "Wolpertinger.Powershell\Wolpertinger.Powershell.csproj", "{D751272D-B3D4-452C-A549-240DCA10552A}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".build", ".build", "{BBEF126A-9826-48CC-8E14-E46B41091FA7}"
+	ProjectSection(SolutionItems) = preProject
+		.build\MSBuild.Community.Tasks.targets = .build\MSBuild.Community.Tasks.targets
+		.build\Wolpertinger.targets = .build\Wolpertinger.targets
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

@@ -45,7 +45,7 @@ namespace Wolpertinger.FileShareCommon
             public static XName FileObject;
             public static XName Hash;
 
-            public static void Init(string xmlNamespace)
+            public new static void Init(string xmlNamespace)
             {
                 if (initialized)
                 {

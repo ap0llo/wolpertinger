@@ -3,7 +3,7 @@
 	<Import Project="$(SolutionDir)\.build\MSBuild.Community.Tasks.Targets"/>
 	<PropertyGroup>
 		<MSBuildCommunityTasksLib>$(SolutionDir)\.build\MSBuild.Community.Tasks.dll</MSBuildCommunityTasksLib>
-		<NoWarn>1591</NoWarn>
+		<NoWarn>1591, 3001, 3003, 3008, 3009</NoWarn>
 	</PropertyGroup>
 	
 	<!--Set properties required for the generation of the AssemblyInfo-->

@@ -29,7 +29,8 @@ namespace Nerdcave.Common
     public class ObjectEventArgs : EventArgs
     {
 
-        public ObjectEventArgs() : this(null)
+        public ObjectEventArgs()
+            : this(null)
         { }
 
         public ObjectEventArgs(object value)
@@ -38,9 +39,9 @@ namespace Nerdcave.Common
             this.Handled = false;
         }
 
-        public  bool Handled { get; set; }
+        public bool Handled { get; set; }
 
-        public virtual object Value { get; set; }
+        public object Value { get; set; }
     }
 
     /// <summary>
