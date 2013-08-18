@@ -3,6 +3,7 @@
 	<Import Project="$(SolutionDir)\.build\MSBuild.Community.Tasks.Targets"/>
 	<PropertyGroup>
 		<MSBuildCommunityTasksLib>$(SolutionDir)\.build\MSBuild.Community.Tasks.dll</MSBuildCommunityTasksLib>
+		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 		<NoWarn>1591, 3001, 3003, 3008, 3009</NoWarn>
 	</PropertyGroup>
 	
