@@ -66,8 +66,11 @@
     <Compile Include="CoreClientComponent.cs" />
     <Compile Include="DefaultImplementations\DefaultConnectionFactory.cs" />
     <Compile Include="DefaultImplementations\DefaultWtlpClient.cs" />
+    <Compile Include="DefaultImplementations\SocketAddress.cs" />
+    <Compile Include="DefaultImplementations\XmppAddress.cs" />
     <Compile Include="DefaultImplementations\XmppMessagingClient.cs" />
     <Compile Include="Exceptions\WltpException.cs" />
+    <Compile Include="Interfaces\IAddress.cs" />
     <Compile Include="Interfaces\IConnectionFactory.cs" />
     <Compile Include="Interfaces\IMessagingClient.cs" />
     <Compile Include="Interfaces\IWtlpClient.cs" />
@@ -94,6 +97,7 @@
   <ItemGroup>
     <None Include="CoreArchitecture.cd" />
     <None Include="packages.config" />
+    <None Include="Wolpertinger.Core.licenseheader" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Nerdcave.Common\Nerdcave.Common.csproj">
